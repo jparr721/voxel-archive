@@ -1,0 +1,12 @@
+[submodule "third_party/bgfx"]
+	path = third_party/bgfx
+	url = git@github.com:bkaradzic/bgfx.cmake.git
+[submodule "third_party/spdlog"]
+	path = third_party/spdlog
+	url = git@github.com:gabime/spdlog.git
+[submodule "third_party/googletest"]
+	path = third_party/googletest
+	url = git@github.com:google/googletest.git
+[submodule "third_party/entt"]
+	path = third_party/entt
+	url = git@github.com:skypjack/entt.git
