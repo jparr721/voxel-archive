@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "__bit_reference": "cpp",
+        "algorithm": "cpp",
+        "bit": "cpp",
+        "vector": "cpp",
+        "*.inc": "cpp"
+    }
+}

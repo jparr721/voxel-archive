@@ -22,10 +22,16 @@ namespace vx {
     using vec2f = Eigen::Vector2f;
     using vec3f = Eigen::Vector3f;
     using mat4f = Eigen::Matrix4f;
+    using rmat4f = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
 
     template<typename T>
-    using vecX = Eigen::Matrix<T, -1, 1>;
+    using vec = Eigen::Matrix<T, -1, 1>;
 
     template<typename T>
-    using matX = Eigen::Matrix<T, -1, -1>;
+    using mat = Eigen::Matrix<T, -1, -1>;
+
+    template<unsigned dim, typename T>
+    auto identity() -> Eigen::Matrix<T, dim, dim, Eigen::RowMajor> {
+        return Eigen::Matrix<T, dim, dim, Eigen::RowMajor>::Identity();
+    }
 }// namespace vx

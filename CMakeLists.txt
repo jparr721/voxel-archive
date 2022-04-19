@@ -15,6 +15,7 @@ include(libigl)
 add_subdirectory(third_party/spdlog)
 add_subdirectory(third_party/entt)
 add_subdirectory(third_party/bgfx)
+add_subdirectory(third_party/glm)
 
 option(VOXEL_TESTS "Build the tests" ON)
 if (VOXEL_TESTS)
@@ -41,6 +42,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   bgfx
   bx
   bimg
+  glm::glm
 )
 
 file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

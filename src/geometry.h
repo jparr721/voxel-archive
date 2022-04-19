@@ -9,8 +9,8 @@ namespace vx {
    * @param angle The rotation angle
    * @param axis The rotation axis, must be normalized
    */
-    auto rotate(const mat4f &m, float angle, const vec3f &axis) -> mat4f;
-    auto translate(const mat4f &m, const vec3f &translation) -> mat4f;
-    auto perspectiveProjection(float near, float far, float fov, float aspect) -> mat4f;
-    auto lookAt(const vec3f &eye, const vec3f &at, const vec3f &up) -> mat4f;
+    auto rotate(const rmat4f &m, float angle, const vec3f &axis) -> rmat4f;
+    auto translate(const rmat4f &m, const vec3f &translation) -> rmat4f;
+    auto perspective(float fovy, float aspect, float near, float far) -> mat4f;
+    auto lookAt(const vec3f &eye, const vec3f &center, const vec3f &up) -> mat4f;
 }// namespace vx

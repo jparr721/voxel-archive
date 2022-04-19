@@ -56,7 +56,7 @@ namespace vx {
         if (fov > fovmax) { fov = fovmax; }
         if (fov < fovmin) { fov = fovmin; }
 
-        projection_matrix_ = perspectiveProjection(near_plane, far_plane, fov, aspect_ratio);
+        projection_matrix_ = perspective(near_plane, far_plane, fov, aspect_ratio);
     }
 
     auto Camera::viewMatrix() -> mat4f & {
