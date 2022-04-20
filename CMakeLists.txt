@@ -29,8 +29,28 @@ file(GLOB SOURCES src/*.cc)
 file(GLOB HEADERS src/*.h)
 
 add_executable(${PROJECT_NAME}
-  ${SOURCES}
-  ${HEADERS}
+  src/ctrl/camera.h
+  src/ctrl/input.h
+  src/ctrl/key.h
+
+  src/gfx/bgfx.h
+  src/gfx/primitive.h
+
+  src/geometry.h
+  src/math.h
+  src/resources.h
+  src/trigonometry.h
+  src/window.h
+
+  src/ctrl/camera.cc
+  src/ctrl/input.cc
+
+  src/gfx/program.cc
+  src/gfx/program.h
+
+  src/geometry.cc
+  src/resources.cc
+  src/window.cc
   main.cc
 )
 

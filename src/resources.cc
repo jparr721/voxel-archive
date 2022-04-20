@@ -2,20 +2,6 @@
 #include <fstream>
 
 namespace vx {
-    auto loadMemory(bx::FileReaderI *reader, const std::string &filePath) -> const bgfx::Memory * {
-        if (bx::open(reader, filePath.c_str())) {
-            const u32 size = (u32) bx::getSize(reader);
-            const bgfx::Memory *mem = bgfx::alloc(size + 1);
-            bx::read(reader, mem->data, size, bx::ErrorAssert{});
-            bx::close(reader);
-            mem->data[mem->size - 1] = '\0';
-            return mem;
-        }
-
-        spdlog::error("Failed to load {}", filePath);
-        return nullptr;
-    }
-
     auto loadShader(const std::string &basePath, const std::string &moduleName, const std::string &shaderName)
             -> bgfx::ShaderHandle {
         std::stringstream path;
@@ -74,7 +60,6 @@ namespace vx {
     auto loadShaderProgram(const std::string &basePath, const std::string &moduleName,
                            const std::string &vertexShaderName, const std::string &fragmentShaderName)
             -> bgfx::ProgramHandle {
-        bx::FileReader fileReader;
         const auto vertexShader = loadShader(basePath, moduleName, vertexShaderName);
         const auto fragmentShader = loadShader(basePath, moduleName, fragmentShaderName);
         return bgfx::createProgram(vertexShader, fragmentShader, true /* Destroy shaders */);
