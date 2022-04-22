@@ -9,30 +9,18 @@
 #include <memory>
 
 namespace vx::ctrl {
-    class MouseInput {
+    class Input {
     public:
-        MouseInput() : width(1280), height(720), wheelDelta(120), lock(false) {
-            for (auto &bs : buttonStates) { bs = 0; }
-        }
+        void handleScrollEvent(float xoffset, float yoffset, std::shared_ptr<Camera> &camera_);
+        void handleMouseButtonPress(GLFWwindow *window, int button, int action, int mods,
+                                    std::shared_ptr<Camera> &camera_);
+        void handleCursorPos(GLFWwindow *window, int xpos, int ypos, std::shared_ptr<Camera> &camera_);
 
-        void reset();
-        void setResolution(i16 _width, i16 _height);
-        void setMousePos(const vec3 &_mousePos);
-        void setMousePos(i32 x, i32 y, i32 z);
-        void setButtonState(MouseButton::Enum button, u8 state);
+    private:
+        bool mouse_pressed = false;
 
-        bool lock;
-
-        std::array<u8, MouseButton::kCount> buttonStates;
-
-        i32 wheel;
-
-        u16 wheelDelta;
-        u16 width;
-        u16 height;
-
-        vec3 mousePos;
-        vec3 normalizedMousePos;
+        vec2 current_mouse_pos_ = vec2(0);
+        vec2 last_mouse_pos_ = vec2(0);
     };
 
     class KeyboardInput {

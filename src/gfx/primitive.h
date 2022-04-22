@@ -10,6 +10,13 @@ namespace vx::gfx {
         VertexColor(const vec3 &position, const vec4 &color) : position(position), color(color) {}
     };
 
+    struct VertexColorHex {
+        vec3 position;
+        u32 color;
+        VertexColorHex() = default;
+        VertexColorHex(const vec3 &position, const u32 &color) : position(position), color(color) {}
+    };
+
     struct VertexTexture {
         vec3 position;
         vec2 textureCoordinates;

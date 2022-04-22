@@ -1,8 +1,14 @@
 #pragma once
 
-#define GLFW_EXPOSE_NATIVE_COCOA
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
+#include "gfx/bgfx.h"
+#include "gfx/glfw.h"
+#include "math.h"
+#include <string>
 
-
-namespace vx {}
+namespace vx {
+    auto initializeWindow(const vec2 &windowDimensions, const std::string &windowTitle) -> bool;
+    auto initializeBgfx(const vec2 &windowDimensions, bgfx::VertexLayout &layout,
+                        bgfx::VertexBufferHandle &vertexBuffer, bgfx::IndexBufferHandle &indexBuffer,
+                        bgfx::ProgramHandle &program) -> bool;
+    auto launchWindow(const vec2 &windowDimensions, const std::string &windowTitle) -> int;
+}// namespace vx

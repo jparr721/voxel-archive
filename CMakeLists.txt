@@ -34,7 +34,9 @@ add_executable(${PROJECT_NAME}
   src/ctrl/key.h
 
   src/gfx/bgfx.h
+  src/gfx/glfw.h
   src/gfx/primitive.h
+  src/gfx/program.h
 
   src/geometry.h
   src/math.h
@@ -46,7 +48,6 @@ add_executable(${PROJECT_NAME}
   src/ctrl/input.cc
 
   src/gfx/program.cc
-  src/gfx/program.h
 
   src/geometry.cc
   src/resources.cc

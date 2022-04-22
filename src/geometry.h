@@ -2,4 +2,7 @@
 
 #include "math.h"
 
-namespace vx {}// namespace vx
+namespace vx {
+    auto sphericalToCartesian(float r, float theta, float phi) -> vec3;
+    auto sphericalToCartesianDPhi(float r, float theta, float phi) -> vec3;
+}// namespace vx

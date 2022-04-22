@@ -1,5 +1,10 @@
 #pragma once
 
+#include "../math.h"
+#include <optional>
+#include <unordered_map>
+#include <vector>
+
 namespace vx::ctrl {
     struct Key {
         enum Enum {
@@ -90,25 +95,12 @@ namespace vx::ctrl {
             kKeyY,
             kKeyZ,
 
-            kGamepadA,
-            kGamepadB,
-            kGamepadX,
-            kGamepadY,
-            kGamepadThumbL,
-            kGamepadThumbR,
-            kGamepadShoulderL,
-            kGamepadShoulderR,
-            kGamepadUp,
-            kGamepadDown,
-            kGamepadLeft,
-            kGamepadRight,
-            kGamepadBack,
-            kGamepadStart,
-            kGamepadGuide,
-
             kCount
         };
     };
+
+    auto createKeyMapping(const std::vector<Key::Enum> &keys) -> std::unordered_map<Key::Enum, bool>;
+    auto keyFromGLFWKey(u16 key) -> std::optional<Key>;
 
     struct Modifier {
         enum Enum {
