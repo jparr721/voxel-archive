@@ -17,20 +17,6 @@
 #include "src/window.h"
 
 static const glm::vec2 SIZE = glm::vec2(1280, 720);
-/* static void glfwCursorPosCallback(GLFWwindow *window, double xpos, double ypos) { */
-/*     input.handleCursorPos(window, xpos, ypos, camera); */
-/* } */
-/* static void glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods) { */
-/*     input.handleMouseButtonPress(window, button, action, mods, camera); */
-/* } */
-
-/* static void glfwScrollCallback(GLFWwindow *window, double xoffset, double yoffset) { */
-/*     input.handleScrollEvent(xoffset, yoffset, camera); */
-/* } */
-
-/* glfwSetCursorPosCallback(window, glfwCursorPosCallback); */
-/* glfwSetMouseButtonCallback(window, glfwMouseButtonCallback); */
-/* glfwSetScrollCallback(window, glfwScrollCallback); */
 
 int main(int argc, char *argv[]) {
 #ifdef NDEBUG
