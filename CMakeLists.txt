@@ -14,7 +14,10 @@ include(libigl)
 
 add_subdirectory(third_party/spdlog)
 add_subdirectory(third_party/entt)
+
+option( BGFX_BUILD_EXAMPLES             "Build bgfx examples."                          OFF)
 add_subdirectory(third_party/bgfx)
+
 add_subdirectory(third_party/glm)
 
 option(VOXEL_TESTS "Build the tests" ON)
@@ -38,6 +41,8 @@ add_executable(${PROJECT_NAME}
   src/gfx/primitive.h
   src/gfx/program.h
 
+  src/util/colors.h
+
   src/geometry.h
   src/math.h
   src/resources.h
@@ -48,6 +53,8 @@ add_executable(${PROJECT_NAME}
   src/ctrl/input.cc
 
   src/gfx/program.cc
+
+  src/util/colors.cc
 
   src/geometry.cc
   src/resources.cc

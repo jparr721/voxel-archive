@@ -4,6 +4,7 @@
 #include "gfx/primitive.h"
 #include "resources.h"
 #include "trigonometry.h"
+#include "util/colors.h"
 #include <spdlog/spdlog.h>
 
 
