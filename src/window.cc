@@ -109,8 +109,6 @@ namespace vx {
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, layout, vertexBuffer, indexBuffer, program);
 
-        f32 time = 0.0f;
-
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
 
@@ -133,7 +131,6 @@ namespace vx {
             bgfx::submit(0, program);
 
             bgfx::frame();
-            time += 0.01f;
         }
 
         bgfx::destroy(program);
