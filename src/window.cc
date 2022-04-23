@@ -119,11 +119,6 @@ namespace vx {
             bgfx::dbgTextClear();
             bgfx::dbgTextPrintf(0, 0, 0x6f, "Hello, world");
 
-            glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 20.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                                         glm::vec3(0.0f, 1.0f, 0.0f));
-            glm::mat4 proj =
-                    glm::perspective(vx::radians(85.0f), windowDimensions.x / windowDimensions.y, 0.01f, 100.0f);
-
             bgfx::setViewTransform(0, &camera->viewMatrix(), &camera->projectionMatrix());
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
