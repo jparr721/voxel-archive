@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}
   src/gfx/glfw.h
   src/gfx/primitive.h
   src/gfx/program.h
+  src/gfx/chunk_renderer.h
 
   src/util/colors.h
 
@@ -53,6 +54,7 @@ add_executable(${PROJECT_NAME}
   src/ctrl/input.cc
 
   src/gfx/program.cc
+  src/gfx/chunk_renderer.cc
 
   src/util/colors.cc
 

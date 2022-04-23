@@ -103,6 +103,7 @@ namespace vx {
     auto launchWindow(const vec2 &windowDimensions, const std::string &windowTitle) -> int {
         camera->resize(windowDimensions.x, windowDimensions.y);
         initializeWindow(windowDimensions, windowTitle);
+
         bgfx::VertexLayout layout;
         bgfx::VertexBufferHandle vertexBuffer;
         bgfx::IndexBufferHandle indexBuffer;
