@@ -43,6 +43,19 @@ namespace vx {
                 break;
         }
 
+        spdlog::debug("Using shader platform: {}", platform);
+#ifndef NDEBUG
+        std::stringstream compiledResourceFolder;
+        compiledResourceFolder << basePath << "/" << moduleName << "/" << platform;
+
+        spdlog::debug("Checking for folder: {}", compiledResourceFolder.str());
+
+        if (!std::filesystem::exists(compiledResourceFolder.str())) {
+            spdlog::error("Folder does not exist! Please compile the shaders for this directory");
+            std::exit(EXIT_FAILURE);
+        }
+#endif
+
         path << basePath << "/" << moduleName << "/" << platform << "/" << shaderName << ".bin";
 
         std::ifstream input(path.str());

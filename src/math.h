@@ -27,6 +27,12 @@ using usize = std::size_t;
 using f32 = float;
 using f64 = double;
 
+using glm::imat2;
+using glm::imat3;
+using glm::imat4;
+using glm::ivec2;
+using glm::ivec3;
+using glm::ivec4;
 using glm::mat2;
 using glm::mat3;
 using glm::mat4;

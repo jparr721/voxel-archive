@@ -8,9 +8,7 @@
 
 #include <spdlog/spdlog.h>
 
-/* #include "src/camera.h" */
 #include "src/geometry.h"
-/* #include "src/input.h" */
 #include "src/math.h"
 #include "src/resources.h"
 #include "src/trigonometry.h"

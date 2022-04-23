@@ -64,4 +64,10 @@ namespace vx::gfx {
             vec2(1, 1),
             vec2(0, 1),
     };
+
+    class ChunkRenderer {
+    public:
+        
+    private:
+    };
 }// namespace vx::gfx
