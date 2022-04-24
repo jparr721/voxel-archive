@@ -86,7 +86,8 @@ namespace vx {
         platformData.nwh = glfwGetCocoaWindow(window);
 #elif BX_PLATFORM_WINDOWS
         platformData.ndt = nullptr;
-        platformData.nwh = glfwGetWin32Window(window);
+        // platformData.nwh = glfwGetWin32Window(window);
+        platformData.nwh = glfwGetWindowUserPointer(window);
 #endif
 
         init.platformData = platformData;
