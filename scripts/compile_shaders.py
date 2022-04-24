@@ -37,9 +37,7 @@ def get_shader_library() -> str:
     platform = get_platform()
     if platform == "osx":
         return "metal"
-    if platform == "windows":
-        return "s_5_0"
-    # Vulkan targeting only for now on linux.
+    # Vulkan for everything else.
     return "spirv"
 
 
