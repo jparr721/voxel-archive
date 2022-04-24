@@ -13,7 +13,7 @@
 #include "src/trigonometry.h"
 #include "src/window.h"
 
-static const glm::vec2 SIZE = glm::vec2(1280, 720);
+static const vec2 SIZE = vec2(1280, 720);
 
 int main(int argc, char *argv[]) {
 #ifdef NDEBUG
