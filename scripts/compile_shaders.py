@@ -1,7 +1,7 @@
 import os
 import platform
-from collections import namedtuple
 import subprocess
+from collections import namedtuple
 
 Shaders = namedtuple("Shaders", ["vertex_shader_path", "fragment_shader_path"])
 
@@ -37,7 +37,9 @@ def get_shader_library() -> str:
     platform = get_platform()
     if platform == "osx":
         return "metal"
-    # Vulkan targeting only for now.
+    if platform == "windows":
+        return "dx11"
+    # Vulkan targeting only for now on linux.
     return "spirv"
 
 
