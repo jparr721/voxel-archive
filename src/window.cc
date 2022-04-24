@@ -95,7 +95,7 @@ namespace vx {
 #ifdef __APPLE__
         init.type = bgfx::RendererType::Metal;
 #else
-        init.type = bgfx::RendererType::Vulkan;
+        init.type = bgfx::RendererType::Count;
 #endif
         init.resolution.width = windowDimensions.x;
         init.resolution.height = windowDimensions.y;

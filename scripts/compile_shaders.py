@@ -28,15 +28,17 @@ def get_platform() -> str:
     elif is_linux():
         system = "linux"
     else:
-        raise ValueError("Platform cannot be deduced. Exiting.")
+        raise ValueError("Platform cannot be deduced.")
 
     return system
 
 
 def get_shader_library() -> str:
     platform = get_platform()
-    if platform == "osx":
+    if platform == "mac":
         return "metal"
+    if platform == "windows":
+        return ""
     # Vulkan for everything else.
     return "spirv"
 
@@ -110,7 +112,7 @@ def compile_shader_file(
             shader_out_path,
             "--type",
             get_shader_type(shader_path),
-            "-p",
+            "--profile",
             shader_library,
             "--platform",
             system,
