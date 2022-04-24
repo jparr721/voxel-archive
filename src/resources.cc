@@ -1,4 +1,5 @@
 #include "resources.h"
+#include <filesystem>
 #include <fstream>
 
 namespace vx {
