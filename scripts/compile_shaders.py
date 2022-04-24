@@ -16,7 +16,7 @@ def get_platform() -> str:
         return os.name == "posix" and platform.system().lower() != "darwin"
 
     def is_mac() -> bool:
-        return not is_linux()
+        return not is_linux() and not is_windows()
 
     def is_windows() -> bool:
         return not is_linux() and not is_mac()
