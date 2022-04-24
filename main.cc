@@ -13,7 +13,7 @@
 #include "src/trigonometry.h"
 #include "src/window.h"
 
-static const vec2 SIZE = vec2(1280, 720);
+static const vec2 kSize = vec2(1280, 720);
 
 int main(int argc, char *argv[]) {
 #ifdef NDEBUG
@@ -23,5 +23,5 @@ int main(int argc, char *argv[]) {
     spdlog::info("Logging level is at debug");
     spdlog::set_level(spdlog::level::debug);
 #endif
-    vx::launchWindow(SIZE, "Voxel");
+    vx::launchWindow(kSize, "Voxel");
 }

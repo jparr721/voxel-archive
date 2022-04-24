@@ -4,7 +4,8 @@
         "algorithm": "cpp",
         "bit": "cpp",
         "vector": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "openglsupport": "cpp"
     },
     "files.exclude": {
         "**/.git": true,
