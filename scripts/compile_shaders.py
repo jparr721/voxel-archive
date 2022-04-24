@@ -76,9 +76,13 @@ def get_output_shader_paths() -> Shaders:
     vertex_shader_path, fragment_shader_path = get_shader_paths()
 
     def expand_path(pathvar: str) -> str:
+        platform = get_platform()
+
+        lib = get_shader_library() if platform != "windows" else "dx11"
+
         filename = os.path.basename(pathvar)
         path = os.path.dirname(pathvar)
-        return os.path.join(path, get_shader_library(), f"{filename}.bin")
+        return os.path.join(path, lib, f"{filename}.bin")
 
     return Shaders(expand_path(vertex_shader_path), expand_path(fragment_shader_path))
 
