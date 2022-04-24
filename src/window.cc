@@ -91,8 +91,12 @@ namespace vx {
 
         init.platformData = platformData;
 
-        // Let system choose renderer
-        init.type = bgfx::RendererType::Count;
+// Use metal for macs and vulkan for everything else
+#ifdef __APPLE__
+        init.type = bgfx::RendererType::Metal;
+#else
+        init.type = bgfx::RendererType::Vulkan;
+#endif
         init.resolution.width = windowDimensions.x;
         init.resolution.height = windowDimensions.y;
         init.resolution.reset = BGFX_RESET_VSYNC;
