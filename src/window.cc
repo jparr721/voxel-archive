@@ -71,11 +71,15 @@ namespace vx {
 
         bgfx::Init init;
 
-        bgfx::PlatformData platform_data;
-        platform_data.nwh = glfwGetCocoaWindow(window);
-        init.platformData = platform_data;
+        bgfx::PlatformData platformData;
+#ifndef __APPLE__
+        platformData.nwh = glfwGetWindowUserPointer(window);
+#else
+        platformData.nwh = glfwGetCocoaWindow(window);
+#endif
+        init.platformData = platformData;
 
-        // let system choose renderer
+        // Let system choose renderer
         init.type = bgfx::RendererType::Count;
         init.resolution.width = windowDimensions.x;
         init.resolution.height = windowDimensions.y;
