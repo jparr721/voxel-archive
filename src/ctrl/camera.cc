@@ -11,8 +11,8 @@ namespace vx::ctrl {
         up_ = vec3(0, 1, 0);
 
         r_ = 1.0;
-        theta_ = M_PI / 2.0;
-        phi_ = M_PI / 2.0;
+        theta_ = kPi / 2.0;
+        phi_ = kPi / 2.0;
     }
 
     void Camera::resize(int width, int height) {

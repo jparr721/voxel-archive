@@ -5,11 +5,11 @@
 namespace vx {
     template<typename T>
     inline auto radians(T deg) -> T {
-        return deg * (M_PI / 180);
+        return deg * (kPi / 180);
     }
 
     template<typename T>
     inline auto degrees(T rad) -> T {
-        return rad * (180 / M_PI);
+        return rad * (180 / kPi);
     }
 }// namespace vx

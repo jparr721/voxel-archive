@@ -47,8 +47,8 @@ namespace vx::ctrl {
 
     private:
         float r_ = 1.0;
-        float theta_ = M_PI / 2.0;
-        float phi_ = M_PI / 2.0;
+        float theta_ = kPi / 2.0;
+        float phi_ = kPi / 2.0;
 
         vec3 displacement_ = vec3(0);
         vec3 eye_ = vec3(0, 0, 1);
