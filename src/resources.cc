@@ -64,7 +64,6 @@ namespace vx {
         buf << input.rdbuf();
 
         auto text = buf.str();
-        spdlog::debug("Reading file at path: {}", text);
 
         auto result = bgfx::createShader(bgfx::copy(text.c_str(), text.length()));
         bgfx::setName(result, shaderName.c_str());
