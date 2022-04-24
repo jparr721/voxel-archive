@@ -117,9 +117,9 @@ namespace vx {
         indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(cubeIndices, sizeof(cubeIndices)));
 
 #if BX_PLATFORM_WINDOWS
-        std::string shaderResourcePath = "../resources/shaders";
+        const std::string shaderResourcePath = "../resources/shaders";
 #else
-        std::string shaderResourcePath = "resources/shaders";
+        const std::string shaderResourcePath = "resources/shaders";
 #endif
 
         program = vx::loadShaderProgram(shaderResourcePath, "core", "core.vs.sc", "core.fs.sc");
