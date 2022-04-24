@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <cinttypes>
 #include <cstddef>
 #include <cstdint>
 
