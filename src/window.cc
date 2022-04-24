@@ -72,11 +72,23 @@ namespace vx {
         bgfx::Init init;
 
         bgfx::PlatformData platformData;
-#ifndef __APPLE__
-        platformData.nwh = glfwGetWindowUserPointer(window);
+
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#if ENTRY_CONFIG_USE_WAYLAND
+        platformData.ndt = glfwGetWaylandDisplay();
 #else
-        platformData.nwh = glfwGetCocoaWindow(window);
+        platformData.ndt = glfwGetX11Display();
+        platformData.nwh = (void *) glfwGetX11Window(window);
 #endif
+
+#elif BX_PLATFORM_OSX
+        platformData.ndt = nullptr;
+        platformData.nwh = glfwGetCocoaWindow(window);
+#elif BX_PLATFORM_WINDOWS
+        platformData.ndt = nullptr;
+        platformData.nwh = glfwGetWin32Window(window);
+#endif
+
         init.platformData = platformData;
 
         // Let system choose renderer
