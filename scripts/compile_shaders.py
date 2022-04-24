@@ -22,7 +22,7 @@ def get_platform() -> str:
         return not is_linux() and not is_mac()
 
     if is_mac():
-        system = "mac"
+        system = "osx"
     elif is_windows():
         system = "windows"
     elif is_linux():
@@ -35,12 +35,10 @@ def get_platform() -> str:
 
 def get_shader_library() -> str:
     platform = get_platform()
-    if platform == "mac":
+    if platform == "osx":
         return "metal"
-    if platform == "windows":
-        return ""
     # Vulkan for everything else.
-    return "spirv"
+    return "glsl"
 
 
 def get_shaderc_path() -> str:
@@ -76,9 +74,7 @@ def get_output_shader_paths() -> Shaders:
     vertex_shader_path, fragment_shader_path = get_shader_paths()
 
     def expand_path(pathvar: str) -> str:
-        platform = get_platform()
-
-        lib = get_shader_library() if platform != "windows" else "dx11"
+        lib = get_shader_library()
 
         filename = os.path.basename(pathvar)
         path = os.path.dirname(pathvar)
@@ -89,9 +85,9 @@ def get_output_shader_paths() -> Shaders:
 
 def get_shader_type(path: str) -> str:
     if "vs.sc" in path:
-        return "v"
+        return "vertex"
     if "fs.sc" in path:
-        return "f"
+        return "fragment"
     raise ValueError(f"Invalid shader: {path}")
 
 
@@ -103,23 +99,23 @@ def compile_shader_file(
     system: str,
     shader_library: str,
 ) -> None:
-    subprocess.call(
-        [
-            f"{shaderc_path}",
-            "-f",
-            shader_path,
-            "-o",
-            shader_out_path,
-            "--type",
-            get_shader_type(shader_path),
-            "--profile",
-            shader_library,
-            "--platform",
-            system,
-            "--varyingdef",
-            shader_varying_path,
-        ]
-    )
+    options = [
+        shaderc_path,
+        "-f",
+        shader_path,
+        "-o",
+        shader_out_path,
+        "--type",
+        get_shader_type(shader_path),
+        "--profile",
+        shader_library,
+        "--platform",
+        system,
+        "--varyingdef",
+        shader_varying_path,
+    ]
+    print("Calling:", " ".join(options))
+    subprocess.call(options)
 
 
 def compile_shaders():
