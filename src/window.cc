@@ -86,8 +86,7 @@ namespace vx {
         platformData.nwh = glfwGetCocoaWindow(window);
 #elif BX_PLATFORM_WINDOWS
         platformData.ndt = nullptr;
-        // platformData.nwh = glfwGetWin32Window(window);
-        platformData.nwh = glfwGetWindowUserPointer(window);
+        platformData.nwh = glfwGetWin32Window(window);
 #endif
 
         init.platformData = platformData;
@@ -96,7 +95,7 @@ namespace vx {
 #ifdef __APPLE__
         init.type = bgfx::RendererType::Metal;
 #else
-        init.type = bgfx::RendererType::Count;
+        init.type = bgfx::RendererType::OpenGL;
 #endif
         init.resolution.width = windowDimensions.x;
         init.resolution.height = windowDimensions.y;
@@ -117,7 +116,13 @@ namespace vx {
 
         indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(cubeIndices, sizeof(cubeIndices)));
 
-        program = vx::loadShaderProgram("resources/shaders", "core", "core.vs.sc", "core.fs.sc");
+#if BX_PLATFORM_WINDOWS
+        std::string shaderResourcePath = "../resources/shaders";
+#else
+        std::string shaderResourcePath = "resources/shaders";
+#endif
+
+        program = vx::loadShaderProgram(shaderResourcePath, "core", "core.vs.sc", "core.fs.sc");
         return true;
     }
 
