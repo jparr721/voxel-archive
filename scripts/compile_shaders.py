@@ -22,7 +22,7 @@ def get_platform() -> str:
         return not is_linux() and not is_mac()
 
     if is_mac():
-        system = "osx"
+        system = "mac"
     elif is_windows():
         system = "windows"
     elif is_linux():
@@ -38,7 +38,7 @@ def get_shader_library() -> str:
     if platform == "osx":
         return "metal"
     if platform == "windows":
-        return "dx11"
+        return "s_5_0"
     # Vulkan targeting only for now on linux.
     return "spirv"
 
