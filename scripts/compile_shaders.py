@@ -44,8 +44,17 @@ def get_shader_library() -> str:
 
 
 def get_shaderc_path() -> str:
-    build_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "build")
-    return os.path.join(build_dir, "third_party", "bgfx", "shaderc")
+    platform = get_platform()
+    if platform != "windows":
+        build_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "build"
+        )
+        return os.path.join(build_dir, "third_party", "bgfx", "shaderc")
+    else:
+        build_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "build"
+        )
+        return os.path.join(build_dir, "third_party", "bgfx", "Debug", "shaderc.exe")
 
 
 def get_shader_paths() -> Shaders:
