@@ -37,8 +37,8 @@ def get_shader_library() -> str:
     platform = get_platform()
     if platform == "osx":
         return "metal"
-    # Vulkan for everything else.
-    return "glsl"
+    # OpenGL for everything else.
+    return "440"
 
 
 def get_shaderc_path() -> str:
@@ -75,6 +75,9 @@ def get_output_shader_paths() -> Shaders:
 
     def expand_path(pathvar: str) -> str:
         lib = get_shader_library()
+
+        if lib == "440":
+            lib = "glsl"
 
         filename = os.path.basename(pathvar)
         path = os.path.dirname(pathvar)
