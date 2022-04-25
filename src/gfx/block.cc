@@ -28,7 +28,7 @@ namespace vx::gfx {
         vertexBuffer = bgfx::createDynamicVertexBuffer(
                 bgfx::makeRef(blockVertexColors.data(), gfx::VertexColorHex::size() * sizeof(blockVertexColors.data())),
                 vertexLayout);
-        indexBuffer = bgfx::createDynamicIndexBuffer(bgfx::makeRef(blockDirIndices.data(), sizeof(blockDirIndices)));
+        indexBuffer = bgfx::createDynamicIndexBuffer(bgfx::makeRef(blockDirIndices.data(), indexSize()));
     }
 
     void translateBlock(const vec3 &diff, Block *block) {

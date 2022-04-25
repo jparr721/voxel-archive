@@ -19,6 +19,7 @@
         "**/node_modules": true,
         "**/bower_components": true,
         "**/*.code-search": true,
-        "third_party/": true
+        "third_party/": true,
+        "build/": true,
     }
 }

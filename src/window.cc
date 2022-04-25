@@ -114,7 +114,7 @@ namespace vx {
         bgfx::VertexLayout layout;
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, layout, program);
-        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, gfx::BlockDir::kUp);
+        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, gfx::BlockDir::kDebug);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
