@@ -1,7 +1,5 @@
 #pragma once
 
 namespace vx::gfx {
-    struct Chunk {
-        
-    };
+    struct Chunk {};
 }// namespace vx::gfx

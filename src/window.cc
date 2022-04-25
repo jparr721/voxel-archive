@@ -1,6 +1,7 @@
 #include "window.h"
 #include "ctrl/camera.h"
 #include "ctrl/input.h"
+#include "gfx/block.h"
 #include "gfx/primitive.h"
 #include "resources.h"
 #include "trigonometry.h"
@@ -10,19 +11,17 @@
 
 namespace vx {
     static GLFWwindow *window;
-    static gfx::VertexColorHex cubeVertices[] = {
-            {glm::vec3(-1.0f, 1.0f, 1.0f), 0xff000000},   {glm::vec3(1.0f, 1.0f, 1.0f), 0xff0000ff},
-            {glm::vec3(-1.0f, -1.0f, 1.0f), 0xff00ff00},  {glm::vec3(1.0f, -1.0f, 1.0f), 0xff00ffff},
-            {glm::vec3(-1.0f, 1.0f, -1.0f), 0xffff0000},  {glm::vec3(1.0f, 1.0f, -1.0f), 0xffff00ff},
-            {glm::vec3(-1.0f, -1.0f, -1.0f), 0xffffff00}, {glm::vec3(1.0f, -1.0f, -1.0f), 0xffffffff},
+    std::vector<gfx::VertexColorHex> cubeVertices = {
+            {vec3(0, 0, 0), 0xffffffff}, {vec3(0, 1, 0), 0xffffffff}, {vec3(1, 1, 0), 0xffffffff},
+            {vec3(1, 0, 0), 0xffffffff}, {vec3(0, 0, 1), 0xffffffff}, {vec3(0, 1, 1), 0xffffffff},
+            {vec3(1, 1, 1), 0xffffffff}, {vec3(1, 0, 1), 0xffffffff},
     };
 
-    static const u16 cubeIndices[] = {
-            0, 1, 2, 1, 3, 2, 4, 6, 5, 5, 6, 7, 0, 2, 4, 4, 2, 6, 1, 5, 3, 5, 7, 3, 0, 4, 1, 4, 5, 1, 2, 3, 6, 6, 3, 7,
-    };
+    static constexpr std::array<u16, 6> cubeIndices{0, 1, 2, 0, 2, 3};
 
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
     static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
+    std::unique_ptr<gfx::Block> block;
 
     static void glfwErrorCallback(int err, const char *msg) { spdlog::error("GLFW Error {}: {}", err, msg); }
 
@@ -107,14 +106,9 @@ namespace vx {
         bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x003030FF, 1.0f, 0);
         bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 
-        layout.begin()
-                .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8)
-                .end();
-
-        vertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(cubeVertices, sizeof(cubeVertices)), layout);
-
-        indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(cubeIndices, sizeof(cubeIndices)));
+        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, cubeIndices);
+        vertexBuffer = block->vertexBuffer;
+        indexBuffer = block->indexBuffer;
 
 #if BX_PLATFORM_WINDOWS
         const std::string shaderResourcePath = "../resources/shaders";
@@ -142,7 +136,7 @@ namespace vx {
             bgfx::touch(0);
 
             bgfx::dbgTextClear();
-            bgfx::dbgTextPrintf(0, 0, 0x6f, "Hello, world");
+            bgfx::dbgTextPrintf(0, 0, 0x6f, "");
 
             bgfx::setViewTransform(0, &camera->viewMatrix(), &camera->projectionMatrix());
 

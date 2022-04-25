@@ -8,6 +8,7 @@ namespace vx::gfx {
         vec4 color;
         VertexColor() = default;
         VertexColor(const vec3 &position, const vec4 &color) : position(position), color(color) {}
+        static auto size() -> usize { return sizeof(VertexColor); }
     };
 
     struct VertexColorHex {
@@ -15,6 +16,7 @@ namespace vx::gfx {
         u32 color;
         VertexColorHex() = default;
         VertexColorHex(const vec3 &position, const u32 &color) : position(position), color(color) {}
+        static auto size() -> usize { return sizeof(VertexColorHex); }
     };
 
     struct VertexTexture {
