@@ -94,7 +94,7 @@ namespace vx {
 
         bgfx::reset(windowDimensions.x, windowDimensions.y, BGFX_RESET_VSYNC, init.resolution.format);
         bgfx::setDebug(BGFX_DEBUG_TEXT);
-        bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x003030FF, 1.0f, 0);
+        bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x32323232, 1.0f, 0);
         bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 
 #if BX_PLATFORM_WINDOWS
