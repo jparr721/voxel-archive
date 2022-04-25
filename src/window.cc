@@ -63,7 +63,7 @@ namespace vx {
     }
 
     auto initializeBgfx(const vec2 &windowDimensions, bgfx::VertexLayout &layout,
-                        bgfx::VertexBufferHandle &vertexBuffer, bgfx::IndexBufferHandle &indexBuffer,
+                        bgfx::DynamicVertexBufferHandle &vertexBuffer, bgfx::DynamicIndexBufferHandle &indexBuffer,
                         bgfx::ProgramHandle &program) -> bool {
         // Tell bgfx to not create a separate render thread
         bgfx::renderFrame();
@@ -125,8 +125,8 @@ namespace vx {
         initializeWindow(windowDimensions, windowTitle);
 
         bgfx::VertexLayout layout;
-        bgfx::VertexBufferHandle vertexBuffer;
-        bgfx::IndexBufferHandle indexBuffer;
+        bgfx::DynamicVertexBufferHandle vertexBuffer;
+        bgfx::DynamicIndexBufferHandle indexBuffer;
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, layout, vertexBuffer, indexBuffer, program);
 

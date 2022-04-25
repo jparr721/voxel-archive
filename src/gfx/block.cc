@@ -23,9 +23,9 @@ namespace vx::gfx {
 
         for (const auto &vertex : kCubeVertices) { blockVertexColors.emplace_back(vertex, color); }
 
-        vertexBuffer = bgfx::createVertexBuffer(
+        vertexBuffer = bgfx::createDynamicVertexBuffer(
                 bgfx::makeRef(blockVertexColors.data(), gfx::VertexColorHex::size() * sizeof(blockVertexColors.data())),
                 vertexLayout);
-        indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(blockDirIndices.data(), sizeof(blockDirIndices)));
+        indexBuffer = bgfx::createDynamicIndexBuffer(bgfx::makeRef(blockDirIndices.data(), sizeof(blockDirIndices)));
     }
 }// namespace vx::gfx

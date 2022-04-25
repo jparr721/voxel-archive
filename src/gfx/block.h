@@ -90,8 +90,8 @@ namespace vx::gfx {
         std::vector<gfx::VertexColorHex> blockVertexColors;
 
         bgfx::VertexLayout vertexLayout;
-        bgfx::VertexBufferHandle vertexBuffer;
-        bgfx::IndexBufferHandle indexBuffer;
+        bgfx::DynamicVertexBufferHandle vertexBuffer;
+        bgfx::DynamicIndexBufferHandle indexBuffer;
 
         Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices);
     };
