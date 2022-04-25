@@ -88,6 +88,7 @@ namespace vx::gfx {
                 0, 3, 7, 0, 7, 4,// Down
         };
     };
+    void applyBlockDirOffset(u64 amount, BlockDir::BlockDirIndices &blockDirIndices);
 
     struct Block {
         bool active;
@@ -97,13 +98,9 @@ namespace vx::gfx {
         BlockDir::BlockDirIndices blockDirIndices;
         std::vector<gfx::VertexColorHex> blockVertexColors;
 
-        bgfx::VertexLayout vertexLayout;
-        bgfx::DynamicVertexBufferHandle vertexBuffer;
-        bgfx::DynamicIndexBufferHandle indexBuffer;
-
         Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices);
         auto indexSize() -> u32 { return blockDirIndices.size() * sizeof(u16); }
     };
 
-    void translateBlock(const vec3 &diff, Block *block);
+    void translateBlock(const vec3 &diff, Block &block);
 }// namespace vx::gfx

@@ -2,6 +2,7 @@
 #include "ctrl/camera.h"
 #include "ctrl/input.h"
 #include "gfx/block.h"
+#include "gfx/chunk_renderer.h"
 #include "gfx/primitive.h"
 #include "resources.h"
 #include "trigonometry.h"
@@ -13,7 +14,8 @@ namespace vx {
     static GLFWwindow *window;
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
     static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
-    std::unique_ptr<gfx::Block> block;
+    gfx::Chunk chunk(ivec3(100, 1, 100));
+    std::unique_ptr<gfx::ChunkRenderer> chunkRenderer;
 
     static void glfwErrorCallback(int err, const char *msg) { spdlog::error("GLFW Error {}: {}", err, msg); }
 
@@ -114,7 +116,7 @@ namespace vx {
         bgfx::VertexLayout layout;
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, layout, program);
-        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, gfx::BlockDir::kDebug);
+        chunkRenderer = std::make_unique<gfx::ChunkRenderer>(chunk);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -128,13 +130,7 @@ namespace vx {
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
-            u64 state =
-                    BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_MSAA | BGFX_STATE_DEPTH_TEST_LESS;
-
-            bgfx::setVertexBuffer(0, block->vertexBuffer);
-            bgfx::setIndexBuffer(block->indexBuffer);
-
-            bgfx::setState(state);
+            chunkRenderer->render();
 
             bgfx::submit(0, program);
 
@@ -143,8 +139,7 @@ namespace vx {
 
         bgfx::destroy(program);
         spdlog::info("Deleting buffers");
-        bgfx::destroy(block->vertexBuffer);
-        bgfx::destroy(block->indexBuffer);
+        chunkRenderer->destroy();
         bgfx::shutdown();
         glfwTerminate();
 

@@ -5,7 +5,10 @@
         "bit": "cpp",
         "vector": "cpp",
         "*.inc": "cpp",
-        "openglsupport": "cpp"
+        "openglsupport": "cpp",
+        "future": "cpp",
+        "__functional_03": "cpp",
+        "functional": "cpp"
     },
     "files.exclude": {
         "**/.git": true,

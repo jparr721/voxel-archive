@@ -2,14 +2,12 @@
 #include <spdlog/spdlog.h>
 
 namespace vx::gfx {
+    void applyBlockDirOffset(u64 amount, BlockDir::BlockDirIndices &blockDirIndices) {
+        for (auto &index : blockDirIndices) { index += kCubeVertices.size() * amount; }
+    }
+
     Block::Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices)
         : blockType(_blockType), blockDirIndices(_blockDirIndices) {
-        // Initialize the layout
-        vertexLayout.begin()
-                .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8)
-                .end();
-
         u32 color;
         switch (blockType) {
             case BlockType::kDefault:
@@ -24,14 +22,9 @@ namespace vx::gfx {
         }
 
         for (const auto &vertex : kCubeVertices) { blockVertexColors.emplace_back(vertex, color); }
-
-        vertexBuffer = bgfx::createDynamicVertexBuffer(
-                bgfx::makeRef(blockVertexColors.data(), gfx::VertexColorHex::size() * sizeof(blockVertexColors.data())),
-                vertexLayout);
-        indexBuffer = bgfx::createDynamicIndexBuffer(bgfx::makeRef(blockDirIndices.data(), indexSize()));
     }
 
-    void translateBlock(const vec3 &diff, Block *block) {
-        for (auto &[pos, _] : block->blockVertexColors) { pos += diff; }
+    void translateBlock(const vec3 &diff, Block &block) {
+        for (auto &[pos, _] : block.blockVertexColors) { pos += diff; }
     }
 }// namespace vx::gfx
