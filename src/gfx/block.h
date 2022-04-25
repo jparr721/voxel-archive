@@ -95,4 +95,6 @@ namespace vx::gfx {
 
         Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices);
     };
+
+    void translateBlock(const vec3 &diff, Block *block);
 }// namespace vx::gfx

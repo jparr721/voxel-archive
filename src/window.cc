@@ -11,14 +11,6 @@
 
 namespace vx {
     static GLFWwindow *window;
-    std::vector<gfx::VertexColorHex> cubeVertices = {
-            {vec3(0, 0, 0), 0xffffffff}, {vec3(0, 1, 0), 0xffffffff}, {vec3(1, 1, 0), 0xffffffff},
-            {vec3(1, 0, 0), 0xffffffff}, {vec3(0, 0, 1), 0xffffffff}, {vec3(0, 1, 1), 0xffffffff},
-            {vec3(1, 1, 1), 0xffffffff}, {vec3(1, 0, 1), 0xffffffff},
-    };
-
-    static constexpr std::array<u16, 6> cubeIndices{0, 1, 2, 0, 2, 3};
-
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
     static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
     std::unique_ptr<gfx::Block> block;
@@ -122,7 +114,7 @@ namespace vx {
         bgfx::VertexLayout layout;
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, layout, program);
-        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, cubeIndices);
+        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, gfx::BlockDir::kUp);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -141,6 +133,7 @@ namespace vx {
 
             bgfx::setVertexBuffer(0, block->vertexBuffer);
             bgfx::setIndexBuffer(block->indexBuffer);
+
             bgfx::setState(state);
 
             bgfx::submit(0, program);

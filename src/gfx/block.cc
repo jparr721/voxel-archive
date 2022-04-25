@@ -16,8 +16,10 @@ namespace vx::gfx {
                 color = 0xffffffff;
                 break;
             case BlockType::kDirt:
+                color = 0xff000000;
                 break;
             case BlockType::kGrass:
+                color = 0xffff0000;
                 break;
         }
 
@@ -27,5 +29,9 @@ namespace vx::gfx {
                 bgfx::makeRef(blockVertexColors.data(), gfx::VertexColorHex::size() * sizeof(blockVertexColors.data())),
                 vertexLayout);
         indexBuffer = bgfx::createDynamicIndexBuffer(bgfx::makeRef(blockDirIndices.data(), sizeof(blockDirIndices)));
+    }
+
+    void translateBlock(const vec3 &diff, Block *block) {
+        for (auto &[pos, _] : block->blockVertexColors) { pos += diff; }
     }
 }// namespace vx::gfx
