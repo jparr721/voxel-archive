@@ -62,9 +62,8 @@ namespace vx {
         return true;
     }
 
-    auto initializeBgfx(const vec2 &windowDimensions, bgfx::VertexLayout &layout,
-                        bgfx::DynamicVertexBufferHandle &vertexBuffer, bgfx::DynamicIndexBufferHandle &indexBuffer,
-                        bgfx::ProgramHandle &program) -> bool {
+    auto initializeBgfx(const vec2 &windowDimensions, bgfx::VertexLayout &layout, bgfx::ProgramHandle &program)
+            -> bool {
         // Tell bgfx to not create a separate render thread
         bgfx::renderFrame();
 
@@ -106,10 +105,6 @@ namespace vx {
         bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x003030FF, 1.0f, 0);
         bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 
-        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, cubeIndices);
-        vertexBuffer = block->vertexBuffer;
-        indexBuffer = block->indexBuffer;
-
 #if BX_PLATFORM_WINDOWS
         const std::string shaderResourcePath = "../resources/shaders";
 #else
@@ -125,10 +120,9 @@ namespace vx {
         initializeWindow(windowDimensions, windowTitle);
 
         bgfx::VertexLayout layout;
-        bgfx::DynamicVertexBufferHandle vertexBuffer;
-        bgfx::DynamicIndexBufferHandle indexBuffer;
         bgfx::ProgramHandle program;
-        initializeBgfx(windowDimensions, layout, vertexBuffer, indexBuffer, program);
+        initializeBgfx(windowDimensions, layout, program);
+        block = std::make_unique<gfx::Block>(gfx::BlockType::kDefault, cubeIndices);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -145,8 +139,8 @@ namespace vx {
             u64 state =
                     BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_MSAA | BGFX_STATE_DEPTH_TEST_LESS;
 
-            bgfx::setVertexBuffer(0, vertexBuffer);
-            bgfx::setIndexBuffer(indexBuffer);
+            bgfx::setVertexBuffer(0, block->vertexBuffer);
+            bgfx::setIndexBuffer(block->indexBuffer);
             bgfx::setState(state);
 
             bgfx::submit(0, program);
@@ -155,8 +149,9 @@ namespace vx {
         }
 
         bgfx::destroy(program);
-        bgfx::destroy(vertexBuffer);
-        bgfx::destroy(indexBuffer);
+        spdlog::info("Deleting buffers");
+        bgfx::destroy(block->vertexBuffer);
+        bgfx::destroy(block->indexBuffer);
         bgfx::shutdown();
         glfwTerminate();
 
