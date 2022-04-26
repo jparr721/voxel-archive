@@ -9,7 +9,5 @@
 namespace vx {
     auto loadShader(const std::string &basePath, const std::string &moduleName, const std::string &shaderName)
             -> bgfx::ShaderHandle;
-    auto loadShaderProgram(const std::string &basePath, const std::string &moduleName,
-                           const std::string &vertexShaderName, const std::string &fragmentShaderName)
-            -> bgfx::ProgramHandle;
+    auto loadShaderProgram(const std::string &basePath, const std::string &moduleName) -> bgfx::ProgramHandle;
 }// namespace vx

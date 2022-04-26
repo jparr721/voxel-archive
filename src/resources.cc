@@ -70,9 +70,10 @@ namespace vx {
         return result;
     }
 
-    auto loadShaderProgram(const std::string &basePath, const std::string &moduleName,
-                           const std::string &vertexShaderName, const std::string &fragmentShaderName)
-            -> bgfx::ProgramHandle {
+    auto loadShaderProgram(const std::string &basePath, const std::string &moduleName) -> bgfx::ProgramHandle {
+        const std::string vertexShaderName = moduleName + ".vs.sc";
+        const std::string fragmentShaderName = moduleName + ".fs.sc";
+
         const auto vertexShader = loadShader(basePath, moduleName, vertexShaderName);
         const auto fragmentShader = loadShader(basePath, moduleName, fragmentShaderName);
         return bgfx::createProgram(vertexShader, fragmentShader, true /* Destroy shaders */);

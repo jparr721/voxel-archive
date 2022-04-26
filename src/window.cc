@@ -105,7 +105,7 @@ namespace vx {
         const std::string shaderResourcePath = "resources/shaders";
 #endif
 
-        program = vx::loadShaderProgram(shaderResourcePath, "core", "core.vs.sc", "core.fs.sc");
+        program = vx::loadShaderProgram(shaderResourcePath, "core");
         return true;
     }
 

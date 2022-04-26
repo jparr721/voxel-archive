@@ -85,7 +85,7 @@ namespace vx::ctrl {
         up_ *= -1.0;
         center_ += displacement_;
         eye_ += displacement_;
-        view_matrix_ = lookAt(eye_, center_, up_);
+        view_matrix_ = glm::lookAt(eye_, center_, up_);
     }
 
     auto Camera::leftDirection() -> vec3 {
