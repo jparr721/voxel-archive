@@ -1,9 +1,8 @@
 import os
 import platform
 import subprocess
-from collections import namedtuple
-
-Shaders = namedtuple("Shaders", ["vertex_shader_path", "fragment_shader_path"])
+import sys
+from typing import Tuple
 
 
 def check_exists(path: str):
@@ -55,24 +54,22 @@ def get_shaderc_path() -> str:
         return os.path.join(build_dir, "third_party", "bgfx", "Debug", "shaderc.exe")
 
 
-def get_shader_paths() -> Shaders:
+def get_shader_paths(shader_module: str) -> Tuple[str, str, str]:
     resources_dir = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..", "resources"
     )
-    shader_core_dir = os.path.join(resources_dir, "shaders", "core")
-    vertex_shader_path = os.path.join(shader_core_dir, "core.vs.sc")
-    fragment_shader_path = os.path.join(shader_core_dir, "core.fs.sc")
-    return Shaders(vertex_shader_path, fragment_shader_path)
+    shader_core_dir = os.path.join(resources_dir, "shaders", shader_module)
+    vertex_shader_path = os.path.join(shader_core_dir, f"{shader_module}.vs.sc")
+    fragment_shader_path = os.path.join(shader_core_dir, f"{shader_module}.fs.sc")
+    varyingdef_path = os.path.join(os.path.dirname(vertex_shader_path), "varying.def.sc")
+    return vertex_shader_path, fragment_shader_path, varyingdef_path
 
 
 def get_varyingdef_path() -> str:
     vs_path, _ = get_shader_paths()
-    return os.path.join(os.path.dirname(vs_path), "varying.def.sc")
 
 
-def get_output_shader_paths() -> Shaders:
-    vertex_shader_path, fragment_shader_path = get_shader_paths()
-
+def get_output_shader_paths(vs_path: str, fs_path: str) -> Tuple[str, str]:
     def expand_path(pathvar: str) -> str:
         lib = get_shader_library()
 
@@ -83,7 +80,7 @@ def get_output_shader_paths() -> Shaders:
         path = os.path.dirname(pathvar)
         return os.path.join(path, lib, f"{filename}.bin")
 
-    return Shaders(expand_path(vertex_shader_path), expand_path(fragment_shader_path))
+    return expand_path(vs_path), expand_path(fs_path)
 
 
 def get_shader_type(path: str) -> str:
@@ -121,13 +118,12 @@ def compile_shader_file(
     subprocess.call(options)
 
 
-def compile_shaders():
+def compile_shaders(shader_module: str):
     system = get_platform()
     shader_library = get_shader_library()
     shaderc_path = get_shaderc_path()
-    varying_path = get_varyingdef_path()
-    vs_path, fs_path = get_shader_paths()
-    c_vs_path, c_fs_path = get_output_shader_paths()
+    vs_path, fs_path, varying_path = get_shader_paths(shader_module)
+    c_vs_path, c_fs_path = get_output_shader_paths(vs_path, fs_path)
 
     check_exists(shaderc_path)
     check_exists(varying_path)
@@ -136,11 +132,12 @@ def compile_shaders():
 
     print("===================SYSTEM==================")
     print(f"Using OS: {system}")
+    print(f"Using shader module: {shader_module}")
     print(f"Using graphics engine: {shader_library}")
     print(f"Using shaderc path: {shaderc_path}")
     print(f"Using varyingdef path: {varying_path}")
-    print(f"Using resource path: {vs_path}, \n\t{fs_path}")
-    print(f"Using compiled resource path: {c_vs_path}, \n\t{c_fs_path}")
+    print(f"Using resource paths: {vs_path}, {fs_path}")
+    print(f"Using compiled resource paths: {c_vs_path}, {c_fs_path}")
     print("=========================================")
     print("Beginning Shader Compilation")
 
@@ -163,5 +160,23 @@ def compile_shaders():
 
 
 if __name__ == "__main__":
-    compile_shaders()
+    _, mods, _ = next(
+        os.walk(
+            os.path.join(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "..", "resources"
+                ),
+                "shaders",
+            )
+        )
+    )
+
+    if len(sys.argv) > 1:
+        shader_module = sys.argv[1].lower()
+        if shader_module not in mods:
+            raise ValueError(f"Module not found, (must be one of {mods}).")
+    else:
+        shader_module = "core"
+
+    compile_shaders(shader_module)
     print("Compilation completed without any errors")
