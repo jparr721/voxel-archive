@@ -10,7 +10,7 @@ namespace vx::gfx {
     class ChunkRenderer {
     public:
         ChunkRenderer(const Chunk &chunk);
-        void render();
+        void render(const bgfx::ProgramHandle &program);
         void destroy();
 
         auto vertexLayout() const -> const bgfx::VertexLayout & { return vertexLayout_; }

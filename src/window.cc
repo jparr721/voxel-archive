@@ -130,9 +130,7 @@ namespace vx {
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
-            chunkRenderer->render();
-
-            bgfx::submit(0, program);
+            chunkRenderer->render(program);
 
             bgfx::frame();
         }

@@ -14,7 +14,7 @@ namespace vx::gfx {
                     // TODO - Compute block direction
                     // TODO - Add custom color
                     // Otherwise, make a new block, and increment the indices
-                    applyBlockDirOffset(blocks.size(), indices);
+                    // applyBlockDirOffset(blocks.size(), indices);
                     Block block(BlockType::kRandom, indices);
                     translateBlock(vec3(xx, yy, zz), block);
                     blocks.push_back(block);

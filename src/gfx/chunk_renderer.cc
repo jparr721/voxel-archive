@@ -34,20 +34,20 @@ namespace vx::gfx {
         }
     }
 
-    void ChunkRenderer::render() {
+    void ChunkRenderer::render(const bgfx::ProgramHandle &program) {
         // TODO Need to add a program loader here since each chunk will be its own fs vs combo.
         u64 state = BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_MSAA | BGFX_STATE_DEPTH_TEST_LESS;
 
-        bgfx::setVertexBuffer(0, buffers_.front().first);
-        bgfx::setIndexBuffer(buffers_.front().second);
+        for (const auto &buffer : buffers_) {
+            bgfx::setVertexBuffer(0, buffer.first);
+            bgfx::setIndexBuffer(buffer.second);
 
-        bgfx::setState(state);
+            bgfx::setState(state);
+            bgfx::submit(0, program);
+        }
     }
 
     void ChunkRenderer::destroy() {
-        // bgfx::destroy(vertexBuffer_);
-        // bgfx::destroy(indexBuffer_);
-
         for (const auto &[vb, ib] : buffers_) {
             bgfx::destroy(vb);
             bgfx::destroy(ib);
