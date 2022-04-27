@@ -1,8 +1,19 @@
 #include "chunk_renderer.h"
 #include "primitive.h"
+#include <iostream>
 #include <spdlog/spdlog.h>
 
 namespace vx::gfx {
+    void pindices(BlockDir::BlockDirIndices indices) {
+        for (const auto &index : indices) { std::cout << index << " "; }
+        std::cout << std::endl;
+    }
+
+    void pblock(std::vector<VertexColorHex> block) {
+        for (const auto &[pos, _] : block) { std::cout << glm::to_string(ivec3(pos)) << " "; }
+        std::cout << std::endl;
+    }
+
     ChunkRenderer::ChunkRenderer(const Chunk &chunk) : chunk_(chunk) {
         const auto &[geometry, indices] = chunk.stacked();
         geometry_ = geometry;
@@ -11,10 +22,10 @@ namespace vx::gfx {
         // TODO Support other vertex types
         vertexLayout_.begin()
                 .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8)
+                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
                 .end();
 
-        const auto geometrySize = gfx::VertexColorHex::size() * geometry_.size();
+        const auto geometrySize = sizeof(gfx::VertexColorHex) * geometry_.size();
         const auto indicesSize = sizeof(u16) * indices_.size();
         vertexBuffer_ = bgfx::createDynamicVertexBuffer(bgfx::makeRef(geometry_.data(), geometrySize), vertexLayout_);
         indexBuffer_ = bgfx::createDynamicIndexBuffer(bgfx::makeRef(indices_.data(), indicesSize));

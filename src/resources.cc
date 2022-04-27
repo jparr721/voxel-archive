@@ -1,6 +1,7 @@
 #include "resources.h"
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 namespace vx {
     auto loadShader(const std::string &basePath, const std::string &moduleName, const std::string &shaderName)

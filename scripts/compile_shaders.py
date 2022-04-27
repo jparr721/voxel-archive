@@ -173,6 +173,10 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         shader_module = sys.argv[1].lower()
+        if shader_module == "all":
+            for mod in mods:
+                compile_shaders(mod)
+
         if shader_module not in mods:
             raise ValueError(f"Module not found, (must be one of {mods}).")
     else:

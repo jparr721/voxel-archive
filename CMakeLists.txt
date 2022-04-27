@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Required for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(PROJECT_LIB ${PROJECT_NAME}_lib)
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -31,7 +32,7 @@ endif()
 file(GLOB SOURCES src/*.cc)
 file(GLOB HEADERS src/*.h)
 
-add_executable(${PROJECT_NAME}
+add_library(${PROJECT_LIB}
   src/ctrl/camera.h
   src/ctrl/input.h
   src/ctrl/key.h
@@ -65,10 +66,9 @@ add_executable(${PROJECT_NAME}
   src/geometry.cc
   src/resources.cc
   src/window.cc
-  main.cc
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_LIB} PUBLIC
   igl::glfw
   igl::imgui
   spdlog
@@ -78,5 +78,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   bimg
   glm::glm
 )
+
+add_executable(${PROJECT_NAME}
+  main.cc
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIB})
 
 file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
