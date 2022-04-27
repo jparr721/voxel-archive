@@ -71,7 +71,7 @@ namespace vx::gfx {
     enum class BlockType { kDefault = 0, kGrass, kDirt, kRandom };
 
     struct BlockDir {
-        using BlockDirIndices = std::vector<u64>;
+        using BlockDirIndices = std::vector<u16>;
         // The indices for each direction
         inline static const BlockDirIndices kSouth{4, 7, 6, 4, 6, 5};// (south (+z))
         inline static const BlockDirIndices kNorth{3, 0, 1, 3, 1, 2};// (north (-z))
@@ -99,7 +99,7 @@ namespace vx::gfx {
         std::vector<gfx::VertexColorHex> blockVertexColors;
 
         Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices);
-        auto indexSize() -> u64 { return blockDirIndices.size() * sizeof(64); }
+        auto indexSize() -> u32 { return blockDirIndices.size() * sizeof(u16); }
     };
 
     void translateBlock(const vec3 &diff, Block &block);

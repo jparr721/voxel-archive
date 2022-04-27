@@ -4,6 +4,7 @@
 #include "bgfx.h"
 #include "chunk.h"
 #include <array>
+#include <utility>
 
 namespace vx::gfx {
     class ChunkRenderer {
@@ -13,17 +14,13 @@ namespace vx::gfx {
         void destroy();
 
         auto vertexLayout() const -> const bgfx::VertexLayout & { return vertexLayout_; }
-        auto vertexBuffer() const -> const bgfx::DynamicVertexBufferHandle & { return vertexBuffer_; }
-        auto indexBuffer() const -> const bgfx::DynamicIndexBufferHandle & { return indexBuffer_; }
 
     private:
         const Chunk chunk_;
 
-        std::vector<VertexColorHex> geometry_;
-        std::vector<u16> indices_;
-
         bgfx::VertexLayout vertexLayout_;
-        bgfx::DynamicVertexBufferHandle vertexBuffer_;
-        bgfx::DynamicIndexBufferHandle indexBuffer_;
+
+        std::vector<std::pair<std::vector<VertexColorHex>, std::vector<u16>>> bufferData_;
+        std::vector<std::pair<bgfx::DynamicVertexBufferHandle, bgfx::DynamicIndexBufferHandle>> buffers_;
     };
 }// namespace vx::gfx
