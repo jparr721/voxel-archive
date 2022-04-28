@@ -14,7 +14,8 @@ namespace vx {
     static GLFWwindow *window;
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
     static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
-    gfx::Chunk chunk(ivec3(50, 1, 50));
+    static gfx::Chunk chunk(ivec3(50, 1, 50));
+    static std::vector<gfx::Chunk> chunks{chunk};
     std::unique_ptr<gfx::ChunkRenderer> chunkRenderer;
 
     static void glfwErrorCallback(int err, const char *msg) { spdlog::error("GLFW Error {}: {}", err, msg); }
@@ -56,8 +57,7 @@ namespace vx {
         return true;
     }
 
-    auto initializeBgfx(const vec2 &windowDimensions, bgfx::VertexLayout &layout, bgfx::ProgramHandle &program)
-            -> bool {
+    auto initializeBgfx(const vec2 &windowDimensions, bgfx::ProgramHandle &program) -> bool {
         // Tell bgfx to not create a separate render thread
         bgfx::renderFrame();
 
@@ -113,10 +113,9 @@ namespace vx {
         camera->resize(windowDimensions.x, windowDimensions.y);
         initializeWindow(windowDimensions, windowTitle);
 
-        bgfx::VertexLayout layout;
         bgfx::ProgramHandle program;
-        initializeBgfx(windowDimensions, layout, program);
-        chunkRenderer = std::make_unique<gfx::ChunkRenderer>(chunk);
+        initializeBgfx(windowDimensions, program);
+        chunkRenderer = std::make_unique<gfx::ChunkRenderer>(chunks);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();

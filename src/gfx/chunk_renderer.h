@@ -5,22 +5,20 @@
 #include "chunk.h"
 #include <array>
 #include <utility>
+#include <vector>
 
 namespace vx::gfx {
     class ChunkRenderer {
     public:
-        ChunkRenderer(const Chunk &chunk);
+        ChunkRenderer(const std::vector<Chunk> &chunks);
         void render(const bgfx::ProgramHandle &program);
         void destroy();
 
         auto vertexLayout() const -> const bgfx::VertexLayout & { return vertexLayout_; }
 
     private:
-        const Chunk chunk_;
-
+        const std::vector<Chunk> chunks_;
         bgfx::VertexLayout vertexLayout_;
-
-        std::vector<std::pair<std::vector<VertexColorHex>, std::vector<u16>>> bufferData_;
         std::vector<std::pair<bgfx::DynamicVertexBufferHandle, bgfx::DynamicIndexBufferHandle>> buffers_;
     };
 }// namespace vx::gfx

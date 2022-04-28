@@ -10,13 +10,19 @@ namespace vx::gfx {
         for (int xx = 0; xx < chunkSize.x; ++xx) {
             for (int yy = 0; yy < chunkSize.y; ++yy) {
                 for (int zz = 0; zz < chunkSize.z; ++zz) {
-                    BlockDir::BlockDirIndices indices = BlockDir::kDebug;
+                    BlockDir::BlockDirIndices baseIndices = BlockDir::kDebug;
                     // TODO - Compute block direction
                     // TODO - Add custom color
-                    // Otherwise, make a new block, and increment the indices
-                    Block block(BlockType::kRandom, indices);
+
+                    // Increment indices to avoid overlapping faces
+                    for (auto &index : baseIndices) { index += kCubeVertices.size() * blocks.size(); }
+
+                    Block block(BlockType::kRandom, baseIndices);
                     translateBlock(vec3(xx, yy, zz), block);
                     blocks.push_back(block);
+
+                    for (const auto &vertex : block.blockVertexColors) { geometry.push_back(vertex); }
+                    for (const auto &index : block.blockDirIndices) { indices.push_back(index); }
                 }
             }
         }

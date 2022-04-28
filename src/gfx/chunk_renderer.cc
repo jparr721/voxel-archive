@@ -14,22 +14,19 @@ namespace vx::gfx {
         std::cout << std::endl;
     }
 
-    ChunkRenderer::ChunkRenderer(const Chunk &chunk) : chunk_(chunk) {
+    ChunkRenderer::ChunkRenderer(const std::vector<Chunk> &chunks) : chunks_(chunks) {
         // TODO Support other vertex types
         vertexLayout_.begin()
                 .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
                 .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
                 .end();
 
-
-        for (int ii = 0; ii < chunk.blocks.size(); ++ii) {
-            bufferData_.emplace_back(chunk.blocks.at(ii).blockVertexColors, chunk.blocks.at(ii).blockDirIndices);
-            const auto geometrySize = sizeof(gfx::VertexColorHex) * bufferData_.at(ii).first.size();
-            const auto indicesSize = sizeof(u16) * bufferData_.at(ii).second.size();
-            const auto vb = bgfx::createDynamicVertexBuffer(
-                    bgfx::makeRef(bufferData_.at(ii).first.data(), geometrySize), vertexLayout_);
-            const auto ib =
-                    bgfx::createDynamicIndexBuffer(bgfx::makeRef(bufferData_.at(ii).second.data(), indicesSize));
+        for (const auto &chunk : chunks_) {
+            const auto geometrySize = sizeof(gfx::VertexColorHex) * chunk.geometry.size();
+            const auto indicesSize = sizeof(u16) * chunk.indices.size();
+            const auto vb =
+                    bgfx::createDynamicVertexBuffer(bgfx::makeRef(chunk.geometry.data(), geometrySize), vertexLayout_);
+            const auto ib = bgfx::createDynamicIndexBuffer(bgfx::makeRef(chunk.indices.data(), indicesSize));
             buffers_.emplace_back(vb, ib);
         }
     }
@@ -38,9 +35,9 @@ namespace vx::gfx {
         // TODO Need to add a program loader here since each chunk will be its own fs vs combo.
         u64 state = BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_MSAA | BGFX_STATE_DEPTH_TEST_LESS;
 
-        for (const auto &buffer : buffers_) {
-            bgfx::setVertexBuffer(0, buffer.first);
-            bgfx::setIndexBuffer(buffer.second);
+        for (const auto &[vertexBuffer, indexBuffer] : buffers_) {
+            bgfx::setVertexBuffer(0, vertexBuffer);
+            bgfx::setIndexBuffer(indexBuffer);
 
             bgfx::setState(state);
             bgfx::submit(0, program);
