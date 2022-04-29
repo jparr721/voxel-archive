@@ -9,14 +9,16 @@ set(PROJECT_LIB ${PROJECT_NAME}_lib)
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-option(LIBIGL_GLFW "Build target igl::glfw" ON)
-option(LIBIGL_IMGUI "Build target igl::imgui" ON)
-include(libigl)
+set(GLFW_INSTALL OFF)
+set(GLFW_BUILD_EXAMPLES OFF)
+set(GLFW_BUILD_DOCS OFF)
+set(GLFW_BUILD_TESTS OFF)
+add_subdirectory(third_party/glfw)
 
 add_subdirectory(third_party/spdlog)
 add_subdirectory(third_party/entt)
 
-option( BGFX_BUILD_EXAMPLES             "Build bgfx examples."                          OFF)
+option(BGFX_BUILD_EXAMPLES             "Build bgfx examples."                          OFF)
 add_subdirectory(third_party/bgfx)
 
 add_subdirectory(third_party/glm)
@@ -72,8 +74,7 @@ add_library(${PROJECT_LIB}
 )
 
 target_link_libraries(${PROJECT_LIB} PUBLIC
-  igl::glfw
-  igl::imgui
+  glfw
   spdlog
   EnTT::EnTT
   bgfx

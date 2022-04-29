@@ -3,7 +3,6 @@
 #include "../math.h"
 #include "button.h"
 #include "key.h"
-#include <Eigen/Dense>
 #include <array>
 #include <unordered_map>
 

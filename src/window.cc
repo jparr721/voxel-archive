@@ -15,9 +15,6 @@ namespace vx {
     static GLFWwindow *window;
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
     static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
-    //     static gfx::Chunk chunk(ivec3(50, 1, 50));
-    //     static std::vector<gfx::Chunk> chunks{chunk};
-    //     std::unique_ptr<gfx::ChunkRenderer> chunkRenderer;
 
     static void glfwErrorCallback(int err, const char *msg) { spdlog::error("GLFW Error {}: {}", err, msg); }
 
@@ -116,7 +113,6 @@ namespace vx {
 
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, program);
-        // chunkRenderer = std::make_unique<gfx::ChunkRenderer>(chunks);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
