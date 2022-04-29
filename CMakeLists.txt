@@ -30,10 +30,6 @@ if (VOXEL_TESTS)
   add_subdirectory(tests)
 endif()
 
-
-file(GLOB SOURCES src/*.cc)
-file(GLOB HEADERS src/*.h)
-
 add_library(${PROJECT_LIB}
   src/ctrl/camera.h
   src/ctrl/input.h

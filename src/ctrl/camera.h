@@ -17,7 +17,7 @@ namespace vx::ctrl {
         float near_plane = 0.1;
         float far_plane = 1000.0;
         float rotation_sensitivity = 0.01;
-        float pan_sensitivity = 0.01;
+        float pan_sensitivity = 1.0;
         float zoom_sensitivity = 0.1;
         float fovmin = 10.0;
         float fovmax = 120.0;
