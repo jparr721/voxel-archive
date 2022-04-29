@@ -3,7 +3,6 @@
 #include <spdlog/spdlog.h>
 
 namespace vx::gfx {
-
     Chunk::Chunk(const ivec3 &chunkSize) {
         spdlog::debug("Loading chunk ({})", glm::to_string(chunkSize));
         // Origin point is always 0, 0, 0 so we draw from there
@@ -21,7 +20,22 @@ namespace vx::gfx {
                     translateBlock(vec3(xx, yy, zz), block);
                     blocks.push_back(block);
 
-                    for (const auto &vertex : block.blockVertexColors) { geometry.push_back(vertex); }
+                    for (const auto &vertex : block.blockVertexColors) {
+                        const auto x = vertex.position[0];
+                        const auto y = vertex.position[1];
+                        const auto z = vertex.position[2];
+
+                        minX = std::min(minX, x);
+                        maxX = std::max(maxX, x);
+
+                        minY = std::min(minY, y);
+                        maxY = std::max(maxY, y);
+
+                        minZ = std::min(minZ, z);
+                        maxZ = std::max(maxZ, z);
+
+                        geometry.push_back(vertex);
+                    }
                     for (const auto &index : block.blockDirIndices) { indices.push_back(index); }
                 }
             }
@@ -29,13 +43,7 @@ namespace vx::gfx {
         spdlog::debug("Chunk loaded");
     }
 
-    auto Chunk::stacked() const -> std::pair<std::vector<VertexColorHex>, std::vector<u16>> {
-        std::vector<VertexColorHex> geometry;
-        std::vector<u16> indices;
-        for (const auto &block : blocks) {
-            geometry.insert(geometry.end(), block.blockVertexColors.begin(), block.blockVertexColors.end());
-            indices.insert(indices.end(), block.blockDirIndices.begin(), block.blockDirIndices.end());
-        }
-        return {geometry, indices};
+    void translateChunk(const vec3 &amount, Chunk &chunk) {
+        for (auto &[pos, _] : chunk.geometry) { pos += amount; }
     }
 }// namespace vx::gfx

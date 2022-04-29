@@ -47,6 +47,9 @@ add_library(${PROJECT_LIB}
 
   src/util/colors.h
 
+  src/fixtures/base_layer.h
+  src/fixtures/fixture.h
+
   src/geometry.h
   src/math.h
   src/resources.h

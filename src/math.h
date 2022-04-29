@@ -32,6 +32,7 @@ using glm::imat4;
 using glm::ivec2;
 using glm::ivec3;
 using glm::ivec4;
+using glm::mat;
 using glm::mat2;
 using glm::mat3;
 using glm::mat4;
@@ -55,9 +56,3 @@ constexpr float kE = 2.7182818284590452353602874713527f;
 constexpr float kNearZero = 1.0f / float(1 << 28);
 constexpr float kFloatMin = 1.175494e-38f;
 constexpr float kFloatMax = 3.402823e+38f;
-
-namespace vx {
-    inline auto mad(float a, float b, float c) -> float { return a * b + c; }
-    inline auto mad(const vec3 &a, float b, const vec3 &c) -> vec3 { return a * b + c; }
-    inline auto mad(const vec3 &a, const vec3 &b, const vec3 &c) -> vec3 { return a * b + c; }
-}// namespace vx
