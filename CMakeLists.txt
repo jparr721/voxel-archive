@@ -14,14 +14,16 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_BUILD_TESTS OFF)
 add_subdirectory(third_party/glfw)
+add_subdirectory(third_party/dear-imgui)
 
 add_subdirectory(third_party/spdlog)
 add_subdirectory(third_party/entt)
 
-option(BGFX_BUILD_EXAMPLES             "Build bgfx examples."                          OFF)
+option(BGFX_BUILD_EXAMPLES "Build bgfx examples." OFF)
 add_subdirectory(third_party/bgfx)
-
 add_subdirectory(third_party/glm)
+
+target_link_libraries(imgui bx)
 
 option(VOXEL_TESTS "Build the tests" ON)
 if (VOXEL_TESTS)
@@ -29,6 +31,10 @@ if (VOXEL_TESTS)
   include(GoogleTest)
   add_subdirectory(tests)
 endif()
+
+# Pack the extra imgui stuff
+file(GLOB IMGUI_MULTIPLATFORM_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui_multiplatform/*.h)
+file(GLOB IMGUI_MULTIPLATFORM_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui_multiplatform/*.cpp)
 
 add_library(${PROJECT_LIB}
   src/ctrl/camera.h
@@ -46,7 +52,6 @@ add_library(${PROJECT_LIB}
   src/util/colors.h
 
   src/fixtures/fixture.h
-  # src/fixtures/base_layer.h
 
   src/geometry.h
   src/math.h
@@ -65,14 +70,17 @@ add_library(${PROJECT_LIB}
   src/util/colors.cc
 
   src/fixtures/fixture.cc
-  # src/fixtures/base_layer.cc
 
   src/geometry.cc
   src/resources.cc
   src/window.cc
+
+  ${IMGUI_MULTIPLATFORM_HEADERS}
+  ${IMGUI_MULTIPLATFORM_SOURCES}
 )
 
 target_link_libraries(${PROJECT_LIB} PUBLIC
+  imgui
   glfw
   spdlog
   EnTT::EnTT

@@ -5,6 +5,7 @@
 #include "gfx/block.h"
 #include "gfx/chunk_renderer.h"
 #include "gfx/primitive.h"
+#include "imgui_multiplatform/imgui.h"
 #include "resources.h"
 #include "trigonometry.h"
 #include "util/colors.h"
@@ -21,6 +22,7 @@ namespace vx {
     static void glfwCursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
         input->handleCursorPos(window, xpos, ypos, camera);
     }
+
     static void glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
         input->handleMouseButtonPress(window, button, action, mods, camera);
     }
@@ -104,6 +106,7 @@ namespace vx {
 #endif
 
         program = vx::loadShaderProgram(shaderResourcePath, "core");
+        imguiCreate();
         return true;
     }
 
@@ -114,10 +117,19 @@ namespace vx {
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, program);
 
-        // std::vector<fixtures::Fixture> allFixtures{baseLayerFixture};
-
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
+
+            //==============================
+            imguiBeginFrame(0, 0, 0, 0, uint16_t(windowDimensions.x), uint16_t(windowDimensions.y));
+            ImGui::Begin("Settings", NULL, 0);
+
+            ImGui::Text("Primitive topology:");
+
+            ImGui::End();
+
+            imguiEndFrame();
+            //==============================
 
             bgfx::touch(0);
 
@@ -128,14 +140,18 @@ namespace vx {
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
-            fixtures::getBaseLayerFixture().renderer->render(program);
+            //! THIS CAUSES A SEGFAULT
+            // fixtures::getBaseLayerFixture().renderer->render(program);
 
             bgfx::frame();
         }
 
         bgfx::destroy(program);
         spdlog::info("Deleting buffers");
-        fixtures::getBaseLayerFixture().renderer->destroy();
+        imguiDestroy();
+
+        //! THIS CAUSES A SEGFAULT
+        // fixtures::getBaseLayerFixture().renderer->destroy();
         bgfx::shutdown();
         glfwTerminate();
 
