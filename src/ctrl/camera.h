@@ -17,7 +17,7 @@ namespace vx::ctrl {
         float near_plane = 0.1;
         float far_plane = 1000.0;
         float rotation_sensitivity = 0.01;
-        float pan_sensitivity = 1.0;
+        float pan_sensitivity = 0.1;
         float zoom_sensitivity = 0.1;
         float fovmin = 10.0;
         float fovmax = 120.0;
@@ -27,7 +27,7 @@ namespace vx::ctrl {
         float aspect_ratio = 4.0 / 3.0;
 
         explicit Camera(float near_plane = 0.1, float far_plane = 1000.0, float rotation_sensitivity = 0.01,
-                        float pan_sensitivity = 0.01, float zoom_sensitivity = 0.1, float fovmin = 10.0,
+                        float pan_sensitivity = 0.1, float zoom_sensitivity = 0.1, float fovmin = 10.0,
                         float fovmax = 120.0, float fov = 120.0, float radiusmin = 0.1, float radiusmax = 1000.0,
                         float aspect_ratio = 4.0 / 3.0)
             : near_plane(near_plane), far_plane(far_plane), rotation_sensitivity(rotation_sensitivity),
