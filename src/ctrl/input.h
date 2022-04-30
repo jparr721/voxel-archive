@@ -7,6 +7,7 @@
 #include "key.h"
 #include <array>
 #include <memory>
+#include <unordered_map>
 
 namespace vx::ctrl {
     class Input {
@@ -16,11 +17,17 @@ namespace vx::ctrl {
                                     std::shared_ptr<Camera> &camera_);
         void handleCursorPos(GLFWwindow *window, int xpos, int ypos, std::shared_ptr<Camera> &camera_);
 
-    private:
-        bool mouse_pressed = false;
+        auto currentMousePos() -> vec2 & { return currentMousePos_; }
+        auto mouseButton() -> int;
+        auto mouseButtonImgui() -> int;
 
-        vec2 current_mouse_pos_ = vec2(0);
-        vec2 last_mouse_pos_ = vec2(0);
+    private:
+        bool mousePressed_ = false;
+        int mouseButton_ = 0;
+        std::array<bool, 3> mouseButtonStates_{false, false, false};
+
+        vec2 currentMousePos_ = vec2(0);
+        vec2 lastMousePos_ = vec2(0);
     };
 
     class KeyboardInput {

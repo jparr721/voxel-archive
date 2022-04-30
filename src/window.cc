@@ -16,22 +16,36 @@ namespace vx {
     static GLFWwindow *window;
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
     static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
+    static bgfx::Init init;
+    static ivec2 windowDimensions(1280, 720);
 
     static void glfwErrorCallback(int err, const char *msg) { spdlog::error("GLFW Error {}: {}", err, msg); }
 
-    static void glfwCursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
-        input->handleCursorPos(window, xpos, ypos, camera);
+    static void glfwCursorPosCallback(GLFWwindow *_window, double xpos, double ypos) {
+        input->handleCursorPos(_window, xpos, ypos, camera);
     }
 
-    static void glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
-        input->handleMouseButtonPress(window, button, action, mods, camera);
+    static void glfwMouseButtonCallback(GLFWwindow *_window, int button, int action, int mods) {
+        input->handleMouseButtonPress(_window, button, action, mods, camera);
     }
 
-    static void glfwScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+    static void glfwKeyCallback(GLFWwindow *_window, int key, int scancode, int action, int mods) {
+        // TODO (@jparr721) Handle key input
+
+        // If escape, close the window
+        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) { glfwSetWindowShouldClose(_window, GL_TRUE); }
+    }
+
+    static void glfwScrollCallback(GLFWwindow *_window, double xoffset, double yoffset) {
         input->handleScrollEvent(xoffset, yoffset, camera);
     }
 
-    auto initializeWindow(const vec2 &windowDimensions, const std::string &windowTitle) -> bool {
+    static void glfwResizeCallback(GLFWwindow *window, int width, int height) {
+        bgfx::reset(width, height, BGFX_RESET_VSYNC, init.resolution.format);
+        camera->resize(width, height);
+    }
+
+    auto initializeWindow(const std::string &windowTitle) -> bool {
         spdlog::info("Loading main window");
         glfwSetErrorCallback(glfwErrorCallback);
 
@@ -40,6 +54,27 @@ namespace vx {
             return false;
         }
 
+        // Turn off resize
+        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+
+        if (!monitor) {
+            spdlog::error("Could not find primary monitor");
+            return false;
+        }
+
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+
+        if (!mode) {
+            spdlog::error("Could not get video mode");
+            return false;
+        }
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+        windowDimensions = ivec2(mode->width, mode->height);
         window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowTitle.c_str(), nullptr, nullptr);
 
         if (!window) {
@@ -53,15 +88,15 @@ namespace vx {
         glfwSetCursorPosCallback(window, glfwCursorPosCallback);
         glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
         glfwSetScrollCallback(window, glfwScrollCallback);
+        glfwSetWindowSizeCallback(window, glfwResizeCallback);
+        glfwSetKeyCallback(window, glfwKeyCallback);
 
         return true;
     }
 
-    auto initializeBgfx(const vec2 &windowDimensions, bgfx::ProgramHandle &program) -> bool {
+    auto initializeBgfx(bgfx::ProgramHandle &program) -> bool {
         // Tell bgfx to not create a separate render thread
         bgfx::renderFrame();
-
-        bgfx::Init init;
 
         bgfx::PlatformData platformData;
 
@@ -110,21 +145,30 @@ namespace vx {
         return true;
     }
 
-    auto launchWindow(const vec2 &windowDimensions, const std::string &windowTitle) -> int {
+    auto launchWindow(const std::string &windowTitle) -> int {
         camera->resize(windowDimensions.x, windowDimensions.y);
-        initializeWindow(windowDimensions, windowTitle);
+        if (!initializeWindow(windowTitle)) {
+            spdlog::error("Window initialization failed");
+            return EXIT_FAILURE;
+        }
 
         bgfx::ProgramHandle program;
-        initializeBgfx(windowDimensions, program);
+        if (!initializeBgfx(program)) {
+            spdlog::error("Renderer initialization failed");
+            return EXIT_FAILURE;
+        }
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
 
             //==============================
-            imguiBeginFrame(0, 0, 0, 0, uint16_t(windowDimensions.x), uint16_t(windowDimensions.y));
-            ImGui::Begin("Settings", NULL, 0);
-
-            ImGui::Text("Primitive topology:");
+            const auto currentMousePosition = input->currentMousePos();
+            imguiBeginFrame(currentMousePosition.x, currentMousePosition.y, input->mouseButtonImgui(), 0,
+                            uint16_t(windowDimensions.x), uint16_t(windowDimensions.y));
+            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(windowDimensions.x / 5, windowDimensions.y), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoResize);
+            if (ImGui::Button("Save")) { spdlog::info("Pressed"); }
 
             ImGui::End();
 

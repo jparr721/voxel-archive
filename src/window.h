@@ -6,7 +6,7 @@
 #include <string>
 
 namespace vx {
-    auto initializeWindow(const vec2 &windowDimensions, const std::string &windowTitle) -> bool;
-    auto initializeBgfx(const vec2 &windowDimensions, bgfx::ProgramHandle &program) -> bool;
-    auto launchWindow(const vec2 &windowDimensions, const std::string &windowTitle) -> int;
+    auto initializeWindow(const std::string &windowTitle) -> bool;
+    auto initializeBgfx(bgfx::ProgramHandle &program) -> bool;
+    auto launchWindow(const std::string &windowTitle) -> int;
 }// namespace vx
