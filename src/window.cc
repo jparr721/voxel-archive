@@ -1,7 +1,7 @@
 #include "window.h"
 #include "ctrl/camera.h"
 #include "ctrl/input.h"
-#include "fixtures/base_layer.h"
+#include "fixtures/fixture.h"
 #include "gfx/block.h"
 #include "gfx/chunk_renderer.h"
 #include "gfx/primitive.h"
@@ -114,6 +114,8 @@ namespace vx {
         bgfx::ProgramHandle program;
         initializeBgfx(windowDimensions, program);
 
+        // std::vector<fixtures::Fixture> allFixtures{baseLayerFixture};
+
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
 
@@ -126,14 +128,14 @@ namespace vx {
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
-            fixtures::baseLayerFixture->renderer()->render(program);
+            fixtures::getBaseLayerFixture().renderer->render(program);
 
             bgfx::frame();
         }
 
         bgfx::destroy(program);
         spdlog::info("Deleting buffers");
-        fixtures::baseLayerFixture->renderer()->destroy();
+        fixtures::getBaseLayerFixture().renderer->destroy();
         bgfx::shutdown();
         glfwTerminate();
 
