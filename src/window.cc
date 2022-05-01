@@ -31,7 +31,7 @@ namespace vx {
     }
 
     static void glfwKeyCallback(GLFWwindow *_window, int key, int scancode, int action, int mods) {
-        // TODO (@jparr721) Handle key input
+        ImGui::GetIO().AddInputCharacter((unsigned int) key);
     }
 
     static void glfwScrollCallback(GLFWwindow *_window, double xoffset, double yoffset) {
@@ -39,8 +39,13 @@ namespace vx {
     }
 
     static void glfwResizeCallback(GLFWwindow *window, int width, int height) {
+        spdlog::debug("Resizing w: {}, h: {}", width, height);
         bgfx::reset(width, height, BGFX_RESET_VSYNC, init.resolution.format);
         camera->resize(width, height);
+    }
+
+    static void glfwWindowPosCallback(GLFWwindow *window, int xpos, int ypos) {
+        spdlog::debug("Window pos x: {}, y: {}", xpos, ypos);
     }
 
     auto initializeWindow(const std::string &windowTitle) -> bool {
@@ -73,7 +78,8 @@ namespace vx {
         glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
         glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
         windowDimensions = ivec2(mode->width, mode->height);
-        window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowTitle.c_str(), nullptr, nullptr);
+        spdlog::debug("Dimensions: {}", glm::to_string(windowDimensions));
+        window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowTitle.c_str(), monitor, nullptr);
 
         if (!window) {
             spdlog::error("Error creating GLFW Window");
@@ -87,7 +93,8 @@ namespace vx {
         glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
         glfwSetScrollCallback(window, glfwScrollCallback);
         glfwSetWindowSizeCallback(window, glfwResizeCallback);
-        glfwSetKeyCallback(window, glfwKeyCallback);
+        // glfwSetKeyCallback(window, glfwKeyCallback);
+        glfwSetWindowPosCallback(window, glfwWindowPosCallback);
 
         return true;
     }
@@ -199,6 +206,7 @@ namespace vx {
             //! THIS CAUSES A SEGFAULT
             // fixtures::getBaseLayerFixture().renderer->render(program);
 
+            glfwSwapBuffers(window);
             bgfx::frame();
         }
 
