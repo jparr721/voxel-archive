@@ -79,7 +79,7 @@ namespace vx {
         glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
         windowDimensions = ivec2(mode->width, mode->height);
         spdlog::debug("Dimensions: {}", glm::to_string(windowDimensions));
-        window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowTitle.c_str(), monitor, nullptr);
+        window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowTitle.c_str(), nullptr, nullptr);
 
         if (!window) {
             spdlog::error("Error creating GLFW Window");
