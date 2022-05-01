@@ -53,6 +53,8 @@ add_library(${PROJECT_LIB}
 
   src/fixtures/fixture.h
 
+  src/level_editor/settings_menu.h
+
   src/geometry.h
   src/math.h
   src/resources.h
@@ -70,6 +72,8 @@ add_library(${PROJECT_LIB}
   src/util/colors.cc
 
   src/fixtures/fixture.cc
+
+  src/level_editor/settings_menu.cc
 
   src/geometry.cc
   src/resources.cc

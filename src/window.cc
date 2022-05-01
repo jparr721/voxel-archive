@@ -6,6 +6,7 @@
 #include "gfx/chunk_renderer.h"
 #include "gfx/primitive.h"
 #include "imgui_multiplatform/imgui.h"
+#include "level_editor/settings_menu.h"
 #include "resources.h"
 #include "trigonometry.h"
 #include "util/colors.h"
@@ -31,9 +32,6 @@ namespace vx {
 
     static void glfwKeyCallback(GLFWwindow *_window, int key, int scancode, int action, int mods) {
         // TODO (@jparr721) Handle key input
-
-        // If escape, close the window
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) { glfwSetWindowShouldClose(_window, GL_TRUE); }
     }
 
     static void glfwScrollCallback(GLFWwindow *_window, double xoffset, double yoffset) {
@@ -158,20 +156,34 @@ namespace vx {
             return EXIT_FAILURE;
         }
 
+        bool openPopup = false;
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
 
             //==============================
             const auto currentMousePosition = input->currentMousePos();
             imguiBeginFrame(currentMousePosition.x, currentMousePosition.y, input->mouseButtonImgui(), 0,
-                            uint16_t(windowDimensions.x), uint16_t(windowDimensions.y));
-            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
-            ImGui::SetNextWindowSize(ImVec2(windowDimensions.x / 5, windowDimensions.y), ImGuiCond_FirstUseEver);
-            ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoResize);
-            if (ImGui::Button("Save")) { spdlog::info("Pressed"); }
+                            windowDimensions.x, windowDimensions.y);
+            if (ImGui::BeginMainMenuBar()) {
+                if (ImGui::BeginMenu("Voxel")) {
+                    if (ImGui::MenuItem("Close")) {
+                        spdlog::info("Exiting");
+                        glfwSetWindowShouldClose(window, GL_TRUE);
+                    }
+                    ImGui::EndMenu();
+                }
 
-            ImGui::End();
+                if (ImGui::BeginMenu("File")) {
+                    if (ImGui::MenuItem("Save")) { spdlog::info("Saving"); }
+                    ImGui::EndMenu();
+                }
 
+                level_editor::showSettingsMenu();
+
+                ImGui::EndMainMenuBar();
+            }
+
+            // level_editor::showSettingsMenu(windowDimensions);
             imguiEndFrame();
             //==============================
 
