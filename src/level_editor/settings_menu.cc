@@ -12,6 +12,7 @@ namespace vx::level_editor {
 
     static int imguiInputTextCallback(ImGuiInputTextCallbackData *data) {
         spdlog::info("cursorpos {}", data->CursorPos);
+        return 0;
     }
 
     static void addBlockPopup() {

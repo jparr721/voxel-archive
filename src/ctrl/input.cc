@@ -38,13 +38,4 @@ namespace vx::ctrl {
         if (camera_->zooming) { camera_->zoom(-dpos[1]); }
         lastMousePos_ = currentMousePos_;
     }
-
-    void KeyboardInput::reset() {
-        for (auto &ks : keyStates) { ks = 0; }
-        for (auto &mks : modifierKeyStates) { mks = 0; }
-    }
-
-    void KeyboardInput::setKeyState(Key::Enum key, u8 state) { keyStates.at(key) = Key::kNone; }
-
-    void KeyboardInput::setKeyState(Modifier::Enum key, u8 state) { modifierKeyStates.at(key) = Modifier::kNone; }
 }// namespace vx::ctrl

@@ -29,19 +29,4 @@ namespace vx::ctrl {
         vec2 currentMousePos_ = vec2(0);
         vec2 lastMousePos_ = vec2(0);
     };
-
-    class KeyboardInput {
-    public:
-        KeyboardInput() {
-            for (auto &ks : keyStates) { ks = 0; }
-            for (auto &mks : modifierKeyStates) { mks = 0; }
-        }
-
-        void reset();
-        void setKeyState(Key::Enum key, u8 state);
-        void setKeyState(Modifier::Enum key, u8 state);
-
-        std::array<u8, Key::kCount> keyStates;
-        std::array<u8, Modifier::kCount> modifierKeyStates;
-    };
 }// namespace vx::ctrl

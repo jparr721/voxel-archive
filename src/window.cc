@@ -5,6 +5,7 @@
 #include "gfx/block.h"
 #include "gfx/chunk_renderer.h"
 #include "gfx/primitive.h"
+#include "gui/menu_bar.h"
 #include "imgui_multiplatform/imgui.h"
 #include "level_editor/settings_menu.h"
 #include "resources.h"
@@ -17,6 +18,7 @@ namespace vx {
     static GLFWwindow *window;
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
     static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
+    static std::unique_ptr<gui::Menubar> menubar = std::make_unique<gui::Menubar>();
     static bgfx::Init init;
     static ivec2 windowDimensions(1280, 720);
 
@@ -163,7 +165,8 @@ namespace vx {
             return EXIT_FAILURE;
         }
 
-        bool openPopup = false;
+        menubar->registerMenu(level_editor::showSettingsMenu);
+
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
 
@@ -171,26 +174,7 @@ namespace vx {
             const auto currentMousePosition = input->currentMousePos();
             imguiBeginFrame(currentMousePosition.x, currentMousePosition.y, input->mouseButtonImgui(), 0,
                             windowDimensions.x, windowDimensions.y);
-            if (ImGui::BeginMainMenuBar()) {
-                if (ImGui::BeginMenu("Voxel")) {
-                    if (ImGui::MenuItem("Close")) {
-                        spdlog::info("Exiting");
-                        glfwSetWindowShouldClose(window, GL_TRUE);
-                    }
-                    ImGui::EndMenu();
-                }
-
-                if (ImGui::BeginMenu("File")) {
-                    if (ImGui::MenuItem("Save")) { spdlog::info("Saving"); }
-                    ImGui::EndMenu();
-                }
-
-                level_editor::showSettingsMenu();
-
-                ImGui::EndMainMenuBar();
-            }
-
-            // level_editor::showSettingsMenu(windowDimensions);
+            menubar->render(window);
             imguiEndFrame();
             //==============================
 

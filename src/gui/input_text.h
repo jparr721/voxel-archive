@@ -1,3 +1,5 @@
 #pragma once
 
-namespace vx::gui {}
+namespace vx::gui {
+
+}
