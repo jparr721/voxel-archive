@@ -38,8 +38,8 @@ file(GLOB IMGUI_MULTIPLATFORM_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui_mult
 
 add_library(${PROJECT_LIB}
   src/ctrl/camera.h
-  src/ctrl/input.h
-  src/ctrl/key.h
+  src/ctrl/mouse_input.h
+  src/ctrl/key_input.h
 
   src/gfx/bgfx.h
   src/gfx/glfw.h
@@ -64,7 +64,8 @@ add_library(${PROJECT_LIB}
   src/window.h
 
   src/ctrl/camera.cc
-  src/ctrl/input.cc
+  src/ctrl/mouse_input.cc
+  src/ctrl/key_input.cc
 
   src/gfx/program.cc
   src/gfx/chunk_renderer.cc

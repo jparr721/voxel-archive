@@ -1,6 +1,6 @@
 #include "window.h"
 #include "ctrl/camera.h"
-#include "ctrl/input.h"
+#include "ctrl/mouse_input.h"
 #include "fixtures/fixture.h"
 #include "gfx/block.h"
 #include "gfx/chunk_renderer.h"
@@ -17,7 +17,7 @@
 namespace vx {
     static GLFWwindow *window;
     static std::shared_ptr<ctrl::Camera> camera = std::make_shared<ctrl::Camera>();
-    static std::unique_ptr<ctrl::Input> input = std::make_unique<ctrl::Input>();
+    static std::unique_ptr<ctrl::MouseInput> input = std::make_unique<ctrl::MouseInput>();
     static std::unique_ptr<gui::Menubar> menubar = std::make_unique<gui::Menubar>();
     static bgfx::Init init;
     static ivec2 windowDimensions(1280, 720);

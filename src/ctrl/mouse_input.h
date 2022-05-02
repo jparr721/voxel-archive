@@ -4,13 +4,12 @@
 #include "../window.h"
 #include "button.h"
 #include "camera.h"
-#include "key.h"
 #include <array>
 #include <memory>
 #include <unordered_map>
 
 namespace vx::ctrl {
-    class Input {
+    class MouseInput {
     public:
         void handleScrollEvent(float xoffset, float yoffset, std::shared_ptr<Camera> &camera_);
         void handleMouseButtonPress(GLFWwindow *window, int button, int action, int mods,
