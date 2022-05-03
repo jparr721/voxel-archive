@@ -1,16 +1,13 @@
 #include "window.h"
 #include "ctrl/camera.h"
+#include "ctrl/key_input.h"
 #include "ctrl/mouse_input.h"
-#include "fixtures/fixture.h"
 #include "gfx/block.h"
-#include "gfx/chunk_renderer.h"
-#include "gfx/primitive.h"
 #include "gui/menu_bar.h"
 #include "imgui_multiplatform/imgui.h"
 #include "level_editor/settings_menu.h"
 #include "resources.h"
 #include "trigonometry.h"
-#include "util/colors.h"
 #include <spdlog/spdlog.h>
 
 
@@ -33,7 +30,7 @@ namespace vx {
     }
 
     static void glfwKeyCallback(GLFWwindow *_window, int key, int scancode, int action, int mods) {
-        ImGui::GetIO().AddInputCharacter((unsigned int) key);
+        ctrl::KeyInput::getInstance()->handleKeyPressEvent(key, scancode, action, mods);
     }
 
     static void glfwScrollCallback(GLFWwindow *_window, double xoffset, double yoffset) {

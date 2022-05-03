@@ -1,4 +1,5 @@
 #include "settings_menu.h"
+#include "../ctrl/key_input.h"
 #include "../gfx/block.h"
 #include <spdlog/spdlog.h>
 #include <vector>
@@ -7,11 +8,11 @@ namespace vx::level_editor {
     bool addChunkPopupOpen = false;
     bool blockMenuVisible = false;
     int nBlocks = 0;
-    char name[64] = "New Block";
+    std::string name = "New Block";
     static std::vector<gfx::Block> blocks;
 
-    static int imguiInputTextCallback(ImGuiInputTextCallbackData *data) {
-        spdlog::info("cursorpos {}", data->CursorPos);
+    static int nameTextInputCallback(ImGuiInputTextCallbackData *data) {
+        //        ctrl::KeyInput::getInstance()->handleImGuiKeyCallback("name", data);
         return 0;
     }
 
@@ -22,7 +23,8 @@ namespace vx::level_editor {
                         ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_NoHorizontalScroll |
                         ImGuiInputTextFlags_AlwaysOverwrite | ImGuiInputTextFlags_CallbackAlways;
 
-            ImGui::InputText("Name", name, 64, flags, imguiInputTextCallback);
+            ImGui::InputText("Name", const_cast<char *>(name.c_str()), 64, flags, nameTextInputCallback);
+            const bool isNameFieldFocused = ImGui::IsItemFocused();
             ImGui::InputInt("N Blocks", &nBlocks);
             if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
                 spdlog::info("Name {}", name);
