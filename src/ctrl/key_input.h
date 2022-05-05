@@ -19,8 +19,8 @@ namespace vx::ctrl {
             KeyState() = default;
             friend auto operator<<(std::ostream &os, const KeyState &ks) -> std::ostream & {
                 std::stringstream ss;
-                ss << "KeyState(focused=" << ks.focused << ", lastKey=" << ks.lastKey << ", cursorPos=" << ks.cursorPos
-                   << ", buffer=" << ks.buffer << ")";
+                ss << "KeyState(focused=" << ks.focused << ", lastKey=" << ks.lastKey << ", buffer=" << ks.buffer
+                   << ")";
                 os << ss.str();
                 return os;
             }

@@ -68,7 +68,7 @@ namespace vx::gfx {
             vec2(0, 1),
     };
 
-    enum class BlockType { kDefault = 0, kGrass, kDirt, kRandom };
+    enum class BlockType { kDefault = 0, kGrass, kDirt, kDebug };
 
     struct BlockDir {
         using BlockDirIndices = std::vector<u16>;

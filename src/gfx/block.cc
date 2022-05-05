@@ -21,7 +21,7 @@ namespace vx::gfx {
             case BlockType::kGrass:
                 color = 0xffff0000;
                 break;
-            case BlockType::kRandom:
+            case BlockType::kDebug:
                 std::random_device r;
                 std::mt19937 engine(r());
                 std::uniform_int_distribution<u32> distr(0, 255);

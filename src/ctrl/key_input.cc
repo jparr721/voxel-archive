@@ -1,6 +1,5 @@
 #include "key_input.h"
 #include "../gfx/glfw.h"
-#include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 
 namespace vx::ctrl {
@@ -22,9 +21,6 @@ namespace vx::ctrl {
                 char keyChar = util::mapGLFWInputToChar(key, mods);
                 state.buffer.push_back(keyChar);
                 state.lastKey = keyChar;
-            } else {
-                // Delete the key at current cursor pos
-                //                state.buffer->erase(state.cursorPos, 1);
             }
         }
     }

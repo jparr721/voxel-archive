@@ -9,6 +9,6 @@ namespace vx::fixtures {
         std::unique_ptr<gfx::ChunkRenderer> renderer;
     };
 
-    auto initializeFixture(std::vector<gfx::Chunk> &chunks) -> Fixture;
-    auto getBaseLayerFixture() -> Fixture &;
+    auto initializeFixture(std::vector<gfx::Chunk> &chunks) -> std::shared_ptr<Fixture>;
+    auto getBaseLayerFixture() -> std::shared_ptr<Fixture>;
 }// namespace vx::fixtures

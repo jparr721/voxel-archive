@@ -3,11 +3,14 @@
 #include "bgfx.h"
 #include "block.h"
 #include "primitive.h"
+#include <string>
 #include <utility>
 #include <vector>
 
 namespace vx::gfx {
     struct Chunk {
+        std::string identifier;
+
         float minX;
         float maxX;
         float minY;
@@ -19,7 +22,7 @@ namespace vx::gfx {
         std::vector<u16> indices;
         std::vector<VertexColorHex> geometry;
 
-        Chunk(const ivec3 &chunkSize);
+        explicit Chunk(const ivec3 &chunkSize, std::string identifier = "Chunk");
     };
 
     void translateChunk(const vec3 &amount, Chunk &chunk);

@@ -2,6 +2,7 @@
 #include "ctrl/camera.h"
 #include "ctrl/key_input.h"
 #include "ctrl/mouse_input.h"
+#include "fixtures/fixture.h"
 #include "gfx/block.h"
 #include "gui/menu_bar.h"
 #include "imgui_multiplatform/imgui.h"
@@ -157,10 +158,7 @@ namespace vx {
         }
 
         bgfx::ProgramHandle program;
-        if (!initializeBgfx(program)) {
-            spdlog::error("Renderer initialization failed");
-            return EXIT_FAILURE;
-        }
+        initializeBgfx(program);
 
         menubar->registerMenu(level_editor::showSettingsMenu);
 
@@ -185,7 +183,7 @@ namespace vx {
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
             //! THIS CAUSES A SEGFAULT
-            // fixtures::getBaseLayerFixture().renderer->render(program);
+            fixtures::getBaseLayerFixture()->renderer->render(program);
 
             glfwSwapBuffers(window);
             bgfx::frame();
@@ -196,7 +194,7 @@ namespace vx {
         imguiDestroy();
 
         //! THIS CAUSES A SEGFAULT
-        // fixtures::getBaseLayerFixture().renderer->destroy();
+        fixtures::getBaseLayerFixture()->renderer->destroy();
         bgfx::shutdown();
         glfwTerminate();
 
