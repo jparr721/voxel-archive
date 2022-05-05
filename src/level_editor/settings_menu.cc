@@ -21,28 +21,20 @@ namespace vx::level_editor {
 
     static SettingsMenuData settingsMenuData;
 
-    static int nameTextInputCallback(ImGuiInputTextCallbackData *data) {
-        ctrl::KeyInput::getInstance()->handleImGuiKeyCallback(nameInputFieldIdentifier, data);
-        return 0;
-    }
-
     static void addBlockPopup() {
         ImGui::SetNextWindowSize(ImVec2(400, 400));
         if (ImGui::BeginPopupModal("Add New Block")) {
             ctrl::KeyInput::getInstance()->registerImGuiKeyCallback(nameInputFieldIdentifier);
-            int flags = ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue |
-                        ImGuiInputTextFlags_NoHorizontalScroll | ImGuiInputTextFlags_AlwaysOverwrite |
-                        ImGuiInputTextFlags_CallbackAlways;
-
             const auto nameFieldKeyState = ctrl::KeyInput::getInstance()->getCallbackState(nameInputFieldIdentifier);
             settingsMenuData.name = nameFieldKeyState.value().buffer;
-            ImGui::InputText(nameInputFieldIdentifier.c_str(), const_cast<char *>(settingsMenuData.name.c_str()), 64,
-                             flags, nameTextInputCallback);
+            ImGui::InputText(nameInputFieldIdentifier.c_str(), const_cast<char *>(settingsMenuData.name.c_str()), 512);
             ctrl::KeyInput::getInstance()->setFocused(nameInputFieldIdentifier, ImGui::IsItemFocused());
 
             ImGui::InputInt("N Blocks", &settingsMenuData.nblocks);
             if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
                 ctrl::KeyInput::getInstance()->removeImGuiKeyCallback(nameInputFieldIdentifier);
+                spdlog::info("NAME {}", settingsMenuData.name);
+                spdlog::info("nblocks {}", settingsMenuData.nblocks);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();

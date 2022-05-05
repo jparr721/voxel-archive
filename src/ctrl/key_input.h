@@ -14,7 +14,6 @@ namespace vx::ctrl {
     private:
         struct KeyState {
             bool focused = false;
-            u8 cursorPos = 0;
             u8 lastKey = 0;
             std::string buffer;
             KeyState() = default;
@@ -29,7 +28,6 @@ namespace vx::ctrl {
 
     public:
         void setFocused(const std::string &name, bool focused);
-        void setCursorPos(const std::string &name, u8 cursorPos);
         void setLastKey(const std::string &name, u8 key);
 
         static auto getInstance() -> KeyInput *;
@@ -38,7 +36,6 @@ namespace vx::ctrl {
 
         void registerImGuiKeyCallback(const std::string &name);
         void removeImGuiKeyCallback(const std::string &name);
-        auto handleImGuiKeyCallback(const std::string &name, ImGuiInputTextCallbackData *data) -> int;
         auto getCallbackState(const std::string &name) -> std::optional<KeyState>;
 
     private:

@@ -20,7 +20,8 @@ namespace vx::ctrl {
             // Only one thing should be focused at a time, so if we find it, jump out of this function.
             if (state.focused) {
                 char keyChar = util::mapGLFWInputToChar(key, mods);
-                if (keyChar != -1) { state.buffer.push_back(keyChar); }
+                state.buffer.push_back(keyChar);
+                state.lastKey = keyChar;
             } else {
                 // Delete the key at current cursor pos
                 //                state.buffer->erase(state.cursorPos, 1);
@@ -43,25 +44,12 @@ namespace vx::ctrl {
         callbacks_.erase(name);
     }
 
-    auto KeyInput::handleImGuiKeyCallback(const std::string &name, ImGuiInputTextCallbackData *data) -> int {
-        callbacks_.at(name).cursorPos = data->CursorPos;
-        return 0;
-    }
-
     void KeyInput::setLastKey(const std::string &name, u8 key) {
         if (!doesKeyExist(name)) {
             spdlog::error("Identifier not found {}", name);
             return;
         }
         callbacks_.at(name).lastKey = key;
-    }
-
-    void KeyInput::setCursorPos(const std::string &name, u8 cursorPos) {
-        if (!doesKeyExist(name)) {
-            spdlog::error("Identifier not found {}", name);
-            return;
-        }
-        callbacks_.at(name).cursorPos = cursorPos;
     }
 
     void KeyInput::setFocused(const std::string &name, bool focused) {
