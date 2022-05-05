@@ -50,6 +50,7 @@ add_library(${PROJECT_LIB}
   src/gfx/block.h
 
   src/util/colors.h
+  src/util/strings.h
 
   src/fixtures/fixture.h
 
@@ -73,6 +74,7 @@ add_library(${PROJECT_LIB}
   src/gfx/block.cc
 
   src/util/colors.cc
+  src/util/strings.cc
 
   src/fixtures/fixture.cc
 

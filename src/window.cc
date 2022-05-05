@@ -92,7 +92,7 @@ namespace vx {
         glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
         glfwSetScrollCallback(window, glfwScrollCallback);
         glfwSetWindowSizeCallback(window, glfwResizeCallback);
-        // glfwSetKeyCallback(window, glfwKeyCallback);
+        glfwSetKeyCallback(window, glfwKeyCallback);
         glfwSetWindowPosCallback(window, glfwWindowPosCallback);
 
         return true;

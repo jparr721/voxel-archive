@@ -1,12 +1,32 @@
 #pragma once
 
 #include "../math.h"
+#include "../util/strings.h"
 #include <imgui.h>
 #include <memory>
+#include <optional>
+#include <sstream>
 #include <unordered_map>
+#include <vector>
 
 namespace vx::ctrl {
     class KeyInput {
+    private:
+        struct KeyState {
+            bool focused = false;
+            u8 cursorPos = 0;
+            u8 lastKey = 0;
+            std::string buffer;
+            KeyState() = default;
+            friend auto operator<<(std::ostream &os, const KeyState &ks) -> std::ostream & {
+                std::stringstream ss;
+                ss << "KeyState(focused=" << ks.focused << ", lastKey=" << ks.lastKey << ", cursorPos=" << ks.cursorPos
+                   << ", buffer=" << ks.buffer << ")";
+                os << ss.str();
+                return os;
+            }
+        };
+
     public:
         void setFocused(const std::string &name, bool focused);
         void setCursorPos(const std::string &name, u8 cursorPos);
@@ -16,23 +36,12 @@ namespace vx::ctrl {
 
         void handleKeyPressEvent(int key, int scancode, int action, int mods);
 
-        void registerImGuiKeyCallback(const std::string &name, std::string *buffer);
+        void registerImGuiKeyCallback(const std::string &name);
         void removeImGuiKeyCallback(const std::string &name);
         auto handleImGuiKeyCallback(const std::string &name, ImGuiInputTextCallbackData *data) -> int;
+        auto getCallbackState(const std::string &name) -> std::optional<KeyState>;
 
     private:
-        struct KeyState {
-            bool focused;
-            u8 cursorPos;
-            u8 lastKey;
-            std::string *buffer;
-            KeyState() = default;
-            KeyState(std::string *buffer) : buffer(buffer) {}
-        };
-
-
-        std::string keyBuffer_;
-
         std::unordered_map<std::string, KeyState> callbacks_;
 
         static KeyInput *keyInput_;
@@ -41,6 +50,6 @@ namespace vx::ctrl {
         KeyInput(const KeyInput &ki);
         auto operator=(const KeyInput &ki) -> KeyInput &;
 
-        auto doesKeyExist(const std::string &name) const -> bool const;
+        auto doesKeyExist(const std::string &name) const -> bool;
     };
 }// namespace vx::ctrl
