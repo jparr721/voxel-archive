@@ -12,6 +12,8 @@ add_library(imgui STATIC
     imgui_internal.h
     imgui_draw.cpp
     imgui_demo.cpp
+    imgui_impl_glfw.cpp
+    imgui_impl_glfw.h
     imconfig.h
     stb_rect_pack.h
     stb_textedit.h

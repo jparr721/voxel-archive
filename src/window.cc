@@ -11,6 +11,7 @@
 #include "level_editor/settings_menu.h"
 #include "resources.h"
 #include "trigonometry.h"
+#include <imgui_impl_glfw.h>
 #include <spdlog/spdlog.h>
 
 
@@ -152,6 +153,11 @@ namespace vx {
 
         program = vx::loadShaderProgram(shaderResourcePath, "core");
         imguiCreate();
+#ifdef __APPLE__
+        ImGui_ImplGlfw_InitForOther(window, true);
+#else
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+#endif
         return true;
     }
 
@@ -201,6 +207,7 @@ namespace vx {
                             windowDimensions.x, windowDimensions.y);
             gui::applyDefaultStyle();
             menubar->render(window);
+            ImGui::ShowDemoWindow();
             imguiEndFrame();
             //==============================
 

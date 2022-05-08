@@ -99,14 +99,15 @@ namespace vx::level_editor {
         ImGui::SetNextWindowPos(ImVec2(0, menuBarHeight));
         ImGui::SetNextWindowSize(ImVec2(windowWidth * 0.20, windowHeight - menuBarHeight));
 
-        ImGui::Begin("Chunks");
+        ImGui::Begin("Chunks", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
         for (const auto &chunk : gfx::ChunkStorage::getInstance()->chunks()) {
+            ImGui::PushItemWidth(-1);
             if (ImGui::Button(chunk.identifier.c_str())) {
                 chunkMenuState.selectedChunk = &chunk;
                 chunkMenuState.viewChunkPopupOpen = true;
             }
+            //            ImGui::PopItemWidth();
         }
-        if (ImGui::Button("Press")) { spdlog::info("Pressed"); }
         ImGui::End();
     }
 

@@ -15,6 +15,7 @@ set(GLFW_BUILD_DOCS OFF)
 set(GLFW_BUILD_TESTS OFF)
 add_subdirectory(third_party/glfw)
 add_subdirectory(third_party/dear-imgui)
+target_link_libraries(imgui glfw)
 
 add_subdirectory(third_party/spdlog)
 add_subdirectory(third_party/entt)
