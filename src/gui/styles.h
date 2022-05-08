@@ -6,4 +6,5 @@
 namespace vx::gui {
     void pushDisabled();
     void popDisabled();
+    void applyDefaultStyle();
 }

@@ -18,6 +18,8 @@ namespace vx::gfx {
         void destroy();
         void addChunk(const Chunk &chunk);
 
+   auto chunks() const -> const std::vector<Chunk> & { return chunks_; }
+
     private:
         std::unordered_map<std::string, std::unique_ptr<ChunkRenderer>> renderers_;
         std::vector<Chunk> chunks_;

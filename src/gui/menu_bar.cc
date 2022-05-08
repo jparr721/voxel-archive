@@ -10,11 +10,6 @@ namespace vx::gui {
                 ImGui::EndMenu();
             }
 
-            if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("Save")) {}
-                ImGui::EndMenu();
-            }
-
             for (const auto &callback : callbacks) { callback(); }
 
             ImGui::EndMainMenuBar();

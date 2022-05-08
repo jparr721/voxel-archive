@@ -5,6 +5,7 @@
 #include "gfx/block.h"
 #include "gfx/chunk_storage.h"
 #include "gui/menu_bar.h"
+#include "gui/styles.h"
 #include "imgui_multiplatform/imgui.h"
 #include "level_editor/chunk_menu.h"
 #include "level_editor/settings_menu.h"
@@ -198,6 +199,7 @@ namespace vx {
             const auto currentMousePosition = input->currentMousePos();
             imguiBeginFrame(currentMousePosition.x, currentMousePosition.y, input->mouseButtonImgui(), 0,
                             windowDimensions.x, windowDimensions.y);
+            gui::applyDefaultStyle();
             menubar->render(window);
             imguiEndFrame();
             //==============================
