@@ -1,6 +1,6 @@
-#pragma oncw
+#pragma once
 
-#include "../imgui_multiplatform/imgui.h"
+#include <imgui.h>
 
 namespace vx::level_editor {
     struct SettingsMenuData;

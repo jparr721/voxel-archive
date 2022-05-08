@@ -14,7 +14,7 @@ namespace vx::ctrl {
         void handleScrollEvent(float xoffset, float yoffset, std::shared_ptr<Camera> &camera_);
         void handleMouseButtonPress(GLFWwindow *window, int button, int action, int mods,
                                     std::shared_ptr<Camera> &camera_);
-        void handleCursorPos(GLFWwindow *window, int xpos, int ypos, std::shared_ptr<Camera> &camera_);
+        void handleCursorPos(int xpos, int ypos, std::shared_ptr<Camera> &camera_, bool isImGuiItemActive);
 
         auto currentMousePos() -> vec2 & { return currentMousePos_; }
         auto mouseButton() -> int;

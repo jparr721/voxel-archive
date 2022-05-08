@@ -10,7 +10,10 @@
 namespace vx::gfx {
     class ChunkRenderer {
     public:
-        ChunkRenderer(const std::vector<Chunk> &chunks);
+        ChunkRenderer();
+
+        void addChunk(const Chunk &chunk);
+
         void render(const bgfx::ProgramHandle &program);
         void destroy();
 

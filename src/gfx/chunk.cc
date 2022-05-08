@@ -3,7 +3,8 @@
 #include <utility>
 
 namespace vx::gfx {
-    Chunk::Chunk(const ivec3 &chunkSize, std::string identifier) : identifier(std::move(identifier)) {
+    Chunk::Chunk(const ivec3 &chunkSize, std::string moduleName, std::string identifier)
+        : shaderModule(moduleName), identifier(std::move(identifier)) {
         spdlog::debug("Loading chunk ({})", glm::to_string(chunkSize));
         // Origin point is always 0, 0, 0 so we draw from there
         for (int xx = 0; xx < chunkSize.x; ++xx) {

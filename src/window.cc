@@ -2,10 +2,11 @@
 #include "ctrl/camera.h"
 #include "ctrl/key_input.h"
 #include "ctrl/mouse_input.h"
-#include "fixtures/fixture.h"
 #include "gfx/block.h"
+#include "gfx/chunk_storage.h"
 #include "gui/menu_bar.h"
 #include "imgui_multiplatform/imgui.h"
+#include "level_editor/chunk_menu.h"
 #include "level_editor/settings_menu.h"
 #include "resources.h"
 #include "trigonometry.h"
@@ -22,23 +23,25 @@ namespace vx {
 
     static void glfwErrorCallback(int err, const char *msg) { spdlog::error("GLFW Error {}: {}", err, msg); }
 
-    static void glfwCursorPosCallback(GLFWwindow *_window, double xpos, double ypos) {
-        input->handleCursorPos(_window, xpos, ypos, camera);
+    static void glfwCursorPosCallback([[maybe_unused]] GLFWwindow *_window, double xpos, double ypos) {
+        // TODO (@jparr721) Change this to also freeze mouse when popup open
+        const bool isImGuiItemActive = ImGui::IsAnyItemFocused() || ImGui::IsAnyItemHovered();
+        input->handleCursorPos(xpos, ypos, camera, isImGuiItemActive);
     }
 
     static void glfwMouseButtonCallback(GLFWwindow *_window, int button, int action, int mods) {
         input->handleMouseButtonPress(_window, button, action, mods, camera);
     }
 
-    static void glfwKeyCallback(GLFWwindow *_window, int key, int scancode, int action, int mods) {
+    static void glfwKeyCallback([[maybe_unused]] GLFWwindow *_window, int key, int scancode, int action, int mods) {
         ctrl::KeyInput::getInstance()->handleKeyPressEvent(key, scancode, action, mods);
     }
 
-    static void glfwScrollCallback(GLFWwindow *_window, double xoffset, double yoffset) {
+    static void glfwScrollCallback([[maybe_unused]] GLFWwindow *_window, double xoffset, double yoffset) {
         input->handleScrollEvent(xoffset, yoffset, camera);
     }
 
-    static void glfwResizeCallback(GLFWwindow *window, int width, int height) {
+    static void glfwResizeCallback([[maybe_unused]] GLFWwindow *_window, int width, int height) {
         spdlog::debug("Resizing w: {}, h: {}", width, height);
         bgfx::reset(width, height, BGFX_RESET_VSYNC, init.resolution.format);
         camera->resize(width, height);
@@ -49,6 +52,7 @@ namespace vx {
     }
 
     auto initializeWindow(const std::string &windowTitle) -> bool {
+
         spdlog::info("Loading main window");
         glfwSetErrorCallback(glfwErrorCallback);
 
@@ -123,7 +127,7 @@ namespace vx {
 
         init.platformData = platformData;
 
-// Use metal for macs and vulkan for everything else
+// Use metal for macs and opengl for everything else
 #ifdef __APPLE__
         init.type = bgfx::RendererType::Metal;
 #else
@@ -157,10 +161,35 @@ namespace vx {
             return EXIT_FAILURE;
         }
 
-        bgfx::ProgramHandle program;
+        bgfx::ProgramHandle program{};
         initializeBgfx(program);
 
         menubar->registerMenu(level_editor::showSettingsMenu);
+        menubar->registerMenu(level_editor::showChunkMenu);
+
+        auto chunk1 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 1");
+        auto chunk2 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 2");
+        auto chunk3 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 3");
+        auto chunk4 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 4");
+
+        {
+            const auto translationAmount = vec3(50, 0, 0);
+            gfx::translateChunk(translationAmount, chunk2);
+        }
+
+        {
+            const auto translationAmount = vec3(0, 0, 50);
+            gfx::translateChunk(translationAmount, chunk3);
+        }
+        {
+            const auto translationAmount = vec3(50, 0, 50);
+            gfx::translateChunk(translationAmount, chunk4);
+        }
+
+        gfx::ChunkStorage::getInstance()->addChunk(chunk1);
+        gfx::ChunkStorage::getInstance()->addChunk(chunk2);
+        gfx::ChunkStorage::getInstance()->addChunk(chunk3);
+        gfx::ChunkStorage::getInstance()->addChunk(chunk4);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -182,8 +211,7 @@ namespace vx {
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
-            //! THIS CAUSES A SEGFAULT
-            fixtures::getBaseLayerFixture()->renderer->render(program);
+            gfx::ChunkStorage::getInstance()->render();
 
             glfwSwapBuffers(window);
             bgfx::frame();
@@ -192,9 +220,7 @@ namespace vx {
         bgfx::destroy(program);
         spdlog::info("Deleting buffers");
         imguiDestroy();
-
-        //! THIS CAUSES A SEGFAULT
-        fixtures::getBaseLayerFixture()->renderer->destroy();
+        gfx::ChunkStorage::getInstance()->destroy();
         bgfx::shutdown();
         glfwTerminate();
 

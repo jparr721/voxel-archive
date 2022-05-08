@@ -27,6 +27,9 @@ namespace vx::ctrl {
         };
 
     public:
+        KeyInput(const KeyInput &ki) = delete;
+        auto operator=(const KeyInput &ki) -> KeyInput & = delete;
+
         void setFocused(const std::string &name, bool focused);
         void setLastKey(const std::string &name, u8 key);
 
@@ -44,8 +47,6 @@ namespace vx::ctrl {
         static KeyInput *keyInput_;
 
         KeyInput() = default;
-        KeyInput(const KeyInput &ki);
-        auto operator=(const KeyInput &ki) -> KeyInput &;
 
         auto doesKeyExist(const std::string &name) const -> bool;
     };
