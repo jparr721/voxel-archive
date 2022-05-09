@@ -3,9 +3,9 @@
 #include <utility>
 
 namespace vx::gfx {
-    Chunk::Chunk(const ivec3 &chunkSize, std::string moduleName, std::string identifier)
+    Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string identifier)
         : shaderModule(std::move(moduleName)), identifier(std::move(identifier)) {
-        spdlog::debug("Loading chunk ({})", glm::to_string(chunkSize));
+        spdlog::debug("Loading chunk id: {} module: {}", identifier, moduleName);
         // Origin point is always 0 0 0, so we draw from there
         for (int xx = 0; xx < chunkSize.x; ++xx) {
             for (int yy = 0; yy < chunkSize.y; ++yy) {
@@ -40,7 +40,10 @@ namespace vx::gfx {
                 }
             }
         }
-        spdlog::debug("Chunk loaded");
+        // Translate the chunk
+        for (auto &[pos, _] : geometry) { pos += chunkTranslation; }
+
+        spdlog::debug("Chunk loaded successfully");
     }
 
     void translateChunk(const vec3 &amount, Chunk &chunk) {

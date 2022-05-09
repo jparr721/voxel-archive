@@ -26,7 +26,8 @@ namespace vx::gfx {
         std::vector<u16> indices;
         std::vector<VertexColorHex> geometry;
 
-        explicit Chunk(const ivec3 &chunkSize, std::string moduleName = "core", std::string identifier = "Chunk");
+        explicit Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation = vec3(0, 0, 0),
+                       std::string moduleName = "core", std::string identifier = "Chunk");
     };
 
     void translateChunk(const vec3 &amount, Chunk &chunk);

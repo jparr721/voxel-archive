@@ -172,24 +172,10 @@ namespace vx {
         menubar->registerMenu(level_editor::showSettingsMenu);
         menubar->registerMenu(level_editor::showChunkMenu);
 
-        auto chunk1 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 1");
-        auto chunk2 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 2");
-        auto chunk3 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 3");
-        auto chunk4 = gfx::Chunk(ivec3(50, 1, 50), "core", "Chunk 4");
-
-        {
-            const auto translationAmount = vec3(50, 0, 0);
-            gfx::translateChunk(translationAmount, chunk2);
-        }
-
-        {
-            const auto translationAmount = vec3(0, 0, 50);
-            gfx::translateChunk(translationAmount, chunk3);
-        }
-        {
-            const auto translationAmount = vec3(50, 0, 50);
-            gfx::translateChunk(translationAmount, chunk4);
-        }
+        auto chunk1 = gfx::Chunk(ivec3(50, 1, 50), vec3(0, 0, 0), "core", "Chunk 1");
+        auto chunk2 = gfx::Chunk(ivec3(50, 1, 50), vec3(50, 0, 0), "core", "Chunk 2");
+        auto chunk3 = gfx::Chunk(ivec3(50, 1, 50), vec3(0, 0, 50), "core", "Chunk 3");
+        auto chunk4 = gfx::Chunk(ivec3(50, 1, 50), vec3(50, 0, 50), "core", "Chunk 4");
 
         gfx::ChunkStorage::getInstance()->addChunk(chunk1);
         gfx::ChunkStorage::getInstance()->addChunk(chunk2);
