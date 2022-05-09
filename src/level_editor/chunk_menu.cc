@@ -12,6 +12,7 @@ namespace vx::level_editor {
         bool addNewChunkPopupOpen = false;
         bool chunkSettingsMenuVisible = true;
         bool saveButtonDisabled = true;
+        bool addAnotherChunk = false;
 
         int selectedShaderModuleOption = 0;
 
@@ -86,11 +87,33 @@ namespace vx::level_editor {
                 ImGui::InputInt("##zoffset", &chunkMenuData.fixtureZOffset, 5);
             }
 
+            ImGui::Checkbox("Add Another Chunk", &chunkMenuState.addAnotherChunk);
+
             if (chunkMenuState.saveButtonDisabled) { gui::pushDisabled(); }
             if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
-                const auto fileName = util::openFileDialogAndSave();
-                spdlog::info("filename {}", fileName);
-                ImGui::CloseCurrentPopup();
+                const ivec3 chunkDimensions(chunkMenuData.xdim, chunkMenuData.ydim, chunkMenuData.zdim);
+                const vec3 chunkTranslation(chunkMenuData.fixtureXOffset, chunkMenuData.fixtureYOffset,
+                                            chunkMenuData.fixtureZOffset);
+
+                const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
+                                       chunkMenuData.identifier);
+                gfx::ChunkStorage::getInstance()->addChunk(chunk);
+
+                //                const auto fileName = util::openFileDialogAndSave();
+                //                spdlog::info("filename {}", fileName);
+                if (!chunkMenuState.addAnotherChunk) {
+                    ImGui::CloseCurrentPopup();
+                } else {
+                    chunkMenuData.shaderModule = "core";
+                    chunkMenuState.selectedShaderModuleOption = 0;
+                    chunkMenuData.isFixture = true;
+                    chunkMenuData.xdim = 0;
+                    chunkMenuData.ydim = 0;
+                    chunkMenuData.zdim = 0;
+                    chunkMenuData.fixtureXOffset = 0;
+                    chunkMenuData.fixtureYOffset = 0;
+                    chunkMenuData.fixtureZOffset = 0;
+                }
             }
             if (chunkMenuState.saveButtonDisabled) { gui::popDisabled(); }
 
