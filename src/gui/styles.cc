@@ -16,7 +16,7 @@ namespace vx::gui {
 
         colors[ImGuiCol_Text] = ImVec4(1.000f, 1.000f, 1.000f, 1.000f);
         colors[ImGuiCol_TextDisabled] = ImVec4(0.500f, 0.500f, 0.500f, 1.000f);
-        colors[ImGuiCol_WindowBg] = ImVec4(0.180f, 0.180f, 0.180f, 1.000f);
+        colors[ImGuiCol_WindowBg] = ImVec4(0.180f, 0.180f, 0.180f, 0.750f);
         colors[ImGuiCol_ChildBg] = ImVec4(0.280f, 0.280f, 0.280f, 0.000f);
         colors[ImGuiCol_PopupBg] = ImVec4(0.313f, 0.313f, 0.313f, 1.000f);
         colors[ImGuiCol_Border] = colors[ImGuiCol_WindowBg];

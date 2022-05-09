@@ -4,9 +4,9 @@
 
 namespace vx::gfx {
     Chunk::Chunk(const ivec3 &chunkSize, std::string moduleName, std::string identifier)
-        : shaderModule(moduleName), identifier(std::move(identifier)) {
+        : shaderModule(std::move(moduleName)), identifier(std::move(identifier)) {
         spdlog::debug("Loading chunk ({})", glm::to_string(chunkSize));
-        // Origin point is always 0, 0, 0 so we draw from there
+        // Origin point is always 0 0 0, so we draw from there
         for (int xx = 0; xx < chunkSize.x; ++xx) {
             for (int yy = 0; yy < chunkSize.y; ++yy) {
                 for (int zz = 0; zz < chunkSize.z; ++zz) {
@@ -17,8 +17,7 @@ namespace vx::gfx {
                     // Increment indices to avoid overlapping faces
                     for (auto &index : baseIndices) { index += kCubeVertices.size() * blocks.size(); }
 
-                    Block block(BlockType::kDebug, baseIndices);
-                    translateBlock(vec3(xx, yy, zz), block);
+                    Block block(BlockType::kDebug, baseIndices, vec3(xx, yy, zz));
                     blocks.push_back(block);
 
                     for (const auto &vertex : block.blockVertexColors) {

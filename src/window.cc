@@ -9,6 +9,7 @@
 #include "imgui_multiplatform/imgui.h"
 #include "level_editor/chunk_menu.h"
 #include "level_editor/settings_menu.h"
+#include "paths.h"
 #include "resources.h"
 #include "trigonometry.h"
 #include <imgui_impl_glfw.h>
@@ -54,7 +55,6 @@ namespace vx {
     }
 
     auto initializeWindow(const std::string &windowTitle) -> bool {
-
         spdlog::info("Loading main window");
         glfwSetErrorCallback(glfwErrorCallback);
 
@@ -62,6 +62,10 @@ namespace vx {
             spdlog::error("Error initializing glfw");
             return false;
         }
+
+        spdlog::debug("Configured resource path {}", paths::kResourcesPath.string());
+        spdlog::debug("Configured assets path {}", paths::kAssetsPath.string());
+        spdlog::debug("Configured shader path {}", paths::kShadersPath.string());
 
         // Turn off resize
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -145,13 +149,7 @@ namespace vx {
         bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x32323232, 1.0f, 0);
         bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 
-#if BX_PLATFORM_WINDOWS
-        const std::string shaderResourcePath = "../resources/shaders";
-#else
-        const std::string shaderResourcePath = "resources/shaders";
-#endif
-
-        program = vx::loadShaderProgram(shaderResourcePath, "core");
+        program = vx::loadShaderProgram(paths::kShadersPath, "core");
         imguiCreate();
 #ifdef __APPLE__
         ImGui_ImplGlfw_InitForOther(window, true);
@@ -207,7 +205,6 @@ namespace vx {
                             windowDimensions.x, windowDimensions.y);
             gui::applyDefaultStyle();
             menubar->render(window);
-            ImGui::ShowDemoWindow();
             imguiEndFrame();
             //==============================
 

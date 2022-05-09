@@ -1,15 +1,11 @@
 #include "block.h"
 #include "../util/colors.h"
 #include <random>
-#include <spdlog/spdlog.h>
+#include <utility>
 
 namespace vx::gfx {
-    void applyBlockDirOffset(u64 amount, BlockDir::BlockDirIndices &blockDirIndices) {
-        for (auto &index : blockDirIndices) { index += kCubeVertices.size() * amount; }
-    }
-
-    Block::Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices)
-        : blockType(_blockType), blockDirIndices(_blockDirIndices) {
+    Block::Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices, const vec3 &startingPosition)
+        : blockType(_blockType), blockDirIndices(std::move(_blockDirIndices)) {
         u32 color;
         switch (blockType) {
             case BlockType::kDefault:
@@ -30,10 +26,25 @@ namespace vx::gfx {
                 break;
         }
 
-        for (const auto &vertex : kCubeVertices) { blockVertexColors.emplace_back(vertex, color); }
+        if (startingPosition == vec3(0, 0, 0)) {
+            for (const auto &vertex : kCubeVertices) { blockVertexColors.emplace_back(vertex, color); }
+        } else {
+            for (const auto &vertex : makeOffsetCubeVertices(startingPosition)) {
+                blockVertexColors.emplace_back(vertex, color);
+            }
+        }
     }
 
     void translateBlock(const vec3 &diff, Block &block) {
         for (auto &[pos, _] : block.blockVertexColors) { pos += diff; }
+    }
+
+    auto makeOffsetCubeVertices(const vec3 &startingPosition) -> std::array<vec3, 8> {
+        std::array<vec3, 8> vertices{};
+        for (int ii = 0; ii < kCubeVertices.size(); ++ii) {
+            const auto &vertex = kCubeVertices.at(ii);
+            vertices.at(ii) = vertex + startingPosition;
+        }
+        return vertices;
     }
 }// namespace vx::gfx

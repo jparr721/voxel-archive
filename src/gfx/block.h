@@ -88,19 +88,19 @@ namespace vx::gfx {
                 0, 3, 7, 0, 7, 4,// Down
         };
     };
-    void applyBlockDirOffset(u64 amount, BlockDir::BlockDirIndices &blockDirIndices);
 
     struct Block {
-        bool active;
-        bool selected;
+        bool active = false;
+        bool selected = false;
 
         BlockType blockType;
         BlockDir::BlockDirIndices blockDirIndices;
         std::vector<gfx::VertexColorHex> blockVertexColors;
 
-        Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices);
-        auto indexSize() -> u32 { return blockDirIndices.size() * sizeof(u16); }
+        Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices,
+              const vec3 &startingPosition = vec3(0, 0, 0));
     };
 
     void translateBlock(const vec3 &diff, Block &block);
+    auto makeOffsetCubeVertices(const vec3 &startingPosition) -> std::array<vec3, 8>;
 }// namespace vx::gfx

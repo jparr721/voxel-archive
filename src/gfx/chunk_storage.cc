@@ -1,4 +1,5 @@
 #include "chunk_storage.h"
+#include "../paths.h"
 #include "../resources.h"
 
 namespace vx::gfx {
@@ -28,16 +29,11 @@ namespace vx::gfx {
     }
 
     void ChunkStorage::loadChunks() {
-#if BX_PLATFORM_WINDOWS
-        const std::string basePath = "../resources/shaders";
-#else
-        const std::string basePath = "resources/shaders";
-#endif
         for (const auto &chunk : chunks_) {
             const auto moduleName = chunk.shaderModule;
             // Load the shader program
             if (shaderPrograms_.find(moduleName) == shaderPrograms_.end()) {
-                const auto shaderProgram = vx::loadShaderProgram(basePath, moduleName);
+                const auto shaderProgram = vx::loadShaderProgram(paths::kShadersPath, moduleName);
                 shaderPrograms_.insert({moduleName, shaderProgram});
             }
 

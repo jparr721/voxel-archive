@@ -15,8 +15,10 @@ namespace vx::gfx {
 
         float minX;
         float maxX;
+
         float minY;
         float maxY;
+
         float minZ;
         float maxZ;
 

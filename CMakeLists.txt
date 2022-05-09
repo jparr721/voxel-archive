@@ -67,6 +67,7 @@ add_library(${PROJECT_LIB}
         src/resources.h
         src/trigonometry.h
         src/window.h
+        src/paths.h
 
         src/ctrl/camera.cc
         src/ctrl/mouse_input.cc
@@ -113,5 +114,3 @@ add_executable(${PROJECT_NAME}
         )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIB})
-
-file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
