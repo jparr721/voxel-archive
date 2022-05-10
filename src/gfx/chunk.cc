@@ -5,11 +5,11 @@
 #include <utility>
 
 namespace vx::gfx {
-    Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string identifier)
-        : shaderModule(std::move(moduleName)), identifier(std::move(identifier)) {
-        spdlog::debug("Loading chunk id: {} module: {}", identifier, moduleName);
+    Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _identifier)
+        : shaderModule(std::move(moduleName)), identifier(std::move(_identifier)) {
+        spdlog::debug("Loading chunk id: {} module: {}", identifier, shaderModule);
         // Origin point is always 0 0 0, so we draw from there
-        int ii = 0;
+        u64 ii = 0;
         for (int xx = 0; xx < chunkSize.x; ++xx) {
             for (int yy = 0; yy < chunkSize.y; ++yy) {
                 for (int zz = 0; zz < chunkSize.z; ++zz) {
@@ -39,10 +39,30 @@ namespace vx::gfx {
         spdlog::debug("Chunk loaded successfully");
     }
 
-    void Chunk::write(bool isFixture) noexcept {
+    void Chunk::write(bool isFixture) const noexcept {
+        spdlog::info("IDENTIFIER {}", identifier);
         const fs::path filepath = isFixture ? paths::kFixturesPath / fs::path(identifier + ".chunk")
                                             : paths::kAssetsPath / fs::path(identifier + ".chunk");
+        spdlog::info("Writing chunk to {}", filepath.string());
         std::ofstream chunkfile(filepath, std::ios::out | std::ios::in);
+        chunkfile << "identifier " << identifier << std::endl;
+        chunkfile << "shader module " << shaderModule << std::endl;
+
+        chunkfile << "minx " << minX << std::endl;
+        chunkfile << "maxx " << maxX << std::endl;
+
+        chunkfile << "miny " << minY << std::endl;
+        chunkfile << "maxy " << maxY << std::endl;
+
+        chunkfile << "minz " << minZ << std::endl;
+        chunkfile << "maxz " << maxZ << std::endl;
+
+        for (const auto &index : indices) { chunkfile << "i " << index << std::endl; }
+        for (const auto &vertexColorHex : geometry) {
+            chunkfile << "ic " << vertexColorHex.position[0] << " " << vertexColorHex.position[1] << " "
+                      << vertexColorHex.position[2] << " " << vertexColorHex.color << std::endl;
+        }
+        chunkfile.close();
     }
 
     void Chunk::setBounds() {
@@ -60,9 +80,5 @@ namespace vx::gfx {
             minZ = std::min(minZ, z);
             maxZ = std::max(maxZ, z);
         }
-    }
-
-    void translateChunk(const vec3 &amount, Chunk &chunk) {
-        for (auto &[pos, _] : chunk.geometry) { pos += amount; }
     }
 }// namespace vx::gfx

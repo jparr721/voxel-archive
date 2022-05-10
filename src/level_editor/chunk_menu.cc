@@ -4,6 +4,7 @@
 #include "../gui/styles.h"
 #include "../paths.h"
 #include "../util/files.h"
+#include <cstring>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
@@ -13,6 +14,7 @@ namespace vx::level_editor {
         bool chunkSettingsMenuVisible = true;
         bool saveButtonDisabled = true;
         bool addAnotherChunk = false;
+        bool editingExistingChunk = false;
 
         int selectedShaderModuleOption = 0;
 
@@ -20,34 +22,50 @@ namespace vx::level_editor {
     };
 
     struct ChunkMenuData {
-        std::string identifier;
+        char identifier[512];
         std::string shaderModule = "core";
 
         bool isFixture = true;
 
         // Size of the chunk
-        int xdim = 0;
-        int ydim = 0;
-        int zdim = 0;
+        int xdim = 1;
+        int ydim = 1;
+        int zdim = 1;
 
         // Offset of the chunk from (0, 0), if a fixture
         int fixtureXOffset = 0;
         int fixtureYOffset = 0;
         int fixtureZOffset = 0;
+
+        auto operator=(const gfx::Chunk &chunk) -> ChunkMenuData & {
+            std::strcpy(identifier, chunk.identifier.c_str());
+            shaderModule = chunk.shaderModule;
+
+            xdim = chunk.maxX - chunk.minX;
+            ydim = chunk.maxY - chunk.minY;
+            zdim = chunk.maxZ - chunk.minZ;
+
+            fixtureXOffset = chunk.geometry.front().position.x;
+            fixtureYOffset = chunk.geometry.front().position.y;
+            fixtureZOffset = chunk.geometry.front().position.z;
+            return *this;
+        }
     };
 
     static ChunkMenuState chunkMenuState;
     static ChunkMenuData chunkMenuData;
 
     static auto isInvalidChunkSize(int x, int y, int z) -> bool {
-        return ((x * y * z) * gfx::kCubeVertices.size()) > std::numeric_limits<u16>::max();
+        const bool tooLarge = ((x * y * z) * gfx::kCubeVertices.size()) > std::numeric_limits<u16>::max();
+        const bool invalidValue = x == 0 || y == 0 || z == 0;
+        return tooLarge || invalidValue;
     }
 
-    static void addNewChunkPopup() {
+    static void chunkEditPopup() {
         ImGui::SetNextWindowSize(ImVec2(400, 400));
         if (ImGui::BeginPopupModal(chunkMenuState.addNewChunkPopupIdentifier.c_str())) {
             ImGui::Text("Identifier");
-            ImGui::InputText("##identifier", const_cast<char *>(chunkMenuData.identifier.c_str()), 512);
+            ImGui::InputText("##identifier", chunkMenuData.identifier, 512);
 
             ImGui::Text("Shader Module");
             ImGui::Combo("##shadermodule", &chunkMenuState.selectedShaderModuleOption,
@@ -97,7 +115,16 @@ namespace vx::level_editor {
 
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
                                        chunkMenuData.identifier);
-                gfx::ChunkStorage::getInstance()->addChunk(chunk);
+                if (chunkMenuState.editingExistingChunk) {
+                    gfx::ChunkStorage::getInstance()->setChunk(chunk);
+                    chunkMenuState.editingExistingChunk = false;
+                } else {
+                    gfx::ChunkStorage::getInstance()->addChunk(chunk);
+                }
+
+                spdlog::info("identifier {}", chunkMenuData.identifier);
+
+                chunk.write(chunkMenuData.isFixture);
 
                 if (!chunkMenuState.addAnotherChunk) {
                     ImGui::CloseCurrentPopup();
@@ -146,7 +173,9 @@ namespace vx::level_editor {
                     ImGui::Text("Z Bounds: %f, %f", chunk.minZ, chunk.maxZ);
                     ImGui::Text("Starting Point %s", glm::to_string(ivec3(chunk.geometry.front().position)).c_str());
                     if (ImGui::Button("Edit")) {
-                        // Placeholder
+                        chunkMenuData = chunk;
+                        chunkMenuState.addNewChunkPopupOpen = true;
+                        chunkMenuState.editingExistingChunk = true;
                     }
                     ImGui::TreePop();
                 }
@@ -165,7 +194,7 @@ namespace vx::level_editor {
             ImGui::EndMenu();
         }
 
-        addNewChunkPopup();
+        chunkEditPopup();
 
         if (chunkMenuState.addNewChunkPopupOpen) {
             ImGui::OpenPopup(chunkMenuState.addNewChunkPopupIdentifier.c_str());

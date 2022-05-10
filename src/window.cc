@@ -191,7 +191,6 @@ namespace vx {
                             windowDimensions.x, windowDimensions.y);
             gui::applyDefaultStyle();
             menubar->render(window);
-            ImGui::ShowDemoWindow();
             if (ImGui::IsAnyItemHovered() || ImGui::IsAnyItemFocused()) { ImGui::GetIO().WantCaptureMouse = true; }
             imguiEndFrame();
             //==============================

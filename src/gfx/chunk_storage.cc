@@ -48,4 +48,19 @@ namespace vx::gfx {
             renderers_.at(moduleName)->addChunk(chunk);
         }
     }
+
+    void ChunkStorage::setChunk(const Chunk &newChunk) {
+        for (auto &chunk : chunks_) {
+            if (chunk.identifier == newChunk.identifier) {
+#ifndef NDEBUG
+                const auto chunksSize = chunks_.size();
+#endif
+                chunk = newChunk;
+#ifndef NDEBUG
+                assert(chunksSize == chunks_.size());
+#endif
+                break;
+            }
+        }
+    }
 }// namespace vx::gfx
