@@ -44,7 +44,13 @@ namespace vx::gfx {
         const fs::path filepath = isFixture ? paths::kFixturesPath / fs::path(identifier + ".chunk")
                                             : paths::kAssetsPath / fs::path(identifier + ".chunk");
         spdlog::info("Writing chunk to {}", filepath.string());
-        std::ofstream chunkfile(filepath, std::ios::out | std::ios::in);
+        std::ofstream chunkfile(filepath);
+
+        if (!chunkfile.is_open()) {
+            spdlog::error("chunkfile failed to open, exiting write operation");
+            return;
+        }
+
         chunkfile << "identifier " << identifier << std::endl;
         chunkfile << "shader module " << shaderModule << std::endl;
 

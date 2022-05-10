@@ -108,6 +108,7 @@ namespace vx::level_editor {
             ImGui::Checkbox("Add Another Chunk", &chunkMenuState.addAnotherChunk);
 
             if (chunkMenuState.saveButtonDisabled) { gui::pushDisabled(); }
+            // TODO(@jparr721) - Make this button green
             if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
                 const ivec3 chunkDimensions(chunkMenuData.xdim, chunkMenuData.ydim, chunkMenuData.zdim);
                 const vec3 chunkTranslation(chunkMenuData.fixtureXOffset, chunkMenuData.fixtureYOffset,
@@ -143,7 +144,8 @@ namespace vx::level_editor {
             if (chunkMenuState.saveButtonDisabled) { gui::popDisabled(); }
 
             ImGui::SameLine();
-            if (ImGui::Button("Close", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) { ImGui::CloseCurrentPopup(); }
+            // TODO (@jparr721) - Make this button red
+            if (ImGui::Button("Cancel", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) { ImGui::CloseCurrentPopup(); }
             ImGui::EndPopup();
         }
     }

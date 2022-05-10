@@ -57,6 +57,7 @@ add_library(${PROJECT_LIB}
 
         src/level_editor/settings_menu.h
         src/level_editor/chunk_menu.h
+        src/level_editor/project_menu.h
 
         src/gui/menu_bar.h
         src/gui/input_text.h
@@ -85,6 +86,7 @@ add_library(${PROJECT_LIB}
 
         src/level_editor/settings_menu.cc
         src/level_editor/chunk_menu.cc
+        src/level_editor/project_menu.cc
 
         src/gui/menu_bar.cc
         src/gui/input_text.cc

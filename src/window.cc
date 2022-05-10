@@ -8,6 +8,7 @@
 #include "gui/styles.h"
 #include "imgui_multiplatform/imgui.h"
 #include "level_editor/chunk_menu.h"
+#include "level_editor/project_menu.h"
 #include "level_editor/settings_menu.h"
 #include "paths.h"
 #include "resources.h"
@@ -171,6 +172,7 @@ namespace vx {
 
         menubar->registerMenu(level_editor::showSettingsMenu);
         menubar->registerMenu(level_editor::showChunkMenu);
+        menubar->registerMenu(level_editor::showProjectMenu);
 
         auto chunk1 = gfx::Chunk(ivec3(50, 1, 50), vec3(0, 0, 0), "core", "Chunk 1");
         auto chunk2 = gfx::Chunk(ivec3(50, 1, 50), vec3(50, 0, 0), "core", "Chunk 2");
