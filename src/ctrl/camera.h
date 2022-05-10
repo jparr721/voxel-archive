@@ -12,6 +12,7 @@ namespace vx::ctrl {
         bool zooming = false;
         bool panning = false;
         bool rotating = false;
+        bool isLocked = false;
 
         float near_plane = 0.1;
         float far_plane = 1000.0;
@@ -39,14 +40,25 @@ namespace vx::ctrl {
         void pan(float du, float dv);
         void rotate(float du, float dv);
         void setPerspective();
+        void lockCamera(float minr, float maxr, float minTheta, float maxTheta, float minPhi, float maxPhi);
 
         auto viewMatrix() -> mat4 &;
         auto projectionMatrix() -> mat4 &;
+        auto zoomAmount() const -> float;
+        auto theta() const -> float;
+        auto phi() const -> float;
 
     private:
         float r_ = 1.0;
         float theta_ = kPi / 2.0;
         float phi_ = kPi / 2.0;
+
+        float minr_;
+        float maxr_;
+        float minTheta_;
+        float maxTheta_;
+        float minPhi_;
+        float maxPhi_;
 
         vec3 displacement_ = vec3(0);
         vec3 eye_ = vec3(0, 0, 1);
@@ -57,6 +69,7 @@ namespace vx::ctrl {
         mat4 projection_matrix_ = mat4(1.0f);
 
         void compile();
+        void clampLockedParameters();
 
         auto leftDirection() -> vec3;
         auto downDirection() -> vec3;

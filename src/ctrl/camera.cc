@@ -2,6 +2,7 @@
 #include "../geometry.h"
 #include "../trigonometry.h"
 #include "button.h"
+#include <spdlog/spdlog.h>
 
 namespace vx::ctrl {
     void Camera::reset() {
@@ -61,6 +62,24 @@ namespace vx::ctrl {
         projection_matrix_ = glm::perspective(fov, aspect_ratio, near_plane, far_plane);
     }
 
+    void Camera::lockCamera(float minr, float maxr, float minTheta, float maxTheta, float minPhi, float maxPhi) {
+        if (isLocked) {
+            // Just fail silently for now.
+            return;
+        }
+
+        // Notify that the camera is locked.
+        isLocked = true;
+        minr_ = minr;
+        maxr_ = maxr;
+        minTheta_ = minTheta;
+        maxTheta_ = maxTheta;
+        minPhi_ = minPhi;
+        maxPhi_ = maxPhi;
+
+        clampLockedParameters();
+    }
+
     auto Camera::viewMatrix() -> mat4 & {
         compile();
         return view_matrix_;
@@ -86,6 +105,14 @@ namespace vx::ctrl {
         center_ += displacement_;
         eye_ += displacement_;
         view_matrix_ = glm::lookAt(eye_, center_, up_);
+
+        if (isLocked) { clampLockedParameters(); }
+    }
+
+    void Camera::clampLockedParameters() {
+        r_ = std::clamp(r_, minr_, maxr_);
+        theta_ = std::clamp(theta_, minTheta_, maxTheta_);
+        phi_ = std::clamp(phi_, minPhi_, maxPhi_);
     }
 
     auto Camera::leftDirection() -> vec3 {
@@ -98,4 +125,8 @@ namespace vx::ctrl {
         compile();
         return -up_;
     }
+
+    auto Camera::zoomAmount() const -> float { return r_; }
+    auto Camera::theta() const -> float { return theta_; }
+    auto Camera::phi() const -> float { return phi_; }
 }// namespace vx::ctrl

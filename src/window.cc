@@ -162,6 +162,7 @@ namespace vx {
 
     auto launchWindow(const std::string &windowTitle) -> int {
         camera->resize(windowDimensions.x, windowDimensions.y);
+        camera->lockCamera(40.0f, 1000.0f, 1.58f, 1.58f, 0.5f, 0.5f);
         if (!initializeWindow(windowTitle)) {
             spdlog::error("Window initialization failed");
             return EXIT_FAILURE;
