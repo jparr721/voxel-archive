@@ -102,7 +102,7 @@ namespace vx::util {
      * Stolen from libigl::open_file_dialog function.
      * @return
      */
-    auto openFileDialogAndSave() -> std::string {
+    auto openFileDialogAndSave(const std::string &baseName) -> std::string {
         const int FILE_DIALOG_MAX_BUFFER = 1024;
         char buffer[FILE_DIALOG_MAX_BUFFER];
         buffer[0] = '\0';

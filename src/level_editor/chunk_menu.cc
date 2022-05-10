@@ -99,8 +99,6 @@ namespace vx::level_editor {
                                        chunkMenuData.identifier);
                 gfx::ChunkStorage::getInstance()->addChunk(chunk);
 
-                //                const auto fileName = util::openFileDialogAndSave();
-                //                spdlog::info("filename {}", fileName);
                 if (!chunkMenuState.addAnotherChunk) {
                     ImGui::CloseCurrentPopup();
                 } else {
@@ -140,7 +138,6 @@ namespace vx::level_editor {
         } else {
             for (const auto &chunk : gfx::ChunkStorage::getInstance()->chunks()) {
                 if (ImGui::TreeNodeEx(chunk.identifier.c_str())) {
-                    ImGui::Text("N Blocks: %lu", chunk.blocks.size());
                     ImGui::Text("N Indices: %lu", chunk.indices.size());
                     ImGui::Text("Max Index: %hu", *std::max_element(chunk.indices.begin(), chunk.indices.end()));
                     ImGui::Text("N Vertices: %lu", chunk.geometry.size());
@@ -148,6 +145,9 @@ namespace vx::level_editor {
                     ImGui::Text("Y Bounds: %f, %f", chunk.minY, chunk.maxY);
                     ImGui::Text("Z Bounds: %f, %f", chunk.minZ, chunk.maxZ);
                     ImGui::Text("Starting Point %s", glm::to_string(ivec3(chunk.geometry.front().position)).c_str());
+                    if (ImGui::Button("Edit")) {
+                        // Placeholder
+                    }
                     ImGui::TreePop();
                 }
             }

@@ -14,6 +14,9 @@ namespace vx::paths {
     inline const fs::path kResourcesPath =
             fs::path(pathToPathsFile).parent_path().parent_path() / fs::path("resources");
     inline const fs::path kAssetsPath = kResourcesPath / fs::path("assets");
+    inline const fs::path kFixturesPath = kAssetsPath / fs::path("fixtures");
+    inline const fs::path kGameObjetsPath = kAssetsPath / fs::path("game_objects");
+
     inline const fs::path kShadersPath = kResourcesPath / fs::path("shaders");
 
     enum ShaderModule { kCore = 0, kDebug };

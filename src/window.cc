@@ -27,13 +27,11 @@ namespace vx {
     static void glfwErrorCallback(int err, const char *msg) { spdlog::error("GLFW Error {}: {}", err, msg); }
 
     static void glfwCursorPosCallback([[maybe_unused]] GLFWwindow *_window, double xpos, double ypos) {
-        // TODO (@jparr721) Change this to also freeze mouse when popup open
-        const bool isImGuiItemActive = ImGui::IsAnyItemFocused() || ImGui::IsAnyItemHovered();
-        input->handleCursorPos(xpos, ypos, camera, isImGuiItemActive);
+        input->handleCursorPos(xpos, ypos, camera);
     }
 
     static void glfwMouseButtonCallback(GLFWwindow *_window, int button, int action, int mods) {
-        input->handleMouseButtonPress(_window, button, action, mods, camera);
+        if (!ImGui::GetIO().WantCaptureMouse) { input->handleMouseButtonPress(_window, button, action, mods, camera); }
     }
 
     static void glfwKeyCallback([[maybe_unused]] GLFWwindow *_window, int key, int scancode, int action, int mods) {
@@ -83,10 +81,12 @@ namespace vx {
             spdlog::error("Could not get video mode");
             return false;
         }
+
         glfwWindowHint(GLFW_RED_BITS, mode->redBits);
         glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
         glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
         glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
         windowDimensions = ivec2(mode->width, mode->height);
         spdlog::debug("Dimensions: {}", glm::to_string(windowDimensions));
         window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowTitle.c_str(), nullptr, nullptr);
@@ -191,6 +191,8 @@ namespace vx {
                             windowDimensions.x, windowDimensions.y);
             gui::applyDefaultStyle();
             menubar->render(window);
+            ImGui::ShowDemoWindow();
+            if (ImGui::IsAnyItemHovered() || ImGui::IsAnyItemFocused()) { ImGui::GetIO().WantCaptureMouse = true; }
             imguiEndFrame();
             //==============================
 

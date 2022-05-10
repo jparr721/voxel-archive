@@ -1,9 +1,11 @@
 #pragma once
 
 #include "../math.h"
+#include "../util/colors.h"
 #include "bgfx.h"
 #include "primitive.h"
 #include <array>
+#include <random>
 #include <vector>
 
 namespace vx::gfx {
@@ -89,18 +91,6 @@ namespace vx::gfx {
         };
     };
 
-    struct Block {
-        bool active = false;
-        bool selected = false;
-
-        BlockType blockType;
-        BlockDir::BlockDirIndices blockDirIndices;
-        std::vector<gfx::VertexColorHex> blockVertexColors;
-
-        Block(BlockType _blockType, BlockDir::BlockDirIndices _blockDirIndices,
-              const vec3 &startingPosition = vec3(0, 0, 0));
-    };
-
-    void translateBlock(const vec3 &diff, Block &block);
     auto makeOffsetCubeVertices(const vec3 &startingPosition) -> std::array<vec3, 8>;
+    auto makeColorFromBlockType(BlockType blockType) -> u32;
 }// namespace vx::gfx

@@ -29,15 +29,13 @@ namespace vx::ctrl {
                (mouseButtonStates_.at(GLFW_MOUSE_BUTTON_MIDDLE) ? IMGUI_MBUT_MIDDLE : 0);
     }
 
-    void MouseInput::handleCursorPos(int xpos, int ypos, std::shared_ptr<Camera> &camera_, bool isImGuiItemActive) {
+    void MouseInput::handleCursorPos(int xpos, int ypos, std::shared_ptr<Camera> &camera_) {
         currentMousePos_ = vec2(xpos, ypos);
         vec2 dpos = lastMousePos_ - currentMousePos_;
 
-        if (!isImGuiItemActive) {
-            if (camera_->panning) { camera_->pan(dpos[0], dpos[1]); }
-            if (camera_->rotating) { camera_->rotate(dpos[0], dpos[1]); }
-            if (camera_->zooming) { camera_->zoom(-dpos[1]); }
-        }
+        if (camera_->panning) { camera_->pan(dpos[0], dpos[1]); }
+        if (camera_->rotating) { camera_->rotate(dpos[0], dpos[1]); }
+        if (camera_->zooming) { camera_->zoom(-dpos[1]); }
         lastMousePos_ = currentMousePos_;
     }
 }// namespace vx::ctrl

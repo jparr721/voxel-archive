@@ -8,9 +8,9 @@
 #include <vector>
 
 namespace vx::gfx {
-    struct Chunk {
+    class Chunk {
+    public:
         std::string identifier;
-        std::string path;
         std::string shaderModule;
 
         float minX;
@@ -22,12 +22,14 @@ namespace vx::gfx {
         float minZ;
         float maxZ;
 
-        std::vector<Block> blocks;
         std::vector<u16> indices;
         std::vector<VertexColorHex> geometry;
 
         explicit Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation = vec3(0, 0, 0),
                        std::string moduleName = "core", std::string identifier = "Chunk");
+        void write(bool isFixture) noexcept;
+    private:
+        void setBounds();
     };
 
     void translateChunk(const vec3 &amount, Chunk &chunk);
