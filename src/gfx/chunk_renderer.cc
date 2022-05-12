@@ -19,14 +19,16 @@ namespace vx::gfx {
         const auto vb =
                 bgfx::createDynamicVertexBuffer(bgfx::makeRef(chunk.geometry.data(), geometrySize), vertexLayout_);
         const auto ib = bgfx::createDynamicIndexBuffer(bgfx::makeRef(chunk.indices.data(), indicesSize));
-        buffers_.emplace_back(vb, ib);
+        buffers_.emplace_back(chunk.identifier, vb, ib);
     }
+
+    void ChunkRenderer::removeChunk(const Chunk &chunk) {}
 
     void ChunkRenderer::render(const bgfx::ProgramHandle &program) {
         // TODO Need to add a program loader here since each chunk will be its own fs vs combo.
         u64 state = BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_MSAA | BGFX_STATE_DEPTH_TEST_LESS;
 
-        for (const auto &[vertexBuffer, indexBuffer] : buffers_) {
+        for (const auto &[_id, vertexBuffer, indexBuffer] : buffers_) {
             bgfx::setVertexBuffer(0, vertexBuffer);
             bgfx::setIndexBuffer(indexBuffer);
 
@@ -36,9 +38,9 @@ namespace vx::gfx {
     }
 
     void ChunkRenderer::destroy() {
-        for (const auto &[vb, ib] : buffers_) {
-            bgfx::destroy(vb);
-            bgfx::destroy(ib);
+        for (const auto &[_id, vertexBuffer, indexBuffer] : buffers_) {
+            bgfx::destroy(vertexBuffer);
+            bgfx::destroy(indexBuffer);
         }
     }
 }// namespace vx::gfx

@@ -28,7 +28,29 @@ namespace vx::gfx {
         loadChunks();
     }
 
+    void ChunkStorage::deleteChunk(const Chunk &chunk) {
+        int ii = 0;
+        for (const auto &c : chunks_) {
+            if (chunk.identifier == c.identifier) {
+                chunks_.erase(chunks_.begin() + ii);
+                spdlog::info("{} Chunk deleted successfully", __FILE__);
+                break;
+            }
+            ++ii;
+        }
+        loadChunks();
+
+        // TODO(@jparr721) Move this elsewhere
+        for (const auto &[moduleName, renderer] : renderers_) {
+            if (chunk.shaderModule == moduleName) {
+                renderer->removeChunk(chunk);
+                break;
+            }
+        }
+    }
+
     void ChunkStorage::loadChunks() {
+        // TODO(@jparr721) - We need to nuke the module if there are none left in this module
         for (const auto &chunk : chunks_) {
             const auto moduleName = chunk.shaderModule;
             // Load the shader program

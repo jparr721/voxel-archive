@@ -4,6 +4,7 @@
 #include "bgfx.h"
 #include "chunk.h"
 #include <array>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -13,6 +14,7 @@ namespace vx::gfx {
         ChunkRenderer();
 
         void addChunk(const Chunk &chunk);
+        void removeChunk(const Chunk &chunk);
 
         void render(const bgfx::ProgramHandle &program);
         void destroy();
@@ -20,8 +22,16 @@ namespace vx::gfx {
         auto vertexLayout() const -> const bgfx::VertexLayout & { return vertexLayout_; }
 
     private:
-        const std::vector<Chunk> chunks_;
+        struct IdentifiedBuffer {
+            std::string identifier;
+            bgfx::DynamicVertexBufferHandle vertexBuffer;
+            bgfx::DynamicIndexBufferHandle indexBuffer;
+            IdentifiedBuffer(std::string _identifier, bgfx::DynamicVertexBufferHandle _vertexBuffer,
+                             bgfx::DynamicIndexBufferHandle _indexBuffer)
+                : identifier(_identifier), vertexBuffer(_vertexBuffer), indexBuffer(_indexBuffer) {}
+        };
+
         bgfx::VertexLayout vertexLayout_;
-        std::vector<std::pair<bgfx::DynamicVertexBufferHandle, bgfx::DynamicIndexBufferHandle>> buffers_;
+        std::vector<IdentifiedBuffer> buffers_;
     };
 }// namespace vx::gfx

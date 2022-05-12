@@ -30,6 +30,7 @@ namespace vx::gfx {
         void write(bool isFixture) const noexcept;
 
         auto operator=(const gfx::Chunk &chunk) -> Chunk & = default;
+        auto operator==(const gfx::Chunk &other) const -> bool;
 
     private:
         void setBounds();

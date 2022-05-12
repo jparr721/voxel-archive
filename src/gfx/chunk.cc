@@ -71,6 +71,12 @@ namespace vx::gfx {
         chunkfile.close();
     }
 
+    auto Chunk::operator==(const gfx::Chunk &other) const -> bool {
+        return identifier == other.identifier && shaderModule == other.shaderModule && minX == other.minX &&
+               maxX == other.maxX && minY == other.minY && maxY == other.maxY && minZ == other.minZ &&
+               maxZ == other.maxZ && indices == other.indices && geometry == other.geometry;
+    }
+
     void Chunk::setBounds() {
         for (const auto &vertex : geometry) {
             const auto x = vertex.position[0];

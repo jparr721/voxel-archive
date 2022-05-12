@@ -123,8 +123,6 @@ namespace vx::level_editor {
                     gfx::ChunkStorage::getInstance()->addChunk(chunk);
                 }
 
-                spdlog::info("identifier {}", chunkMenuData.identifier);
-
                 chunk.write(chunkMenuData.isFixture);
 
                 if (!chunkMenuState.addAnotherChunk) {
@@ -174,11 +172,14 @@ namespace vx::level_editor {
                     ImGui::Text("Y Bounds: %f, %f", chunk.minY, chunk.maxY);
                     ImGui::Text("Z Bounds: %f, %f", chunk.minZ, chunk.maxZ);
                     ImGui::Text("Starting Point %s", glm::to_string(ivec3(chunk.geometry.front().position)).c_str());
+
                     if (ImGui::Button("Edit")) {
                         chunkMenuData = chunk;
                         chunkMenuState.addNewChunkPopupOpen = true;
                         chunkMenuState.editingExistingChunk = true;
                     }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Delete")) { gfx::ChunkStorage::getInstance()->deleteChunk(chunk); }
                     ImGui::TreePop();
                 }
             }
