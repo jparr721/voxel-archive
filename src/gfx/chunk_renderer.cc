@@ -22,7 +22,19 @@ namespace vx::gfx {
         buffers_.emplace_back(chunk.identifier, vb, ib);
     }
 
-    void ChunkRenderer::removeChunk(const Chunk &chunk) {}
+    void ChunkRenderer::removeChunk(const Chunk &chunk) {
+        int ii = 0;
+        for (const auto &[id, vertexBuffer, indexBuffer] : buffers_) {
+            if (chunk.identifier == id) {
+                bgfx::destroy(vertexBuffer);
+                bgfx::destroy(indexBuffer);
+                buffers_.erase(buffers_.begin() + ii);
+                spdlog::info("Chunk {} deleted from render memory", chunk.identifier);
+                return;
+            }
+            ++ii;
+        }
+    }
 
     void ChunkRenderer::render(const bgfx::ProgramHandle &program) {
         // TODO Need to add a program loader here since each chunk will be its own fs vs combo.

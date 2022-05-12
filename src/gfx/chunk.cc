@@ -40,7 +40,6 @@ namespace vx::gfx {
     }
 
     void Chunk::write(bool isFixture) const noexcept {
-        spdlog::info("IDENTIFIER {}", identifier);
         const fs::path filepath = isFixture ? paths::kFixturesPath / fs::path(identifier + ".chunk")
                                             : paths::kAssetsPath / fs::path(identifier + ".chunk");
         spdlog::info("Writing chunk to {}", filepath.string());

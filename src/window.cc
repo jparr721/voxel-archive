@@ -175,16 +175,6 @@ namespace vx {
         menubar->registerMenu(level_editor::showChunkMenu);
         menubar->registerMenu(level_editor::showProjectMenu);
 
-        auto chunk1 = gfx::Chunk(ivec3(50, 1, 50), vec3(0, 0, 0), "core", "Chunk 1");
-        auto chunk2 = gfx::Chunk(ivec3(50, 1, 50), vec3(50, 0, 0), "core", "Chunk 2");
-        auto chunk3 = gfx::Chunk(ivec3(50, 1, 50), vec3(0, 0, 50), "core", "Chunk 3");
-        auto chunk4 = gfx::Chunk(ivec3(50, 1, 50), vec3(50, 0, 50), "core", "Chunk 4");
-
-        gfx::ChunkStorage::getInstance()->addChunk(chunk1);
-        gfx::ChunkStorage::getInstance()->addChunk(chunk2);
-        gfx::ChunkStorage::getInstance()->addChunk(chunk3);
-        gfx::ChunkStorage::getInstance()->addChunk(chunk4);
-
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
 
