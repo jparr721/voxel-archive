@@ -54,6 +54,7 @@ add_library(${PROJECT_LIB}
         src/util/colors.h
         src/util/strings.h
         src/util/files.h
+        src/util/collections.h
 
         src/level_editor/settings_menu.h
         src/level_editor/chunk_menu.h

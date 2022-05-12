@@ -3,6 +3,7 @@
 #include "../gfx/glfw.h"
 #include "../gui/styles.h"
 #include "../paths.h"
+#include "../util/collections.h"
 #include "../util/files.h"
 #include <cstring>
 #include <imgui.h>
@@ -12,9 +13,11 @@ namespace vx::level_editor {
     struct ChunkMenuState {
         bool addNewChunkPopupOpen = false;
         bool chunkSettingsMenuVisible = true;
-        bool saveButtonDisabled = true;
         bool addAnotherChunk = false;
         bool editingExistingChunk = false;
+        bool nameAlreadyTaken = false;
+
+        bool saveButtonDisabled = true;
 
         int selectedShaderModuleOption = 0;
 
@@ -67,6 +70,15 @@ namespace vx::level_editor {
             ImGui::Text("Identifier");
             ImGui::InputText("##identifier", chunkMenuData.identifier, 512);
 
+            const std::function<bool(const gfx::Chunk &, const std::string &)> compare =
+                    [&](const gfx::Chunk &chunk, const std::string &identifier) {
+                        if (chunk.identifier == identifier) { return true; }
+                        return false;
+                    };
+            chunkMenuState.nameAlreadyTaken = util::inContainer(gfx::ChunkStorage::getInstance()->chunks(),
+                                                                std::string(chunkMenuData.identifier), compare) > -1;
+            if (chunkMenuState.nameAlreadyTaken) { ImGui::TextColored(ImVec4(1, 0, 0, 1), "Name is taken"); }
+
             ImGui::Text("Shader Module");
             ImGui::Combo("##shadermodule", &chunkMenuState.selectedShaderModuleOption,
                          paths::kAvailableShaderModules.data(), 2);
@@ -74,9 +86,12 @@ namespace vx::level_editor {
 
             const auto &[width, height] = ImGui::GetWindowSize();
             const float tripletInputWidth = width * 0.3;
+
+            // TODO(@jparr721) Better error message
             const auto chunkSizeInvalid =
                     isInvalidChunkSize(chunkMenuData.xdim, chunkMenuData.ydim, chunkMenuData.zdim);
-            if (chunkSizeInvalid) { ImGui::TextColored(ImVec4(1, 0, 0, 1), "Chunk size too large"); }
+            if (chunkSizeInvalid) { ImGui::TextColored(ImVec4(1, 0, 0, 1), "Chunk size is invalid"); }
+
             ImGui::Text("Chunk Dimensions (x, y, z)");
             ImGui::SetNextItemWidth(tripletInputWidth);
             ImGui::InputInt("##x", &chunkMenuData.xdim, 5);
@@ -107,6 +122,7 @@ namespace vx::level_editor {
 
             ImGui::Checkbox("Add Another Chunk", &chunkMenuState.addAnotherChunk);
 
+            chunkMenuState.saveButtonDisabled = chunkMenuState.nameAlreadyTaken || chunkSizeInvalid;
             if (chunkMenuState.saveButtonDisabled) { gui::pushDisabled(); }
             // TODO(@jparr721) - Make this button green
             if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
