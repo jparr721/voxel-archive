@@ -10,10 +10,6 @@
 namespace vx::gfx {
     class ChunkStorage {
     public:
-        ChunkStorage(const ChunkStorage &cs) = delete;
-        auto operator=(const ChunkStorage &cs) -> ChunkStorage & = delete;
-        static auto getInstance() -> ChunkStorage *;
-
         void render();
         void destroy();
         void addChunk(const Chunk &chunk);
@@ -26,9 +22,6 @@ namespace vx::gfx {
         std::unordered_map<std::string, std::unique_ptr<ChunkRenderer>> renderers_;
         std::vector<Chunk> chunks_;
         std::unordered_map<std::string, bgfx::ProgramHandle> shaderPrograms_;
-
-        static ChunkStorage *chunkStorage_;
-        ChunkStorage() = default;
 
         void loadChunks();
     };

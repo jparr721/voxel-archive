@@ -2,6 +2,7 @@
 #include "../gfx/chunk_storage.h"
 #include "../gfx/glfw.h"
 #include "../gui/styles.h"
+#include "../level_editor/project.h"
 #include "../paths.h"
 #include "../util/collections.h"
 #include "../util/files.h"
@@ -75,8 +76,9 @@ namespace vx::level_editor {
                         if (chunk.identifier == identifier) { return true; }
                         return false;
                     };
-            chunkMenuState.nameAlreadyTaken = util::inContainer(gfx::ChunkStorage::getInstance()->chunks(),
-                                                                std::string(chunkMenuData.identifier), compare) > -1;
+            chunkMenuState.nameAlreadyTaken =
+                    util::inContainer(level_editor::Project::getInstance()->storage()->chunks(),
+                                      std::string(chunkMenuData.identifier), compare) > -1;
             if (chunkMenuState.nameAlreadyTaken) { ImGui::TextColored(ImVec4(1, 0, 0, 1), "Name is taken"); }
 
             ImGui::Text("Shader Module");
@@ -133,10 +135,10 @@ namespace vx::level_editor {
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
                                        chunkMenuData.identifier);
                 if (chunkMenuState.editingExistingChunk) {
-                    gfx::ChunkStorage::getInstance()->setChunk(chunk);
+                    level_editor::Project::getInstance()->storage()->setChunk(chunk);
                     chunkMenuState.editingExistingChunk = false;
                 } else {
-                    gfx::ChunkStorage::getInstance()->addChunk(chunk);
+                    level_editor::Project::getInstance()->storage()->addChunk(chunk);
                 }
 
                 chunk.write(chunkMenuData.isFixture);
@@ -176,10 +178,10 @@ namespace vx::level_editor {
 
         ImGui::Begin("Chunks");
         ImGui::PushItemFlag(ImGuiTreeNodeFlags_SpanAvailWidth, true);
-        if (gfx::ChunkStorage::getInstance()->chunks().empty()) {
+        if (level_editor::Project::getInstance()->storage()->chunks().empty()) {
             ImGui::Text("No Chunks Loaded.");
         } else {
-            for (const auto &chunk : gfx::ChunkStorage::getInstance()->chunks()) {
+            for (const auto &chunk : level_editor::Project::getInstance()->storage()->chunks()) {
                 if (ImGui::TreeNodeEx(chunk.identifier.c_str())) {
                     ImGui::Text("N Indices: %lu", chunk.indices.size());
                     ImGui::Text("Max Index: %hu", *std::max_element(chunk.indices.begin(), chunk.indices.end()));
@@ -195,7 +197,9 @@ namespace vx::level_editor {
                         chunkMenuState.editingExistingChunk = true;
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Delete")) { gfx::ChunkStorage::getInstance()->deleteChunk(chunk); }
+                    if (ImGui::Button("Delete")) {
+                        level_editor::Project::getInstance()->storage()->deleteChunk(chunk);
+                    }
                     ImGui::TreePop();
                 }
             }

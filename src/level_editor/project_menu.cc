@@ -13,6 +13,9 @@ namespace vx::level_editor {
 
     static ProjectMenuState projectMenuState;
 
+    void loadProject() {}
+    void createNewProject() {}
+
     void changeProjectNamePopup() {
         ImGui::SetNextWindowSize(ImVec2(200, 125));
         if (ImGui::BeginPopupModal(projectMenuState.projectNameChangePopupTitle, nullptr, ImGuiWindowFlags_NoResize)) {
@@ -39,7 +42,8 @@ namespace vx::level_editor {
 
         if (ImGui::BeginMenu("Project")) {
             if (ImGui::MenuItem(projectNameListing)) { projectMenuState.changeProjectNamePopupVisible = true; }
-            if (ImGui::MenuItem("Save")) { spdlog::info("Saving project"); }
+            if (ImGui::MenuItem("New")) { spdlog::info("Opening new project"); }
+            if (ImGui::MenuItem("Load")) { spdlog::info("Loading project"); }
             ImGui::EndMenu();
         }
 

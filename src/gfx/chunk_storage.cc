@@ -3,13 +3,6 @@
 #include "../resources.h"
 
 namespace vx::gfx {
-    ChunkStorage *ChunkStorage::chunkStorage_ = nullptr;
-
-    auto ChunkStorage::getInstance() -> ChunkStorage * {
-        if (chunkStorage_ == nullptr) { chunkStorage_ = new ChunkStorage(); }
-        return chunkStorage_;
-    }
-
     void ChunkStorage::render() {
         for (const auto &chunk : chunks_) {
             const auto moduleName = chunk.shaderModule;

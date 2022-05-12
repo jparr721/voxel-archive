@@ -8,6 +8,7 @@
 #include "gui/styles.h"
 #include "imgui_multiplatform/imgui.h"
 #include "level_editor/chunk_menu.h"
+#include "level_editor/project.h"
 #include "level_editor/project_menu.h"
 #include "level_editor/settings_menu.h"
 #include "paths.h"
@@ -171,9 +172,9 @@ namespace vx {
         bgfx::ProgramHandle program{};
         initializeBgfx(program);
 
-        menubar->registerMenu(level_editor::showSettingsMenu);
-        menubar->registerMenu(level_editor::showChunkMenu);
         menubar->registerMenu(level_editor::showProjectMenu);
+        menubar->registerMenu(level_editor::showChunkMenu);
+        menubar->registerMenu(level_editor::showSettingsMenu);
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -197,7 +198,8 @@ namespace vx {
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
-            gfx::ChunkStorage::getInstance()->render();
+            level_editor::Project::getInstance()->render();
+            /* gfx::ChunkStorage::getInstance()->render(); */
 
             glfwSwapBuffers(window);
             bgfx::frame();
@@ -206,7 +208,7 @@ namespace vx {
         bgfx::destroy(program);
         spdlog::info("Deleting buffers");
         imguiDestroy();
-        gfx::ChunkStorage::getInstance()->destroy();
+        level_editor::Project::getInstance()->destroy();
         bgfx::shutdown();
         glfwTerminate();
 
