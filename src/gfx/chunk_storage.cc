@@ -22,23 +22,17 @@ namespace vx::gfx {
     }
 
     void ChunkStorage::deleteChunk(const Chunk &chunk) {
-        int ii = 0;
-        for (const auto &c : chunks_) {
-            if (chunk.identifier == c.identifier) {
+        for (int ii = 0; ii < chunks_.size(); ++ii) {
+            const auto &ck = chunks_.at(ii);
+            if (ck.identifier == chunk.identifier) {
                 chunks_.erase(chunks_.begin() + ii);
-                spdlog::info("{} Chunk deleted successfully", __FILE__);
                 break;
             }
-            ++ii;
         }
-        loadChunks();
 
-        // TODO(@jparr721) Move this elsewhere
-        for (const auto &[moduleName, renderer] : renderers_) {
-            if (chunk.shaderModule == moduleName) {
-                renderer->removeChunk(chunk);
-                break;
-            }
+        for (auto &[moduleName, renderer] : renderers_) {
+            renderer->removeChunk(chunk);
+            break;
         }
     }
 

@@ -199,7 +199,6 @@ namespace vx {
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
             level_editor::Project::getInstance()->render();
-            /* gfx::ChunkStorage::getInstance()->render(); */
 
             glfwSwapBuffers(window);
             bgfx::frame();

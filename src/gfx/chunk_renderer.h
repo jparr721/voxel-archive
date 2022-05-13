@@ -14,6 +14,11 @@ namespace vx::gfx {
         ChunkRenderer();
 
         void addChunk(const Chunk &chunk);
+
+        /**
+         * Remove a chunk
+         * @param {Chunk} chunk - The chunk we're removing
+         */
         void removeChunk(const Chunk &chunk);
 
         void render(const bgfx::ProgramHandle &program);
