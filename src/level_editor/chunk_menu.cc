@@ -71,6 +71,7 @@ namespace vx::level_editor {
             ImGui::Text("Identifier");
             ImGui::InputText("##identifier", chunkMenuData.identifier, 512);
 
+            // Check if the naem is already taken
             const std::function<bool(const gfx::Chunk &, const std::string &)> compare =
                     [&](const gfx::Chunk &chunk, const std::string &identifier) {
                         if (chunk.identifier == identifier) { return true; }
@@ -81,6 +82,7 @@ namespace vx::level_editor {
                                       std::string(chunkMenuData.identifier), compare) > -1;
             if (chunkMenuState.nameAlreadyTaken) { ImGui::TextColored(ImVec4(1, 0, 0, 1), "Name is taken"); }
 
+            // Load shader modules from disk in the resource path for slection
             ImGui::Text("Shader Module");
             ImGui::Combo("##shadermodule", &chunkMenuState.selectedShaderModuleOption,
                          paths::kAvailableShaderModules.data(), 2);
@@ -103,10 +105,6 @@ namespace vx::level_editor {
             ImGui::SameLine();
             ImGui::SetNextItemWidth(tripletInputWidth);
             ImGui::InputInt("##z", &chunkMenuData.zdim, 5);
-
-            if (chunkMenuData.xdim > 0 || chunkMenuData.ydim > 0 || chunkMenuData.zdim > 0 && chunkSizeInvalid) {
-                chunkMenuState.saveButtonDisabled = false;
-            }
 
             ImGui::Checkbox("Fixture", &chunkMenuData.isFixture);
 
