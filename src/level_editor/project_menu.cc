@@ -1,4 +1,6 @@
 #include "project_menu.h"
+#include "project.h"
+#include <array>
 #include <cstring>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
@@ -7,8 +9,8 @@ namespace vx::level_editor {
     struct ProjectMenuState {
         bool changeProjectNamePopupVisible = false;
 
-        char *projectNameChangePopupTitle = (char *) "Change Project Name";
-        char projectName[512] = "Default";
+        char projectNameChangePopupTitle[20] = "Change Project Name";
+        std::array<char, 512> tempProjectName;
     };
 
     static ProjectMenuState projectMenuState;
@@ -19,17 +21,21 @@ namespace vx::level_editor {
     void changeProjectNamePopup() {
         ImGui::SetNextWindowSize(ImVec2(200, 125));
         if (ImGui::BeginPopupModal(projectMenuState.projectNameChangePopupTitle, nullptr, ImGuiWindowFlags_NoResize)) {
-            const auto previousName = projectMenuState.projectName;
-            ImGui::Text("Project Name");
-            ImGui::InputText("##projectName", projectMenuState.projectName, 512);
+            // Save the preious name in case cancel is clicked
+            const std::string previousName = Project::getInstance()->name;
 
-            // TODO(@jparr721) - Make this button green
-            if (ImGui::Button("Save")) { ImGui::CloseCurrentPopup(); }
+            ImGui::Text("Project Name");
+            ImGui::InputText("##projectName", projectMenuState.tempProjectName.data(), 512);
+
+            // If save, just close the popup with no changes.
+            if (ImGui::Button("Save")) {
+                Project::getInstance()->name = projectMenuState.tempProjectName.data();
+                ImGui::CloseCurrentPopup();
+            }
             ImGui::SameLine();
-            // TODO (@jparr721) - Make this button red
             if (ImGui::Button("Cancel")) {
                 // Copy the name back in case it was changed.
-                std::strcpy(projectMenuState.projectName, previousName);
+                Project::getInstance()->name = previousName;
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
@@ -37,11 +43,14 @@ namespace vx::level_editor {
     }
 
     void showProjectMenu() {
-        char projectNameListing[512] = "Project Name: ";
-        std::strcat(projectNameListing, projectMenuState.projectName);
+        // First load, if the temp name is empty, assign it to the current project name
+        if (std::strcmp(projectMenuState.tempProjectName.data(), "") == 0) {
+            std::strcpy(projectMenuState.tempProjectName.data(), Project::getInstance()->name.c_str());
+        }
 
+        const std::string projectNameListing = "Project name: " + Project::getInstance()->name;
         if (ImGui::BeginMenu("Project")) {
-            if (ImGui::MenuItem(projectNameListing)) { projectMenuState.changeProjectNamePopupVisible = true; }
+            if (ImGui::MenuItem(projectNameListing.c_str())) { projectMenuState.changeProjectNamePopupVisible = true; }
             if (ImGui::MenuItem("New")) { spdlog::info("Opening new project"); }
             if (ImGui::MenuItem("Load")) { spdlog::info("Loading project"); }
             ImGui::EndMenu();

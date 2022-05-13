@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 namespace vx::level_editor {
     class Project {
     public:
-        std::string name;
+        std::string name = "Project";
 
         Project(const Project &cs) = delete;
         auto operator=(const Project &cs) -> Project & = delete;
@@ -43,7 +43,7 @@ namespace vx::level_editor {
         std::unique_ptr<gfx::ChunkStorage> chunkStorage_;
 
         /**
-         * Write to the project configuration
+         * Write to the project configuration.
          */
         void write();
     };
