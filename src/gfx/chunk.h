@@ -10,6 +10,8 @@
 namespace vx::gfx {
     class Chunk {
     public:
+        bool isFixture = false;
+
         std::string identifier;
         std::string shaderModule;
 
@@ -26,8 +28,8 @@ namespace vx::gfx {
         std::vector<VertexColorHex> geometry;
 
         explicit Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation = vec3(0, 0, 0),
-                       std::string moduleName = "core", std::string _identifier = "Chunk");
-        void write(bool isFixture) const noexcept;
+                       std::string moduleName = "core", std::string _identifier = "Chunk", bool isFixture = false);
+        void write() const noexcept;
 
         auto operator=(const gfx::Chunk &chunk) -> Chunk & = default;
         auto operator==(const gfx::Chunk &other) const -> bool;

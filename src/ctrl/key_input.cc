@@ -15,14 +15,7 @@ namespace vx::ctrl {
         if (action == GLFW_RELEASE || callbacks_.empty()) { return; }
 
         // If the key field is focused, we will add input to the string.
-        for (auto &[buf, state] : callbacks_) {
-            // Only one thing should be focused at a time, so if we find it, jump out of this function.
-            if (state.focused) {
-                char keyChar = util::mapGLFWInputToChar(key, mods);
-                state.buffer.push_back(keyChar);
-                state.lastKey = keyChar;
-            }
-        }
+        for (auto &[buf, state] : callbacks_) {}
     }
 
     void KeyInput::registerImGuiKeyCallback(const std::string &name) {

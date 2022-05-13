@@ -5,8 +5,9 @@
 #include <utility>
 
 namespace vx::gfx {
-    Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _identifier)
-        : shaderModule(std::move(moduleName)), identifier(std::move(_identifier)) {
+    Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _identifier,
+                 bool _isFixture)
+        : shaderModule(std::move(moduleName)), identifier(std::move(_identifier)), isFixture(_isFixture) {
         spdlog::debug("Loading chunk id: {} module: {}", identifier, shaderModule);
         // Origin point is always 0 0 0, so we draw from there
         u64 ii = 0;
@@ -39,9 +40,9 @@ namespace vx::gfx {
         spdlog::debug("Chunk loaded successfully");
     }
 
-    void Chunk::write(bool isFixture) const noexcept {
-        const fs::path filepath = isFixture ? paths::kFixturesPath / fs::path(identifier + ".chunk")
-                                            : paths::kAssetsPath / fs::path(identifier + ".chunk");
+    void Chunk::write() const noexcept {
+        const auto filepath = isFixture ? paths::kFixturesPath / fs::path(identifier + ".chunk")
+                                        : paths::kGameObjetsPath / fs::path(identifier + ".chunk");
         spdlog::info("Writing chunk to {}", filepath.string());
         std::ofstream chunkfile(filepath);
 

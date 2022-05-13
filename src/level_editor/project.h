@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace fs = std::filesystem;
+
 namespace vx::level_editor {
     class Project {
     public:
@@ -33,6 +35,9 @@ namespace vx::level_editor {
     private:
         static Project *project_;
         Project();
+
+        // Files for this project
+        std::vector<fs::path> chunks_;
 
         // Unique ref to chunk storage
         std::unique_ptr<gfx::ChunkStorage> chunkStorage_;

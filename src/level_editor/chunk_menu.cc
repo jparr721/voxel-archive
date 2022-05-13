@@ -133,7 +133,7 @@ namespace vx::level_editor {
                                             chunkMenuData.fixtureZOffset);
 
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
-                                       chunkMenuData.identifier);
+                                       chunkMenuData.identifier, chunkMenuData.isFixture);
                 if (chunkMenuState.editingExistingChunk) {
                     level_editor::Project::getInstance()->storage()->setChunk(chunk);
                     chunkMenuState.editingExistingChunk = false;
@@ -141,7 +141,7 @@ namespace vx::level_editor {
                     level_editor::Project::getInstance()->storage()->addChunk(chunk);
                 }
 
-                chunk.write(chunkMenuData.isFixture);
+                chunk.write();
 
                 if (!chunkMenuState.addAnotherChunk) {
                     ImGui::CloseCurrentPopup();
@@ -197,9 +197,7 @@ namespace vx::level_editor {
                         chunkMenuState.editingExistingChunk = true;
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Delete")) {
-                        level_editor::Project::getInstance()->storage()->deleteChunk(chunk);
-                    }
+                    if (ImGui::Button("Delete")) { level_editor::Project::getInstance()->deleteChunk(chunk); }
                     ImGui::TreePop();
                 }
             }
