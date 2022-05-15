@@ -13,17 +13,19 @@ namespace vx::paths {
     inline const char *pathToPathsFile = __FILE__;
     // Path to the resources folder
     inline const fs::path kResourcesPath =
-
             fs::path(pathToPathsFile).parent_path().parent_path() / fs::path("resources");
 
     // Path to the resources/assets folder
     inline const fs::path kAssetsPath = kResourcesPath / fs::path("assets");
 
+    // Path to the resources/assets/projects folder
+    inline const fs::path kProjectsPath = kAssetsPath / fs::path("projects");
+
     // Path to the resources/assets/fixtures folder
-    inline const fs::path kFixturesPath = kAssetsPath / fs::path("fixtures");
+    inline const fs::path kFixturesPath = kProjectsPath / fs::path("fixtures");
 
     // Path to the resources/assets/game_objects folder
-    inline const fs::path kGameObjetsPath = kAssetsPath / fs::path("game_objects");
+    inline const fs::path kGameObjetsPath = kProjectsPath / fs::path("game_objects");
 
     // Path to the resources/shaders folder
     inline const fs::path kShadersPath = kResourcesPath / fs::path("shaders");

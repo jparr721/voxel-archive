@@ -1,6 +1,7 @@
 #include "./project.h"
 #include "../paths.h"
 #include "../util/strings.h"
+#include <fstream>
 
 namespace vx::level_editor {
     Project *Project::project_ = nullptr;
@@ -51,5 +52,9 @@ namespace vx::level_editor {
         return std::nullopt;
     }
 
-    void Project::write() {}
+    void Project::write() {
+        const auto projectPath = paths::kProjectsPath / fs::path(name + ".xml");
+
+        std::ofstream projectFile;
+    }
 }// namespace vx::level_editor
