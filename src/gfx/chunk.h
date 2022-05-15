@@ -12,23 +12,28 @@ namespace vx::gfx {
     public:
         bool isFixture = false;
 
+        BlockType blockType = BlockType::kDebug;
+
         std::string identifier;
         std::string shaderModule;
 
-        float minX;
-        float maxX;
+        float xmin = std::numeric_limits<float>::max();
+        float xmax = std::numeric_limits<float>::min();
+        float ymin = std::numeric_limits<float>::max();
+        float ymax = std::numeric_limits<float>::min();
+        float zmin = std::numeric_limits<float>::max();
+        float zmax = std::numeric_limits<float>::min();
 
-        float minY;
-        float maxY;
-
-        float minZ;
-        float maxZ;
+        int xdim;
+        int ydim;
+        int zdim;
 
         std::vector<u16> indices;
         std::vector<VertexColorHex> geometry;
 
         explicit Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation = vec3(0, 0, 0),
-                       std::string moduleName = "core", std::string _identifier = "Chunk", bool isFixture = false);
+                       std::string moduleName = "core", std::string _identifier = "Chunk", bool _isFixture = false,
+                       const BlockType &_blockType = BlockType::kDebug);
         void write() const noexcept;
 
         auto operator=(const gfx::Chunk &chunk) -> Chunk & = default;

@@ -30,6 +30,10 @@ namespace vx::paths {
     // Path to the resources/shaders folder
     inline const fs::path kShadersPath = kResourcesPath / fs::path("shaders");
 
+    // Standard extension for projects
+    inline constexpr auto kXmlPostfix = ".xml";
+
+    // Shader modules
     enum ShaderModule { kCore = 0, kDebug };
     inline const std::array<char *, 2> kAvailableShaderModules = {(char *) "core", (char *) "debug"};
 }// namespace vx::paths

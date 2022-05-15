@@ -2,6 +2,11 @@
 #include <random>
 
 namespace vx::gfx {
+    static constexpr auto BlockTypeStringkDefault = "kDefault";
+    static constexpr auto BlockTypeStringkDirt = "kDirt";
+    static constexpr auto BlockTypeStringkGrass = "kGrass";
+    static constexpr auto BlockTypeStringkDebug = "kDebug";
+
     auto makeOffsetCubeVertices(const vec3 &startingPosition) -> std::array<vec3, 8> {
         std::array<vec3, 8> vertices{};
         for (int ii = 0; ii < kCubeVertices.size(); ++ii) {
@@ -32,5 +37,33 @@ namespace vx::gfx {
                 break;
         }
         return color;
+    }
+
+    auto blockTypeToString(BlockType blockType) -> std::string {
+        switch (blockType) {
+            case BlockType::kDefault:
+                return BlockTypeStringkDefault;
+                break;
+            case BlockType::kDirt:
+                return BlockTypeStringkDirt;
+                break;
+            case BlockType::kGrass:
+                return BlockTypeStringkGrass;
+                break;
+            case BlockType::kDebug:
+                return BlockTypeStringkDebug;
+                break;
+        }
+    }
+
+    auto stringToBlockType(const std::string &blockType) -> BlockType {
+        if (blockType == BlockTypeStringkDefault) {
+            return BlockType::kDefault;
+        } else if (blockType == BlockTypeStringkDirt) {
+            return BlockType::kDirt;
+        } else if (blockType == BlockTypeStringkGrass) {
+            return BlockType::kGrass;
+        }
+        return BlockType::kDebug;
     }
 }// namespace vx::gfx

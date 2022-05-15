@@ -45,9 +45,9 @@ namespace vx::level_editor {
             std::strcpy(identifier, chunk.identifier.c_str());
             shaderModule = chunk.shaderModule;
 
-            xdim = chunk.maxX - chunk.minX;
-            ydim = chunk.maxY - chunk.minY;
-            zdim = chunk.maxZ - chunk.minZ;
+            xdim = chunk.xmax - chunk.xmin;
+            ydim = chunk.ymax - chunk.ymin;
+            zdim = chunk.zmax - chunk.zmin;
 
             fixtureXOffset = chunk.geometry.front().position.x;
             fixtureYOffset = chunk.geometry.front().position.y;
@@ -133,13 +133,11 @@ namespace vx::level_editor {
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
                                        chunkMenuData.identifier, chunkMenuData.isFixture);
                 if (chunkMenuState.editingExistingChunk) {
-                    level_editor::Project::getInstance()->storage()->setChunk(chunk);
+                    level_editor::Project::getInstance()->setChunk(chunk);
                     chunkMenuState.editingExistingChunk = false;
                 } else {
-                    level_editor::Project::getInstance()->storage()->addChunk(chunk);
+                    level_editor::Project::getInstance()->addChunk(chunk);
                 }
-
-                chunk.write();
 
                 if (!chunkMenuState.addAnotherChunk) {
                     ImGui::CloseCurrentPopup();
@@ -184,9 +182,9 @@ namespace vx::level_editor {
                     ImGui::Text("N Indices: %lu", chunk.indices.size());
                     ImGui::Text("Max Index: %hu", *std::max_element(chunk.indices.begin(), chunk.indices.end()));
                     ImGui::Text("N Vertices: %lu", chunk.geometry.size());
-                    ImGui::Text("X Bounds: %f, %f", chunk.minX, chunk.maxX);
-                    ImGui::Text("Y Bounds: %f, %f", chunk.minY, chunk.maxY);
-                    ImGui::Text("Z Bounds: %f, %f", chunk.minZ, chunk.maxZ);
+                    ImGui::Text("X Bounds: %i", chunk.xdim);
+                    ImGui::Text("Y Bounds: %i", chunk.ydim);
+                    ImGui::Text("Z Bounds: %i", chunk.zdim);
                     ImGui::Text("Starting Point %s", glm::to_string(ivec3(chunk.geometry.front().position)).c_str());
 
                     if (ImGui::Button("Edit")) {

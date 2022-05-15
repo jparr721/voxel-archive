@@ -18,6 +18,7 @@ namespace vx::gfx {
 
     void ChunkStorage::addChunk(const Chunk &chunk) {
         chunks_.push_back(chunk);
+        chunk.write();
         loadChunks();
     }
 

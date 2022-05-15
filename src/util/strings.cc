@@ -24,4 +24,8 @@ namespace vx::util {
 
         return true;
     }
+
+    auto semverToString(int major, int minor, int patch) -> std::string {
+        return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+    }
 }// namespace vx::util

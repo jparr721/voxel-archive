@@ -23,6 +23,7 @@ add_subdirectory(third_party/entt)
 option(BGFX_BUILD_EXAMPLES "Build bgfx examples." OFF)
 add_subdirectory(third_party/bgfx)
 add_subdirectory(third_party/glm)
+add_subdirectory(third_party/pugixml)
 
 target_link_libraries(imgui bx)
 
@@ -112,6 +113,7 @@ target_link_libraries(${PROJECT_LIB} PUBLIC
         bx
         bimg
         glm::glm
+        pugixml::pugixml
         )
 
 add_executable(${PROJECT_NAME}

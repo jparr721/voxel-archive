@@ -5,9 +5,8 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
-
-namespace fs = std::filesystem;
 
 namespace vx::level_editor {
     class Project {
@@ -23,7 +22,7 @@ namespace vx::level_editor {
         void render();
         void destroy();
         void addChunk(const gfx::Chunk &chunk);
-        void setChunk(const std::string &identifier, const gfx::Chunk &chunk);
+        void setChunk(const gfx::Chunk &chunk);
         void deleteChunk(const gfx::Chunk &chunk);
 
         // ====== Getters
@@ -37,7 +36,8 @@ namespace vx::level_editor {
         Project();
 
         // Files for this project
-        std::vector<fs::path> chunks_;
+        std::vector<gfx::Chunk> fixtureChunks_;
+        std::vector<gfx::Chunk> gameObjectChunks_;
 
         // Unique ref to chunk storage
         std::unique_ptr<gfx::ChunkStorage> chunkStorage_;
