@@ -8,10 +8,12 @@
 #include <unordered_map>
 #include <vector>
 
+namespace fs = std::filesystem;
+
 namespace vx::level_editor {
     class Project {
     public:
-        std::string name = "Project";
+        std::string name = "Level";
 
         Project(const Project &cs) = delete;
         auto operator=(const Project &cs) -> Project & = delete;
@@ -30,6 +32,12 @@ namespace vx::level_editor {
         auto storage() -> std::unique_ptr<gfx::ChunkStorage> & { return chunkStorage_; }
         auto getChunks() const -> const std::vector<gfx::Chunk> &;
         auto getChunkByIdentifier(const std::string &identifier) const -> std::optional<const gfx::Chunk>;
+
+        // Project path management
+        auto projectFilePath() -> fs::path;
+        auto projectFolderPath() -> fs::path;
+        auto fixtureFolderPath() -> fs::path;
+        auto gameObjectFolderPath() -> fs::path;
 
     private:
         static Project *project_;

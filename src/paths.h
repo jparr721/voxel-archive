@@ -21,12 +21,6 @@ namespace vx::paths {
     // Path to the resources/assets/projects folder
     inline const fs::path kProjectsPath = kAssetsPath / fs::path("projects");
 
-    // Path to the resources/assets/fixtures folder
-    inline const fs::path kFixturesPath = kProjectsPath / fs::path("fixtures");
-
-    // Path to the resources/assets/game_objects folder
-    inline const fs::path kGameObjetsPath = kProjectsPath / fs::path("game_objects");
-
     // Path to the resources/shaders folder
     inline const fs::path kShadersPath = kResourcesPath / fs::path("shaders");
 

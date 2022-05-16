@@ -1,4 +1,5 @@
 #include "chunk.h"
+#include "../level_editor/project.h"
 #include "../paths.h"
 #include "../util//strings.h"
 #include <fstream>
@@ -114,8 +115,10 @@ namespace vx::gfx {
 #endif
 
         // Save the file to our pre-determined path
-        const auto filepath = isFixture ? paths::kFixturesPath / fs::path(identifier + paths::kXmlPostfix)
-                                        : paths::kGameObjetsPath / fs::path(identifier + paths::kXmlPostfix);
+        const auto filepath = isFixture ? level_editor::Project::getInstance()->fixtureFolderPath() /
+                                                  fs::path(identifier + paths::kXmlPostfix)
+                                        : level_editor::Project::getInstance()->gameObjectFolderPath() /
+                                                  fs::path(identifier + paths::kXmlPostfix);
         chunkDocument.save_file(filepath.string().c_str());
     }
 

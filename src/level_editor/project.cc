@@ -16,7 +16,22 @@ namespace vx::level_editor {
         return project_;
     }
 
-    Project::Project() { chunkStorage_ = std::make_unique<gfx::ChunkStorage>(); }
+    Project::Project() {
+        chunkStorage_ = std::make_unique<gfx::ChunkStorage>();
+
+        // Make projects folder
+        if (!fs::exists(projectFolderPath())) {
+            fs::create_directory(projectFolderPath());
+        } else {
+            /* Load */
+        }
+
+        // Make fixtures
+        if (!fs::exists(fixtureFolderPath())) { fs::create_directory(fixtureFolderPath()); }
+
+        // Make game objects
+        if (!fs::exists(gameObjectFolderPath())) { fs::create_directory(gameObjectFolderPath()); }
+    }
 
     void Project::render() { chunkStorage_->render(); }
     void Project::destroy() { chunkStorage_->destroy(); }
@@ -41,13 +56,13 @@ namespace vx::level_editor {
         // Delete the file
         // So, right now this is _pretty_ dumb. The project should just tell the runtime where everything else
         // goes. For now, we do it this way, so, TODO - Fix this
-        const auto objectPath = chunk.isFixture ? paths::kFixturesPath : paths::kGameObjetsPath;
-        const std::string filenameDotChunk = chunk.identifier + paths::kXmlPostfix;
+        const auto objectPath = chunk.isFixture ? fixtureFolderPath() : gameObjectFolderPath();
+        const std::string filenameWithExtension = chunk.identifier + paths::kXmlPostfix;
         for (const auto &iterVal : fs::directory_iterator(objectPath)) {
             if (iterVal.is_regular_file()) {
                 if (iterVal.path().filename().extension() == paths::kXmlPostfix &&
-                    util::stringEndsWith(iterVal.path().string(), filenameDotChunk)) {
-                    const fs::path deletedFilePath = objectPath / filenameDotChunk;
+                    util::stringEndsWith(iterVal.path().string(), filenameWithExtension)) {
+                    const fs::path deletedFilePath = objectPath / filenameWithExtension;
 
                     // Delete the file
                     if (!fs::remove(deletedFilePath)) {
@@ -118,7 +133,7 @@ namespace vx::level_editor {
             pugi::xml_node gameObjectNode = gameObjectsNode.append_child("gameObject");
             gameObjectNode.append_attribute("name") = gameObjectChunk.identifier.c_str();
             gameObjectNode.append_attribute("path") =
-                    std::string("gameObjects/" + gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
+                    std::string("game_objects/" + gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
         }
 
 #ifndef NDEBUG
@@ -126,6 +141,11 @@ namespace vx::level_editor {
 #endif
 
         const auto projectPath = paths::kProjectsPath / fs::path(name + paths::kXmlPostfix);
-        projectDocument.save_file(projectPath.string().c_str());
+        projectDocument.save_file(projectFilePath().c_str());
     }
+
+    auto Project::projectFilePath() -> fs::path { return projectFolderPath() / "project.xml"; }
+    auto Project::projectFolderPath() -> fs::path { return paths::kProjectsPath / name; }
+    auto Project::fixtureFolderPath() -> fs::path { return projectFolderPath() / "fixtures"; }
+    auto Project::gameObjectFolderPath() -> fs::path { return projectFolderPath() / "game_objects"; }
 }// namespace vx::level_editor
