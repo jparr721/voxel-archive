@@ -8,10 +8,6 @@
 #include <spdlog/spdlog.h>
 #include <utility>
 
-constexpr int kChunkFileVersionMajor = 0;
-constexpr int kChunkFileVersionMinor = 1;
-constexpr int kChunkFileVersionPatch = 0;
-
 namespace vx::gfx {
     Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _identifier,
                  bool _isFixture, const BlockType &_blockType)
@@ -47,50 +43,67 @@ namespace vx::gfx {
 
         // Translate the chunk
         for (auto &[pos, _] : geometry) { pos += chunkTranslation; }
-        setBounds();
         spdlog::debug("Chunk loaded successfully");
     }
 
     void Chunk::write() const noexcept {
         pugi::xml_document chunkDocument;
+        pugi::xml_node projectNode = level_editor::Project::getInstance()->projectXMLHeader(chunkDocument);
 
-        // Top-level chunk
-        pugi::xml_node chunkNode = chunkDocument.append_child("chunk");
-        chunkNode.append_attribute("name") = identifier.c_str();
-        chunkNode.append_attribute("version") =
-                util::semverToString(kChunkFileVersionMajor, kChunkFileVersionMinor, kChunkFileVersionPatch).c_str();
-        chunkNode.append_attribute("shaderModule") = shaderModule.c_str();
+        pugi::xml_node shaderModuleComponent = projectNode.append_child("component");
+        shaderModuleComponent.append_attribute("name") = "shaderModule";
+        shaderModuleComponent.append_attribute("value") = shaderModule.c_str();
 
-        // Write Dimensions
-        pugi::xml_node dimensionsNode = chunkNode.append_child("dimensions");
-        pugi::xml_node xdimNode = dimensionsNode.append_child("xdim");
-        xdimNode.append_attribute("size") = xdim;
-        xdimNode.append_attribute("min") = xmin;
-        xdimNode.append_attribute("max") = xmax;
+        pugi::xml_node isFixtureComponent = projectNode.append_child("component");
+        isFixtureComponent.append_attribute("name") = "isFixture";
+        isFixtureComponent.append_attribute("value") = isFixture;
 
-        pugi::xml_node ydimNode = dimensionsNode.append_child("ydim");
-        ydimNode.append_attribute("size") = ydim;
-        ydimNode.append_attribute("min") = ymin;
-        ydimNode.append_attribute("max") = ymax;
+        pugi::xml_node dimensionsComponent = projectNode.append_child("component");
+        dimensionsComponent.append_attribute("name") = "dimensions";
+        pugi::xml_node dimensionsMapComponent = dimensionsComponent.append_child("map");
+        pugi::xml_node xDimEntry = dimensionsMapComponent.append_child("entry");
+        xDimEntry.append_attribute("key") = "xdim";
+        xDimEntry.append_attribute("value") = xdim;
 
-        pugi::xml_node zdimNode = dimensionsNode.append_child("zdim");
-        zdimNode.append_attribute("size") = zdim;
-        zdimNode.append_attribute("min") = zmin;
-        zdimNode.append_attribute("max") = zmax;
+        pugi::xml_node yDimEntry = dimensionsMapComponent.append_child("entry");
+        yDimEntry.append_attribute("key") = "ydim";
+        yDimEntry.append_attribute("value") = ydim;
+
+        pugi::xml_node zDimEntry = dimensionsMapComponent.append_child("entry");
+        zDimEntry.append_attribute("key") = "zdim";
+        zDimEntry.append_attribute("value") = zdim;
 
         // Write the indices of this chunk
-        pugi::xml_node indicesNode = chunkNode.append_child("indices");
-        indicesNode.append_attribute("n_nodes") = indices.size();
+        pugi::xml_node indicesComponent = projectNode.append_child("component");
+        indicesComponent.append_attribute("name") = "indices";
 
+        pugi::xml_node indicesComponentNNodesProperty = indicesComponent.append_child("property");
+        indicesComponentNNodesProperty.append_attribute("name") = "nNodes";
+        indicesComponentNNodesProperty.append_attribute("value") = indices.size();
+
+        pugi::xml_node indicesList = indicesComponent.append_child("indices-list");
         for (const auto &index : indices) {
-            pugi::xml_node indexNode = indicesNode.append_child("index");
-            indexNode.append_attribute("value") = index;
+            pugi::xml_node itemNode = indicesList.append_child("item");
+            itemNode.append_attribute("index") = index;
         }
 
         // Write the vertices
-        pugi::xml_node verticesNode = chunkNode.append_child("vertices");
-        verticesNode.append_attribute("n_nodes") = geometry.size();
+        pugi::xml_node verticesComponent = projectNode.append_child("component");
+        verticesComponent.append_attribute("name") = "vertices";
 
+        pugi::xml_node verticesComponentNNodesProperty = verticesComponent.append_child("property");
+        verticesComponentNNodesProperty.append_attribute("name") = "nNodes";
+        verticesComponentNNodesProperty.append_attribute("value") = geometry.size();
+
+        pugi::xml_node verticesComponentBlockTypeProperty = verticesComponent.append_child("property");
+        verticesComponentBlockTypeProperty.append_attribute("name") = "blockType";
+        verticesComponentBlockTypeProperty.append_attribute("value") = gfx::blockTypeToString(blockType).c_str();
+
+        pugi::xml_node verticesComponentVertexTypeProperty = verticesComponent.append_child("property");
+        verticesComponentVertexTypeProperty.append_attribute("name") = "vertexType";
+        verticesComponentVertexTypeProperty.append_attribute("value") = "VertexColorHex";
+
+        pugi::xml_node verticesList = verticesComponent.append_child("vertices-list");
         int ii = 0;
         for (const auto &vertexColorHex : geometry) {
             const auto &x = vertexColorHex.position.x;
@@ -99,13 +112,11 @@ namespace vx::gfx {
             const auto &color = vertexColorHex.color;
 
             // Make a vertex top-level element
-            pugi::xml_node vertexNode = verticesNode.append_child("vertex");
+            pugi::xml_node vertexNode = verticesList.append_child("item");
             vertexNode.append_attribute("index") = ii;
-            vertexNode.append_attribute("x") = x;
-            vertexNode.append_attribute("y") = y;
-            vertexNode.append_attribute("z") = z;
-            vertexNode.append_attribute("blockType") = gfx::blockTypeToString(blockType).c_str();
-            vertexNode.append_attribute("vertexType") = "VertexColorHex";
+            vertexNode.append_attribute("xpos") = x;
+            vertexNode.append_attribute("ypos") = y;
+            vertexNode.append_attribute("zpos") = z;
             ++ii;
         }
 
@@ -123,25 +134,40 @@ namespace vx::gfx {
     }
 
     auto Chunk::operator==(const gfx::Chunk &other) const -> bool {
-        return identifier == other.identifier && shaderModule == other.shaderModule && xmin == other.xmin &&
-               xmax == other.xmax && ymin == other.ymin && ymax == other.ymax && zmin == other.zmin &&
-               zmax == other.zmax && indices == other.indices && geometry == other.geometry;
+        return identifier == other.identifier && shaderModule == other.shaderModule && indices == other.indices &&
+               geometry == other.geometry;
     }
 
-    void Chunk::setBounds() {
-        for (const auto &vertex : geometry) {
-            const auto x = vertex.position[0];
-            const auto y = vertex.position[1];
-            const auto z = vertex.position[2];
-
-            xmin = std::min(xmin, x);
-            xmax = std::max(xmax, x);
-
-            ymin = std::min(ymin, y);
-            ymax = std::max(ymax, y);
-
-            zmin = std::min(zmin, z);
-            zmax = std::max(zmax, z);
+    auto Chunk::load(const std::filesystem::path &path) -> std::optional<Chunk> {
+        pugi::xml_document chunkDocument;
+        pugi::xml_parse_result parseResult = chunkDocument.load_file(path.c_str());
+        // If failure, spit out the error
+        if (!parseResult) {
+#ifndef NDEBUG
+            assert(parseResult && "PARSE FAILED FOR CHUNK");
+#endif
+            spdlog::error("Failed to load project file with error: {}", parseResult.description());
+            return std::nullopt;
         }
+
+        // Top-level chunk element
+        const pugi::xml_node chunkNode = chunkDocument.child("chunk");
+        const std::string identifier = chunkNode.attribute("name").value();
+        const std::string moduleName = chunkNode.attribute("shaderModule").value();
+        const bool isFixture = std::strcmp(chunkNode.attribute("isFixture").value(), "true") == 0;
+
+        // Dimensions
+        const pugi::xml_node dimensionsNode = chunkNode.child("dimensions");
+        const pugi::xml_node xdimNode = dimensionsNode.child("xdim");
+        const pugi::xml_node ydimNode = dimensionsNode.child("ydim");
+        const pugi::xml_node zdimNode = dimensionsNode.child("zdim");
+
+        /* const ivec3 chunkSize(); */
+        /* const vec3 chunkTranslation(); */
+        /* const std::string moduleName; */
+        /* const std::string identifier; */
+        /* const bool isFixture; */
+        /* const BlockType blockType; */
     }
+
 }// namespace vx::gfx

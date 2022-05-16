@@ -3,7 +3,6 @@
 #include "../util/strings.h"
 #include <fstream>
 #include <iostream>
-#include <pugixml.hpp>
 
 constexpr int kProjectFileVersionMajor = 0;
 constexpr int kProjectFileVersionMinor = 1;
@@ -19,18 +18,17 @@ namespace vx::level_editor {
     Project::Project() {
         chunkStorage_ = std::make_unique<gfx::ChunkStorage>();
 
-        // Make projects folder
+        // Make project folder
         if (!fs::exists(projectFolderPath())) {
+            // Make projects folder
             fs::create_directory(projectFolderPath());
-        } else {
-            /* Load */
+            // Make fixtures
+            fs::create_directory(fixtureFolderPath());
+            // Make game objects
+            fs::create_directory(gameObjectFolderPath());
+        } else {// Otherwise, load the existing project.
+            load();
         }
-
-        // Make fixtures
-        if (!fs::exists(fixtureFolderPath())) { fs::create_directory(fixtureFolderPath()); }
-
-        // Make game objects
-        if (!fs::exists(gameObjectFolderPath())) { fs::create_directory(gameObjectFolderPath()); }
     }
 
     void Project::render() { chunkStorage_->render(); }
@@ -108,29 +106,53 @@ namespace vx::level_editor {
         return std::nullopt;
     }
 
+    auto Project::projectVersionString() -> std::string {
+        return util::semverToString(kProjectFileVersionMajor, kProjectFileVersionMinor, kProjectFileVersionPatch);
+    }
+    auto Project::projectXMLHeader(pugi::xml_document &doc) -> pugi::xml_node {
+        pugi::xml_node headerNode = doc.append_child("project");
+        headerNode.append_attribute("name") = name.c_str();
+        headerNode.append_attribute("version") = projectVersionString().c_str();
+        return headerNode;
+    }
+
+    //
+    auto Project::projectFilePath() -> fs::path { return projectFolderPath() / "project.xml"; }
+    auto Project::projectFolderPath() -> fs::path { return paths::kProjectsPath / name; }
+    auto Project::fixtureFolderPath() -> fs::path { return projectFolderPath() / "fixtures"; }
+    auto Project::gameObjectFolderPath() -> fs::path { return projectFolderPath() / "game_objects"; }
+
     void Project::write() {
         pugi::xml_document projectDocument;
-        pugi::xml_node projectNode = projectDocument.append_child("project");
-        projectNode.append_attribute("name") = name.c_str();
-        projectNode.append_attribute("version") =
-                util::semverToString(kProjectFileVersionMajor, kProjectFileVersionMinor, kProjectFileVersionPatch)
-                        .c_str();
+        pugi::xml_node projectNode = projectXMLHeader(projectDocument);
 
         // Paths for the fixtures associated with this project.
-        pugi::xml_node fixturesNode = projectNode.append_child("fixtures");
-        fixturesNode.append_attribute("n_chunks") = fixtureChunks_.size();
+        pugi::xml_node fixturesComponent = projectNode.append_child("component");
+        fixturesComponent.append_attribute("name") = "fixtures";
+
+        pugi::xml_node fixturesComponentNNodesProperty = fixturesComponent.append_child("property");
+        fixturesComponentNNodesProperty.append_attribute("name") = "nNodes";
+        fixturesComponentNNodesProperty.append_attribute("value") = fixtureChunks_.size();
+
+        pugi::xml_node fixturesList = fixturesComponent.append_child("fixtures-list");
         for (const auto &fixtureChunk : fixtureChunks_) {
-            pugi::xml_node fixtureNode = fixturesNode.append_child("fixture");
+            pugi::xml_node fixtureNode = fixturesList.append_child("item");
             fixtureNode.append_attribute("name") = fixtureChunk.identifier.c_str();
             fixtureNode.append_attribute("path") =
                     std::string("fixtures/" + fixtureChunk.identifier + paths::kXmlPostfix).c_str();
         }
 
         // Paths for the game objects
-        pugi::xml_node gameObjectsNode = projectNode.append_child("gameObjects");
-        gameObjectsNode.append_attribute("n_chunks") = gameObjectChunks_.size();
+        pugi::xml_node gameObjectsComponent = projectNode.append_child("component");
+        gameObjectsComponent.append_attribute("name") = "gameObjects";
+
+        pugi::xml_node gameObjectsComponentNNodesProperty = gameObjectsComponent.append_child("property");
+        gameObjectsComponentNNodesProperty.append_attribute("name") = "nNodes";
+        gameObjectsComponentNNodesProperty.append_attribute("value") = gameObjectChunks_.size();
+
+        pugi::xml_node gameObjectsList = gameObjectsComponent.append_child("game-objects-list");
         for (const auto &gameObjectChunk : gameObjectChunks_) {
-            pugi::xml_node gameObjectNode = gameObjectsNode.append_child("gameObject");
+            pugi::xml_node gameObjectNode = gameObjectsList.append_child("item");
             gameObjectNode.append_attribute("name") = gameObjectChunk.identifier.c_str();
             gameObjectNode.append_attribute("path") =
                     std::string("game_objects/" + gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
@@ -144,8 +166,43 @@ namespace vx::level_editor {
         projectDocument.save_file(projectFilePath().c_str());
     }
 
-    auto Project::projectFilePath() -> fs::path { return projectFolderPath() / "project.xml"; }
-    auto Project::projectFolderPath() -> fs::path { return paths::kProjectsPath / name; }
-    auto Project::fixtureFolderPath() -> fs::path { return projectFolderPath() / "fixtures"; }
-    auto Project::gameObjectFolderPath() -> fs::path { return projectFolderPath() / "game_objects"; }
+    void Project::load() {
+        spdlog::debug("Loading project: {}", projectFolderPath().string());
+
+        // Check to be sure the directory exists
+        if (!fs::exists(projectFolderPath())) {
+            spdlog::error("Project could not be found at this directory");
+            return;
+        }
+
+        // Now, first load the project file
+        pugi::xml_document projectDocument;
+
+        pugi::xml_parse_result parseResult = projectDocument.load_file(projectFilePath().c_str());
+
+        // If failure, spit out the error
+        if (!parseResult) {
+#ifndef NDEBUG
+            assert(parseResult && "PARSE FAILED FOR PROJECT");
+#endif
+            spdlog::error("Failed to load project file with error: {}", parseResult.description());
+            return;
+        }
+
+        // TODO (@jparr721) This assumes we are loading from _empty_, this might break when loading while
+        // an existing project is open.
+        const pugi::xml_node projectNode = projectDocument.child("project");
+        name = projectNode.attribute("name").value();
+
+        // TODO(@jparr721) Do something with "version"
+
+        // Now, load the fixtures
+        const pugi::xml_node fixturesNode = projectNode.child("fixtures");
+        const int nFixtures = std::stoi(fixturesNode.attribute("nChunks").value());
+
+        // Just in case we have any fixtures in here.
+        // TODO(@jparr721) This does not clear GPU memory. Need to safely delete chunk storage too.
+        fixtureChunks_.clear();
+        /* for (int ii = 0; ii < nFixtures; ++ii) { fixtureChunks_.push_back(); } */
+    }
 }// namespace vx::level_editor

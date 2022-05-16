@@ -4,6 +4,7 @@
 #include "../gfx/chunk_storage.h"
 #include <filesystem>
 #include <optional>
+#include <pugixml.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -33,6 +34,10 @@ namespace vx::level_editor {
         auto getChunks() const -> const std::vector<gfx::Chunk> &;
         auto getChunkByIdentifier(const std::string &identifier) const -> std::optional<const gfx::Chunk>;
 
+        // Project file management
+        auto projectVersionString() -> std::string;
+        auto projectXMLHeader(pugi::xml_document &doc) -> pugi::xml_node;
+
         // Project path management
         auto projectFilePath() -> fs::path;
         auto projectFolderPath() -> fs::path;
@@ -54,5 +59,6 @@ namespace vx::level_editor {
          * Write to the project configuration.
          */
         void write();
+        void load();
     };
 }// namespace vx::level_editor

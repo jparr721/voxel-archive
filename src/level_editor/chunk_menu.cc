@@ -45,9 +45,9 @@ namespace vx::level_editor {
             std::strcpy(identifier, chunk.identifier.c_str());
             shaderModule = chunk.shaderModule;
 
-            xdim = chunk.xmax - chunk.xmin;
-            ydim = chunk.ymax - chunk.ymin;
-            zdim = chunk.zmax - chunk.zmin;
+            xdim = chunk.xdim;
+            ydim = chunk.ydim;
+            zdim = chunk.zdim;
 
             fixtureXOffset = chunk.geometry.front().position.x;
             fixtureYOffset = chunk.geometry.front().position.y;

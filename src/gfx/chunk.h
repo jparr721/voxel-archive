@@ -3,26 +3,20 @@
 #include "bgfx.h"
 #include "block.h"
 #include "primitive.h"
+#include <filesystem>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace vx::gfx {
-    class Chunk {
-    public:
+    struct Chunk {
         bool isFixture = false;
 
         BlockType blockType = BlockType::kDebug;
 
         std::string identifier;
         std::string shaderModule;
-
-        float xmin = std::numeric_limits<float>::max();
-        float xmax = std::numeric_limits<float>::min();
-        float ymin = std::numeric_limits<float>::max();
-        float ymax = std::numeric_limits<float>::min();
-        float zmin = std::numeric_limits<float>::max();
-        float zmax = std::numeric_limits<float>::min();
 
         int xdim;
         int ydim;
@@ -39,7 +33,6 @@ namespace vx::gfx {
         auto operator=(const gfx::Chunk &chunk) -> Chunk & = default;
         auto operator==(const gfx::Chunk &other) const -> bool;
 
-    private:
-        void setBounds();
+        static auto load(const std::filesystem::path &path) -> std::optional<Chunk>;
     };
 }// namespace vx::gfx
