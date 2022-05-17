@@ -14,9 +14,15 @@ namespace vx::gfx {
         : shaderModule(std::move(moduleName)), identifier(std::move(_identifier)), isFixture(_isFixture),
           blockType(_blockType) {
         spdlog::debug("Loading chunk id: {} module: {}", identifier, shaderModule);
+
         xdim = chunkSize.x;
         ydim = chunkSize.y;
         zdim = chunkSize.z;
+
+        xtransform = chunkTranslation.x;
+        ytransform = chunkTranslation.y;
+        ztransform = chunkTranslation.z;
+
         // Origin point is always 0 0 0, so we draw from there
         u64 ii = 0;
         for (int xx = 0; xx < chunkSize.x; ++xx) {
@@ -50,6 +56,10 @@ namespace vx::gfx {
         pugi::xml_document chunkDocument;
         pugi::xml_node projectNode = level_editor::Project::getInstance()->projectXMLHeader(chunkDocument);
 
+        pugi::xml_node identifierComponent = projectNode.append_child("component");
+        identifierComponent.append_attribute("name") = "identifier";
+        identifierComponent.append_attribute("value") = identifier.c_str();
+
         pugi::xml_node shaderModuleComponent = projectNode.append_child("component");
         shaderModuleComponent.append_attribute("name") = "shaderModule";
         shaderModuleComponent.append_attribute("value") = shaderModule.c_str();
@@ -72,6 +82,22 @@ namespace vx::gfx {
         pugi::xml_node zDimEntry = dimensionsMapComponent.append_child("entry");
         zDimEntry.append_attribute("key") = "zdim";
         zDimEntry.append_attribute("value") = zdim;
+
+        pugi::xml_node transformComponent = projectNode.append_child("component");
+        transformComponent.append_attribute("name") = "transform";
+        pugi::xml_node transformMapComponent = transformComponent.append_child("map");
+        pugi::xml_node xtransformEntry = transformMapComponent.append_child("entry");
+        xtransformEntry.append_attribute("key") = "xtransform";
+        xtransformEntry.append_attribute("value") = xtransform;
+
+        pugi::xml_node ytransformEntry = transformMapComponent.append_child("entry");
+        ytransformEntry.append_attribute("key") = "ytransform";
+        ytransformEntry.append_attribute("value") = ytransform;
+
+        pugi::xml_node ztransformEntry = transformMapComponent.append_child("entry");
+        ztransformEntry.append_attribute("key") = "ztransform";
+        ztransformEntry.append_attribute("value") = ztransform;
+
 
         // Write the indices of this chunk
         pugi::xml_node indicesComponent = projectNode.append_child("component");
@@ -151,16 +177,115 @@ namespace vx::gfx {
         }
 
         // Top-level chunk element
-        const pugi::xml_node chunkNode = chunkDocument.child("chunk");
-        const std::string identifier = chunkNode.attribute("name").value();
-        const std::string moduleName = chunkNode.attribute("shaderModule").value();
-        const bool isFixture = std::strcmp(chunkNode.attribute("isFixture").value(), "true") == 0;
+        const pugi::xml_node projectNode = chunkDocument.child("project");
+
+        spdlog::debug("Loading Identifier Component");
+        const pugi::xml_node identifierComponent = projectNode.child("component");
+        const std::string identifier = identifierComponent.value();
+
+        spdlog::debug("Loading Shader Module Component");
+        const pugi::xml_node shaderModuleComponent = identifierComponent.next_sibling();
+        const std::string shaderModule = shaderModuleComponent.value();
+
+        spdlog::debug("Loading Fixture Component");
+        const pugi::xml_node isFixtureComponent = shaderModuleComponent.next_sibling();
+        const bool isFixture = std::strcmp(isFixtureComponent.value(), "true") == 0;
+
+        spdlog::debug("Loading Dimensions");
+        ivec3 dimensions;
+        const pugi::xml_node dimensionsComponent = isFixtureComponent.next_sibling();
+        {
+            const pugi::xml_node mapNode = dimensionsComponent.child("map");
+            // Unroll the dimensions
+#pragma unroll
+            for (const auto &child : mapNode.children()) {
+                if (std::strcmp(child.attribute("key").value(), "xdim") == 0) {
+                    dimensions.x = std::stoi(child.attribute("value").value());
+                }
+
+                if (std::strcmp(child.attribute("key").value(), "ydim") == 0) {
+                    dimensions.y = std::stoi(child.attribute("value").value());
+                }
+
+                if (std::strcmp(child.attribute("key").value(), "zdim") == 0) {
+                    dimensions.z = std::stoi(child.attribute("value").value());
+                }
+            }
+        }
+
+        spdlog::debug("Loading Transform");
+        const pugi::xml_node transformComponent = dimensionsComponent.next_sibling();
+        vec3 transform;
+        {
+            const pugi::xml_node mapNode = transformComponent.child("map");
+            // Unroll the transform
+#pragma unroll
+            for (const auto &child : mapNode.children()) {
+                if (std::strcmp(child.attribute("key").value(), "xtransform") == 0) {
+                    transform.x = std::stoi(child.attribute("value").value());
+                }
+
+                if (std::strcmp(child.attribute("key").value(), "ytransform") == 0) {
+                    transform.y = std::stoi(child.attribute("value").value());
+                }
+
+                if (std::strcmp(child.attribute("key").value(), "ztransform") == 0) {
+                    transform.z = std::stoi(child.attribute("value").value());
+                }
+            }
+        }
+
+        // Unpack the indices
+        spdlog::debug("Loading Indices");
+        std::vector<u16> indices;
+        const pugi::xml_node indicesComponent = dimensionsComponent.next_sibling();
+        {
+            const int nNodes = std::stoi(indicesComponent.child("property").attribute("value").value());
+            const pugi::xml_node indicesList = indicesComponent.child("indices-list");
+            for (const auto &child : indicesList.children()) {
+                // Might cause a truncation issue?
+                indices.push_back(std::stoi(child.attribute("index").value()));
+            }
+
+#ifndef NDEBUG
+            assert(indices.size() == nNodes && "INVALID NODE LOAD OPERATION");
+#endif
+        }
+
+        // Unpack the vertices
+        spdlog::debug("Loading Vertices");
+        std::vector<VertexColorHex> vertices;
+        const pugi::xml_node verticesComponent = indicesComponent.next_sibling();
+        {
+            const pugi::xml_node nNodesProperty = verticesComponent.child("property");
+            const int nNodes = std::stoi(nNodesProperty.attribute("value").value());
+            const pugi::xml_node blockTypeProperty = nNodesProperty.next_sibling();
+            const BlockType blockType = stringToBlockType(blockTypeProperty.value());
+
+            // Ignore for now since we are currently only using one vertex type
+            const pugi::xml_node vertexTypeProperty = blockTypeProperty.next_sibling();
+            const pugi::xml_node verticesList = vertexTypeProperty.next_sibling();
+            for (const auto &child : verticesList.children()) {
+                const u32 xpos = std::stoi(child.attribute("xpos").value());
+                const u32 ypos = std::stoi(child.attribute("ypos").value());
+                const u32 zpos = std::stoi(child.attribute("zpos").value());
+                const vec3 position(xpos, ypos, zpos);
+                VertexColorHex vertex();
+            }
+        }
+
+        return {};
+
+
+        /* const std::string identifier = chunkNode.attribute("name").value(); */
+        /* const std::string moduleName = chunkNode.attribute("shaderModule").value(); */
+        /* const bool isFixture = std::strcmp(chunkNode.attribute("isFixture").value(), "true") == 0; */
 
         // Dimensions
-        const pugi::xml_node dimensionsNode = chunkNode.child("dimensions");
-        const pugi::xml_node xdimNode = dimensionsNode.child("xdim");
-        const pugi::xml_node ydimNode = dimensionsNode.child("ydim");
-        const pugi::xml_node zdimNode = dimensionsNode.child("zdim");
+        /* const pugi::xml_node dimensionsNode = chunkNode.child("dimensions"); */
+        /* const pugi::xml_node xdimNode = dimensionsNode.child("xdim"); */
+        /* const pugi::xml_node ydimNode = dimensionsNode.child("ydim"); */
+        /* const pugi::xml_node zdimNode = dimensionsNode.child("zdim"); */
 
         /* const ivec3 chunkSize(); */
         /* const vec3 chunkTranslation(); */

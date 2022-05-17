@@ -191,14 +191,14 @@ namespace vx::level_editor {
 
         // TODO (@jparr721) This assumes we are loading from _empty_, this might break when loading while
         // an existing project is open.
-        const pugi::xml_node projectNode = projectDocument.child("project");
-        name = projectNode.attribute("name").value();
+        /* const pugi::xml_node projectNode = projectDocument.child("project"); */
+        /* name = projectNode.attribute("name").value(); */
 
         // TODO(@jparr721) Do something with "version"
 
         // Now, load the fixtures
-        const pugi::xml_node fixturesNode = projectNode.child("fixtures");
-        const int nFixtures = std::stoi(fixturesNode.attribute("nChunks").value());
+        /* const pugi::xml_node fixturesNode = projectNode.child("fixtures"); */
+        /* const int nFixtures = std::stoi(fixturesNode.attribute("nChunks").value()); */
 
         // Just in case we have any fixtures in here.
         // TODO(@jparr721) This does not clear GPU memory. Need to safely delete chunk storage too.

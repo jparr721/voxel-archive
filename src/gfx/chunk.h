@@ -22,6 +22,10 @@ namespace vx::gfx {
         int ydim;
         int zdim;
 
+        int xtransform;
+        int ytransform;
+        int ztransform;
+
         std::vector<u16> indices;
         std::vector<VertexColorHex> geometry;
 

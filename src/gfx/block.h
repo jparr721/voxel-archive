@@ -94,4 +94,5 @@ namespace vx::gfx {
     auto makeOffsetCubeVertices(const vec3 &startingPosition) -> std::array<vec3, 8>;
     auto makeColorFromBlockType(BlockType blockType) -> u32;
     auto blockTypeToString(BlockType blockType) -> std::string;
+    auto stringToBlockType(const std::string &blockType) -> BlockType;
 }// namespace vx::gfx
