@@ -7,6 +7,6 @@
 
 namespace vx {
     auto initializeWindow(const std::string &windowTitle) -> bool;
-    auto initializeBgfx(bgfx::ProgramHandle &program) -> bool;
+    auto initializeBgfx() -> bool;
     auto launchWindow(const std::string &windowTitle) -> int;
 }// namespace vx

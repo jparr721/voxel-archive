@@ -3,6 +3,7 @@
 #include "../gfx/chunk.h"
 #include "../gfx/chunk_storage.h"
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <pugixml.hpp>
 #include <string>
@@ -19,7 +20,7 @@ namespace vx::level_editor {
         Project(const Project &cs) = delete;
         auto operator=(const Project &cs) -> Project & = delete;
 
-        static auto getInstance() -> Project *;
+        static auto instance() -> Project *;
 
         // TODO(@jparr721) Delete this
         void render();
@@ -45,7 +46,7 @@ namespace vx::level_editor {
         auto gameObjectFolderPath() -> fs::path;
 
     private:
-        static Project *project_;
+//        static Project *project_;
         Project();
 
         // Files for this project

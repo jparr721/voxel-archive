@@ -111,7 +111,7 @@ namespace vx {
         return true;
     }
 
-    auto initializeBgfx(bgfx::ProgramHandle &program) -> bool {
+    auto initializeBgfx() -> bool {
         // Tell bgfx to not create a separate render thread
         bgfx::renderFrame();
 
@@ -150,8 +150,6 @@ namespace vx {
         bgfx::setDebug(BGFX_DEBUG_TEXT);
         bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x32323232, 1.0f, 0);
         bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
-
-        program = vx::loadShaderProgram(paths::kShadersPath, "core");
         imguiCreate();
 #ifdef __APPLE__
         ImGui_ImplGlfw_InitForOther(window, true);
@@ -173,8 +171,7 @@ namespace vx {
             return EXIT_FAILURE;
         }
 
-        bgfx::ProgramHandle program{};
-        initializeBgfx(program);
+        initializeBgfx();
 
         menubar->registerMenu(level_editor::showProjectMenu);
         menubar->registerMenu(level_editor::showChunkMenu);
@@ -202,16 +199,15 @@ namespace vx {
 
             bgfx::setViewRect(0, 0, 0, windowDimensions.x, windowDimensions.y);
 
-            level_editor::Project::getInstance()->render();
+            level_editor::Project::instance()->render();
 
             glfwSwapBuffers(window);
             bgfx::frame();
         }
 
-        bgfx::destroy(program);
         spdlog::info("Deleting buffers");
         imguiDestroy();
-        level_editor::Project::getInstance()->destroy();
+        level_editor::Project::instance()->destroy();
         bgfx::shutdown();
         glfwTerminate();
 

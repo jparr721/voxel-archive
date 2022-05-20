@@ -22,20 +22,20 @@ namespace vx::level_editor {
         ImGui::SetNextWindowSize(ImVec2(200, 125));
         if (ImGui::BeginPopupModal(projectMenuState.projectNameChangePopupTitle, nullptr, ImGuiWindowFlags_NoResize)) {
             // Save the preious name in case cancel is clicked
-            const std::string previousName = Project::getInstance()->name;
+            const std::string previousName = Project::instance()->name;
 
             ImGui::Text("Project Name");
             ImGui::InputText("##projectName", projectMenuState.tempProjectName.data(), 512);
 
             // If save, just close the popup with no changes.
             if (ImGui::Button("Save")) {
-                Project::getInstance()->name = projectMenuState.tempProjectName.data();
+                Project::instance()->name = projectMenuState.tempProjectName.data();
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
             if (ImGui::Button("Cancel")) {
                 // Copy the name back in case it was changed.
-                Project::getInstance()->name = previousName;
+                Project::instance()->name = previousName;
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
@@ -45,10 +45,10 @@ namespace vx::level_editor {
     void showProjectMenu() {
         // First load, if the temp name is empty, assign it to the current project name
         if (std::strcmp(projectMenuState.tempProjectName.data(), "") == 0) {
-            std::strcpy(projectMenuState.tempProjectName.data(), Project::getInstance()->name.c_str());
+            std::strcpy(projectMenuState.tempProjectName.data(), Project::instance()->name.c_str());
         }
 
-        const std::string projectNameListing = "Project name: " + Project::getInstance()->name;
+        const std::string projectNameListing = "Project name: " + Project::instance()->name;
         if (ImGui::BeginMenu("Project")) {
             if (ImGui::MenuItem(projectNameListing.c_str())) { projectMenuState.changeProjectNamePopupVisible = true; }
             if (ImGui::MenuItem("New")) { spdlog::info("Opening new project"); }

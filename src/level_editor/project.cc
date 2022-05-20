@@ -9,10 +9,9 @@ constexpr int kProjectFileVersionMinor = 1;
 constexpr int kProjectFileVersionPatch = 0;
 
 namespace vx::level_editor {
-    Project *Project::project_ = nullptr;
-    auto Project::getInstance() -> Project * {
-        if (project_ == nullptr) { project_ = new Project(); }
-        return project_;
+    auto Project::instance() -> Project * {
+        static std::unique_ptr<Project> project = std::unique_ptr<Project>{new Project()};
+        return project.get();
     }
 
     Project::Project() {
@@ -138,8 +137,7 @@ namespace vx::level_editor {
         for (const auto &fixtureChunk : fixtureChunks_) {
             pugi::xml_node fixtureNode = fixturesList.append_child("item");
             fixtureNode.append_attribute("name") = fixtureChunk.identifier.c_str();
-            fixtureNode.append_attribute("path") =
-                    std::string("fixtures/" + fixtureChunk.identifier + paths::kXmlPostfix).c_str();
+            fixtureNode.append_attribute("path") = std::string(fixtureChunk.identifier + paths::kXmlPostfix).c_str();
         }
 
         // Paths for the game objects
@@ -155,7 +153,7 @@ namespace vx::level_editor {
             pugi::xml_node gameObjectNode = gameObjectsList.append_child("item");
             gameObjectNode.append_attribute("name") = gameObjectChunk.identifier.c_str();
             gameObjectNode.append_attribute("path") =
-                    std::string("game_objects/" + gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
+                    std::string(gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
         }
 
 #ifndef NDEBUG
@@ -191,18 +189,37 @@ namespace vx::level_editor {
 
         // TODO (@jparr721) This assumes we are loading from _empty_, this might break when loading while
         // an existing project is open.
-        /* const pugi::xml_node projectNode = projectDocument.child("project"); */
-        /* name = projectNode.attribute("name").value(); */
-
-        // TODO(@jparr721) Do something with "version"
+        const pugi::xml_node projectNode = projectDocument.child("project");
+        name = projectNode.attribute("name").value();
 
         // Now, load the fixtures
-        /* const pugi::xml_node fixturesNode = projectNode.child("fixtures"); */
-        /* const int nFixtures = std::stoi(fixturesNode.attribute("nChunks").value()); */
+        const pugi::xml_node fixturesComponent = projectNode.child("component");
+        const pugi::xml_node fixturesPropertyNode = fixturesComponent.child("property");
+        const pugi::xml_node fixturesList = fixturesPropertyNode.next_sibling();
 
-        // Just in case we have any fixtures in here.
-        // TODO(@jparr721) This does not clear GPU memory. Need to safely delete chunk storage too.
-        fixtureChunks_.clear();
-        /* for (int ii = 0; ii < nFixtures; ++ii) { fixtureChunks_.push_back(); } */
+        for (const auto &child : fixturesList.children()) {
+            const auto chunk = gfx::Chunk::load(fixtureFolderPath() / child.attribute("path").value());
+            if (!chunk.has_value()) {
+                spdlog::error("Chunk {} failed to load", child.attribute("name").value());
+            } else {
+                chunkStorage_->chunks().push_back(chunk.value());
+                chunkStorage_->loadChunks();
+            }
+        }
+
+        // Now, load the fixtures
+        const pugi::xml_node gameObjectsComponent = fixturesComponent.next_sibling();
+        const pugi::xml_node gameObjectsPropertyNode = gameObjectsComponent.child("property");
+        const pugi::xml_node gameObjectsList = gameObjectsPropertyNode.next_sibling();
+
+        for (const auto &child : gameObjectsList.children()) {
+            const auto chunk = gfx::Chunk::load(gameObjectFolderPath() / child.attribute("path").value());
+            if (!chunk.has_value()) {
+                spdlog::error("Chunk {} failed to load", child.attribute("name").value());
+            } else {
+                chunkStorage_->chunks().push_back(chunk.value());
+                chunkStorage_->loadChunks();
+            }
+        }
     }
 }// namespace vx::level_editor

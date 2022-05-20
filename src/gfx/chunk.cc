@@ -54,7 +54,7 @@ namespace vx::gfx {
 
     void Chunk::write() const noexcept {
         pugi::xml_document chunkDocument;
-        pugi::xml_node projectNode = level_editor::Project::getInstance()->projectXMLHeader(chunkDocument);
+        pugi::xml_node projectNode = level_editor::Project::instance()->projectXMLHeader(chunkDocument);
 
         pugi::xml_node identifierComponent = projectNode.append_child("component");
         identifierComponent.append_attribute("name") = "identifier";
@@ -152,9 +152,9 @@ namespace vx::gfx {
 #endif
 
         // Save the file to our pre-determined path
-        const auto filepath = isFixture ? level_editor::Project::getInstance()->fixtureFolderPath() /
+        const auto filepath = isFixture ? level_editor::Project::instance()->fixtureFolderPath() /
                                                   fs::path(identifier + paths::kXmlPostfix)
-                                        : level_editor::Project::getInstance()->gameObjectFolderPath() /
+                                        : level_editor::Project::instance()->gameObjectFolderPath() /
                                                   fs::path(identifier + paths::kXmlPostfix);
         chunkDocument.save_file(filepath.string().c_str());
     }
@@ -165,14 +165,15 @@ namespace vx::gfx {
     }
 
     auto Chunk::load(const std::filesystem::path &path) -> std::optional<Chunk> {
+        spdlog::debug("Loading chunk path {}", path.string());
         pugi::xml_document chunkDocument;
         pugi::xml_parse_result parseResult = chunkDocument.load_file(path.c_str());
         // If failure, spit out the error
         if (!parseResult) {
+            spdlog::error("Failed to load project file with error: {}", parseResult.description());
 #ifndef NDEBUG
             assert(parseResult && "PARSE FAILED FOR CHUNK");
 #endif
-            spdlog::error("Failed to load project file with error: {}", parseResult.description());
             return std::nullopt;
         }
 
@@ -181,15 +182,15 @@ namespace vx::gfx {
 
         spdlog::debug("Loading Identifier Component");
         const pugi::xml_node identifierComponent = projectNode.child("component");
-        const std::string identifier = identifierComponent.value();
+        const std::string identifier = identifierComponent.attribute("value").value();
 
         spdlog::debug("Loading Shader Module Component");
         const pugi::xml_node shaderModuleComponent = identifierComponent.next_sibling();
-        const std::string shaderModule = shaderModuleComponent.value();
+        const std::string shaderModule = shaderModuleComponent.attribute("value").value();
 
         spdlog::debug("Loading Fixture Component");
         const pugi::xml_node isFixtureComponent = shaderModuleComponent.next_sibling();
-        const bool isFixture = std::strcmp(isFixtureComponent.value(), "true") == 0;
+        const bool isFixture = std::strcmp(isFixtureComponent.attribute("value").value(), "true") == 0;
 
         spdlog::debug("Loading Dimensions");
         ivec3 dimensions;
@@ -238,7 +239,7 @@ namespace vx::gfx {
         // Unpack the indices
         spdlog::debug("Loading Indices");
         std::vector<u16> indices;
-        const pugi::xml_node indicesComponent = dimensionsComponent.next_sibling();
+        const pugi::xml_node indicesComponent = transformComponent.next_sibling();
         {
             const int nNodes = std::stoi(indicesComponent.child("property").attribute("value").value());
             const pugi::xml_node indicesList = indicesComponent.child("indices-list");
@@ -256,11 +257,11 @@ namespace vx::gfx {
         spdlog::debug("Loading Vertices");
         std::vector<VertexColorHex> vertices;
         const pugi::xml_node verticesComponent = indicesComponent.next_sibling();
+        const pugi::xml_node nNodesProperty = verticesComponent.child("property");
+        const int nNodes = std::stoi(nNodesProperty.attribute("value").value());
+        const pugi::xml_node blockTypeProperty = nNodesProperty.next_sibling();
+        const BlockType blockType = stringToBlockType(blockTypeProperty.value());
         {
-            const pugi::xml_node nNodesProperty = verticesComponent.child("property");
-            const int nNodes = std::stoi(nNodesProperty.attribute("value").value());
-            const pugi::xml_node blockTypeProperty = nNodesProperty.next_sibling();
-            const BlockType blockType = stringToBlockType(blockTypeProperty.value());
 
             // Ignore for now since we are currently only using one vertex type
             const pugi::xml_node vertexTypeProperty = blockTypeProperty.next_sibling();
@@ -270,29 +271,16 @@ namespace vx::gfx {
                 const u32 ypos = std::stoi(child.attribute("ypos").value());
                 const u32 zpos = std::stoi(child.attribute("zpos").value());
                 const vec3 position(xpos, ypos, zpos);
-                VertexColorHex vertex();
+                const u32 color = makeColorFromBlockType(blockType);
+                vertices.emplace_back(position, color);
             }
+#ifndef NDEBUG
+            assert(vertices.size() == nNodes && "INVALID VERTEX LOAD OPERATION");
+#endif
         }
 
-        return {};
-
-
-        /* const std::string identifier = chunkNode.attribute("name").value(); */
-        /* const std::string moduleName = chunkNode.attribute("shaderModule").value(); */
-        /* const bool isFixture = std::strcmp(chunkNode.attribute("isFixture").value(), "true") == 0; */
-
-        // Dimensions
-        /* const pugi::xml_node dimensionsNode = chunkNode.child("dimensions"); */
-        /* const pugi::xml_node xdimNode = dimensionsNode.child("xdim"); */
-        /* const pugi::xml_node ydimNode = dimensionsNode.child("ydim"); */
-        /* const pugi::xml_node zdimNode = dimensionsNode.child("zdim"); */
-
-        /* const ivec3 chunkSize(); */
-        /* const vec3 chunkTranslation(); */
-        /* const std::string moduleName; */
-        /* const std::string identifier; */
-        /* const bool isFixture; */
-        /* const BlockType blockType; */
+        return Chunk(isFixture, blockType, identifier, shaderModule, dimensions.x, dimensions.y, dimensions.z,
+                     transform.x, transform.y, transform.z, indices, vertices);
     }
 
 }// namespace vx::gfx

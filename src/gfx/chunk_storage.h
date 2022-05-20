@@ -16,13 +16,14 @@ namespace vx::gfx {
         void deleteChunk(const Chunk &chunk);
         void setChunk(const Chunk &newChunk);
 
+        auto chunks() -> std::vector<Chunk> & { return chunks_; }
         auto chunks() const -> const std::vector<Chunk> & { return chunks_; }
+
+        void loadChunks();
 
     private:
         std::unordered_map<std::string, std::unique_ptr<ChunkRenderer>> renderers_;
         std::vector<Chunk> chunks_;
         std::unordered_map<std::string, bgfx::ProgramHandle> shaderPrograms_;
-
-        void loadChunks();
     };
 }// namespace vx::gfx

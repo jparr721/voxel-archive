@@ -66,6 +66,12 @@ add_library(${PROJECT_LIB}
         src/gui/input_text.h
         src/gui/styles.h
 
+        src/fizz/collision.h
+        src/fizz/implicit_euler.h
+        src/fizz/material.h
+        src/fizz/matrix_solver.h
+        src/fizz/neohookean_strain_energy_density.h
+
         src/geometry.h
         src/math.h
         src/resources.h
@@ -95,6 +101,12 @@ add_library(${PROJECT_LIB}
         src/gui/menu_bar.cc
         src/gui/input_text.cc
         src/gui/styles.cc
+
+        src/fizz/collision.cc
+        src/fizz/implicit_euler.cc
+        src/fizz/material.cc
+        src/fizz/matrix_solver.cc
+        src/fizz/neohookean_strain_energy_density.cc
 
         src/geometry.cc
         src/resources.cc

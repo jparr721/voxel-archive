@@ -1,15 +1,11 @@
 <?xml version="1.0"?>
 <project name="Level" version="0.1.0">
 	<component name="fixtures">
-		<property name="nNodes" value="1" />
-		<fixtures-list>
-			<item name="FIXTURE" path="fixtures/FIXTURE.xml" />
-		</fixtures-list>
+		<property name="nNodes" value="0" />
+		<fixtures-list />
 	</component>
 	<component name="gameObjects">
-		<property name="nNodes" value="1" />
-		<game-objects-list>
-			<item name="GAME OBJECT" path="game_objects/GAME OBJECT.xml" />
-		</game-objects-list>
+		<property name="nNodes" value="0" />
+		<game-objects-list />
 	</component>
 </project>
