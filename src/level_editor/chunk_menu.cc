@@ -60,7 +60,8 @@ namespace vx::level_editor {
     static ChunkMenuData chunkMenuData;
 
     static auto isInvalidChunkSize(int x, int y, int z) -> bool {
-        const bool tooLarge = ((x * y * z) * gfx::kCubeVertices.size()) > std::numeric_limits<u16>::max();
+        const bool tooLarge =
+                ((x * y * z) * gfx::kCubeVertices.size()) > std::numeric_limits<gfx::BlockIndexSize>::max();
         const bool invalidValue = x == 0 || y == 0 || z == 0;
         return tooLarge || invalidValue;
     }
@@ -192,9 +193,7 @@ namespace vx::level_editor {
                         chunkMenuState.editingExistingChunk = true;
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Delete")) {
-                        level_editor::Project::instance()->deleteChunk(chunk);
-                    }
+                    if (ImGui::Button("Delete")) { level_editor::Project::instance()->deleteChunk(chunk); }
                     ImGui::TreePop();
                 }
             }

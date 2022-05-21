@@ -70,10 +70,12 @@ namespace vx::gfx {
             vec2(0, 1),
     };
 
+    using BlockIndexSize = u16;
+
     enum class BlockType { kDefault = 0, kGrass, kDirt, kDebug };
 
     struct BlockDir {
-        using BlockDirIndices = std::vector<u16>;
+        using BlockDirIndices = std::vector<BlockIndexSize>;
         // The indices for each direction
         inline static const BlockDirIndices kSouth{4, 7, 6, 4, 6, 5};// (south (+z))
         inline static const BlockDirIndices kNorth{3, 0, 1, 3, 1, 2};// (north (-z))

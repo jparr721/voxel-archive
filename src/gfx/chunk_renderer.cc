@@ -14,7 +14,7 @@ namespace vx::gfx {
 
     void ChunkRenderer::addChunk(const Chunk &chunk) {
         const auto geometrySize = sizeof(gfx::VertexColorHex) * chunk.geometry.size();
-        const auto indicesSize = sizeof(u16) * chunk.indices.size();
+        const auto indicesSize = sizeof(BlockIndexSize) * chunk.indices.size();
         const auto vb =
                 bgfx::createDynamicVertexBuffer(bgfx::makeRef(chunk.geometry.data(), geometrySize), vertexLayout_);
         const auto ib = bgfx::createDynamicIndexBuffer(bgfx::makeRef(chunk.indices.data(), indicesSize));

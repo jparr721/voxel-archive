@@ -238,7 +238,7 @@ namespace vx::gfx {
 
         // Unpack the indices
         spdlog::debug("Loading Indices");
-        std::vector<u16> indices;
+        std::vector<BlockIndexSize> indices;
         const pugi::xml_node indicesComponent = transformComponent.next_sibling();
         {
             const int nNodes = std::stoi(indicesComponent.child("property").attribute("value").value());
