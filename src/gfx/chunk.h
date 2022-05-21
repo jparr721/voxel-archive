@@ -12,6 +12,7 @@
 namespace vx::gfx {
     struct Chunk {
         bool isFixture = false;
+        bool needsUpdate = true;
 
         BlockType blockType = BlockType::kDebug;
 

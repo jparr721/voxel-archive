@@ -73,13 +73,13 @@ namespace vx::level_editor {
         write();
     }
 
-    auto Project::getChunks() const -> const std::vector<gfx::Chunk> & { return chunkStorage_->chunks(); }
-    auto Project::getChunkByIdentifier(const std::string &identifier) const -> std::optional<const gfx::Chunk> {
-        for (const auto &chunk : chunkStorage_->chunks()) {
+    auto Project::getChunks() -> std::vector<gfx::Chunk> & { return chunkStorage_->chunks(); }
+    auto Project::getChunkByIdentifier(const std::string &identifier) -> gfx::Chunk & {
+        for (auto &chunk : chunkStorage_->chunks()) {
             if (chunk.identifier == identifier) { return chunk; }
         }
 
-        return std::nullopt;
+        assert(false && "CHUNK NOT FOUND");
     }
 
     auto Project::projectVersionString() -> std::string {

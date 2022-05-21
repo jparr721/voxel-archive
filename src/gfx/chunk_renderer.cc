@@ -38,22 +38,15 @@ namespace vx::gfx {
         u64 state = BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_MSAA | BGFX_STATE_DEPTH_TEST_LESS;
 
         for (const auto &[_id, vertexBuffer, indexBuffer] : buffers_) {
-            bgfx::update(
-                    vertexBuffer, 0,
-                    bgfx::copy(&level_editor::Project::instance()->getChunkByIdentifier(_id).value().geometry[0],
-                               level_editor::Project::instance()->getChunkByIdentifier(_id).value().geometry.size() *
-                                       sizeof(level_editor::Project::instance()
-                                                      ->getChunkByIdentifier(_id)
-                                                      .value()
-                                                      .geometry[0])));
-            bgfx::update(
-                    indexBuffer, 0,
-                    bgfx::copy(&level_editor::Project::instance()->getChunkByIdentifier(_id).value().indices[0],
-                               level_editor::Project::instance()->getChunkByIdentifier(_id).value().indices.size() *
-                                       sizeof(level_editor::Project::instance()
-                                                      ->getChunkByIdentifier(_id)
-                                                      .value()
-                                                      .indices[0])));
+            auto &chunk = level_editor::Project::instance()->getChunkByIdentifier(_id);
+
+            if (chunk.needsUpdate) {
+                bgfx::update(vertexBuffer, 0,
+                             bgfx::copy(&chunk.geometry[0], chunk.geometry.size() * sizeof(chunk.geometry[0])));
+                bgfx::update(indexBuffer, 0,
+                             bgfx::copy(&chunk.indices[0], chunk.indices.size() * sizeof(chunk.indices[0])));
+                chunk.needsUpdate = false;
+            }
 
 
             bgfx::setVertexBuffer(0, vertexBuffer);
