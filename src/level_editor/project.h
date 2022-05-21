@@ -48,10 +48,6 @@ namespace vx::level_editor {
     private:
         Project();
 
-        // Files for this project
-        std::vector<gfx::Chunk> fixtureChunks_;
-        std::vector<gfx::Chunk> gameObjectChunks_;
-
         // Unique ref to chunk storage
         std::unique_ptr<gfx::ChunkStorage> chunkStorage_;
 

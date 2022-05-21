@@ -34,11 +34,6 @@ namespace vx::level_editor {
     void Project::destroy() { chunkStorage_->destroy(); }
     void Project::addChunk(const gfx::Chunk &chunk) {
         chunkStorage_->addChunk(chunk);
-        if (chunk.isFixture) {
-            fixtureChunks_.push_back(chunk);
-        } else {
-            gameObjectChunks_.push_back(chunk);
-        }
         write();
     }
 
@@ -75,23 +70,23 @@ namespace vx::level_editor {
         }
 
         // Delete the value from the object path
-        if (chunk.isFixture) {
-            for (int ii = 0; ii < fixtureChunks_.size(); ++ii) {
-                const auto &fixtureChunk = fixtureChunks_.at(ii);
-                if (fixtureChunk.identifier == chunk.identifier) {
-                    fixtureChunks_.erase(fixtureChunks_.begin() + ii);
-                    break;
-                }
-            }
-        } else {
-            for (int ii = 0; ii < gameObjectChunks_.size(); ++ii) {
-                const auto &gameObjectChunk = gameObjectChunks_.at(ii);
-                if (gameObjectChunk.identifier == chunk.identifier) {
-                    gameObjectChunks_.erase(gameObjectChunks_.begin() + ii);
-                    break;
-                }
-            }
-        }
+        /* if (chunk.isFixture) { */
+        /*     for (int ii = 0; ii < fixtureChunks_.size(); ++ii) { */
+        /*         const auto &fixtureChunk = fixtureChunks_.at(ii); */
+        /*         if (fixtureChunk.identifier == chunk.identifier) { */
+        /*             fixtureChunks_.erase(fixtureChunks_.begin() + ii); */
+        /*             break; */
+        /*         } */
+        /*     } */
+        /* } else { */
+        /*     for (int ii = 0; ii < gameObjectChunks_.size(); ++ii) { */
+        /*         const auto &gameObjectChunk = gameObjectChunks_.at(ii); */
+        /*         if (gameObjectChunk.identifier == chunk.identifier) { */
+        /*             gameObjectChunks_.erase(gameObjectChunks_.begin() + ii); */
+        /*             break; */
+        /*         } */
+        /*     } */
+        /* } */
 
         // Write the current state
         write();
@@ -130,15 +125,28 @@ namespace vx::level_editor {
         pugi::xml_node fixturesComponent = projectNode.append_child("component");
         fixturesComponent.append_attribute("name") = "fixtures";
 
+        int nFixtures = 0;
+        int nGameObjects = 0;
+        for (const auto &chunk : chunkStorage_->chunks()) {
+            if (chunk.isFixture) {
+                ++nFixtures;
+            } else {
+                ++nGameObjects;
+            }
+        }
+
         pugi::xml_node fixturesComponentNNodesProperty = fixturesComponent.append_child("property");
         fixturesComponentNNodesProperty.append_attribute("name") = "nNodes";
-        fixturesComponentNNodesProperty.append_attribute("value") = fixtureChunks_.size();
+        fixturesComponentNNodesProperty.append_attribute("value") = nFixtures;
 
         pugi::xml_node fixturesList = fixturesComponent.append_child("fixtures-list");
-        for (const auto &fixtureChunk : fixtureChunks_) {
-            pugi::xml_node fixtureNode = fixturesList.append_child("item");
-            fixtureNode.append_attribute("name") = fixtureChunk.identifier.c_str();
-            fixtureNode.append_attribute("path") = std::string(fixtureChunk.identifier + paths::kXmlPostfix).c_str();
+        for (const auto &fixtureChunk : chunkStorage_->chunks()) {
+            if (fixtureChunk.isFixture) {
+                pugi::xml_node fixtureNode = fixturesList.append_child("item");
+                fixtureNode.append_attribute("name") = fixtureChunk.identifier.c_str();
+                fixtureNode.append_attribute("path") =
+                        std::string(fixtureChunk.identifier + paths::kXmlPostfix).c_str();
+            }
         }
 
         // Paths for the game objects
@@ -147,14 +155,16 @@ namespace vx::level_editor {
 
         pugi::xml_node gameObjectsComponentNNodesProperty = gameObjectsComponent.append_child("property");
         gameObjectsComponentNNodesProperty.append_attribute("name") = "nNodes";
-        gameObjectsComponentNNodesProperty.append_attribute("value") = gameObjectChunks_.size();
+        gameObjectsComponentNNodesProperty.append_attribute("value") = nGameObjects;
 
         pugi::xml_node gameObjectsList = gameObjectsComponent.append_child("game-objects-list");
-        for (const auto &gameObjectChunk : gameObjectChunks_) {
-            pugi::xml_node gameObjectNode = gameObjectsList.append_child("item");
-            gameObjectNode.append_attribute("name") = gameObjectChunk.identifier.c_str();
-            gameObjectNode.append_attribute("path") =
-                    std::string(gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
+        for (const auto &gameObjectChunk : chunkStorage_->chunks()) {
+            if (!gameObjectChunk.isFixture) {
+                pugi::xml_node gameObjectNode = gameObjectsList.append_child("item");
+                gameObjectNode.append_attribute("name") = gameObjectChunk.identifier.c_str();
+                gameObjectNode.append_attribute("path") =
+                        std::string(gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
+            }
         }
 
 #ifndef NDEBUG
