@@ -180,7 +180,7 @@ namespace vx::level_editor {
             for (const auto &chunk : level_editor::Project::instance()->getChunks()) {
                 if (ImGui::TreeNodeEx(chunk.identifier.c_str())) {
                     ImGui::Text("N Indices: %lu", chunk.indices.size());
-                    ImGui::Text("Max Index: %hu", *std::max_element(chunk.indices.begin(), chunk.indices.end()));
+                    ImGui::Text("Max Index: %u", *std::max_element(chunk.indices.begin(), chunk.indices.end()));
                     ImGui::Text("N Vertices: %lu", chunk.geometry.size());
                     ImGui::Text("X Bounds: %i", chunk.xdim);
                     ImGui::Text("Y Bounds: %i", chunk.ydim);

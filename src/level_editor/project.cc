@@ -69,25 +69,6 @@ namespace vx::level_editor {
             }
         }
 
-        // Delete the value from the object path
-        /* if (chunk.isFixture) { */
-        /*     for (int ii = 0; ii < fixtureChunks_.size(); ++ii) { */
-        /*         const auto &fixtureChunk = fixtureChunks_.at(ii); */
-        /*         if (fixtureChunk.identifier == chunk.identifier) { */
-        /*             fixtureChunks_.erase(fixtureChunks_.begin() + ii); */
-        /*             break; */
-        /*         } */
-        /*     } */
-        /* } else { */
-        /*     for (int ii = 0; ii < gameObjectChunks_.size(); ++ii) { */
-        /*         const auto &gameObjectChunk = gameObjectChunks_.at(ii); */
-        /*         if (gameObjectChunk.identifier == chunk.identifier) { */
-        /*             gameObjectChunks_.erase(gameObjectChunks_.begin() + ii); */
-        /*             break; */
-        /*         } */
-        /*     } */
-        /* } */
-
         // Write the current state
         write();
     }

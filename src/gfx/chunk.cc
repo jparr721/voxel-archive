@@ -266,13 +266,18 @@ namespace vx::gfx {
             // Ignore for now since we are currently only using one vertex type
             const pugi::xml_node vertexTypeProperty = blockTypeProperty.next_sibling();
             const pugi::xml_node verticesList = vertexTypeProperty.next_sibling();
+            u32 color = makeColorFromBlockType(blockType);
+            int ii = 0;
             for (const auto &child : verticesList.children()) {
                 const u32 xpos = std::stoi(child.attribute("xpos").value());
                 const u32 ypos = std::stoi(child.attribute("ypos").value());
                 const u32 zpos = std::stoi(child.attribute("zpos").value());
                 const vec3 position(xpos, ypos, zpos);
-                const u32 color = makeColorFromBlockType(blockType);
+
+                // Evil hack to get the colors right
+                if (ii % gfx::kCubeVertices.size() == 0) { color = makeColorFromBlockType(blockType); }
                 vertices.emplace_back(position, color);
+                ++ii;
             }
 #ifndef NDEBUG
             assert(vertices.size() == nNodes && "INVALID VERTEX LOAD OPERATION");
