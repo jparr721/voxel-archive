@@ -28,8 +28,7 @@ namespace vx::gfx {
         for (int xx = 0; xx < chunkSize.x; ++xx) {
             for (int yy = 0; yy < chunkSize.y; ++yy) {
                 for (int zz = 0; zz < chunkSize.z; ++zz) {
-                    // TODO - Compute block direction
-                    BlockDir::BlockDirIndices baseIndices = BlockDir::kDebug;
+                    auto baseIndices = kBlockIndices;
 
                     // Increment indices to avoid overlapping faces
                     for (auto &index : baseIndices) {
@@ -145,11 +144,6 @@ namespace vx::gfx {
             vertexNode.append_attribute("zpos") = z;
             ++ii;
         }
-
-#ifndef NDEBUG
-        // Debug print
-        chunkDocument.print(std::cout);
-#endif
 
         // Save the file to our pre-determined path
         const auto filepath = isFixture ? level_editor::Project::instance()->fixtureFolderPath() /
