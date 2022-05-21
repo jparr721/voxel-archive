@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 <project name="Level" version="0.1.0">
 	<component name="fixtures">
-		<property name="nNodes" value="0" />
-		<fixtures-list />
+		<property name="nNodes" value="4" />
+		<fixtures-list>
+			<item name="FIXTURE" path="FIXTURE.xml" />
+			<item name="FIXTURE2" path="FIXTURE2.xml" />
+			<item name="FIXTURE3" path="FIXTURE3.xml" />
+			<item name="FIXTURE4" path="FIXTURE4.xml" />
+		</fixtures-list>
 	</component>
 	<component name="gameObjects">
 		<property name="nNodes" value="0" />

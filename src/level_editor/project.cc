@@ -55,6 +55,7 @@ namespace vx::level_editor {
         // goes. For now, we do it this way, so, TODO - Fix this
         const auto objectPath = chunk.isFixture ? fixtureFolderPath() : gameObjectFolderPath();
         const std::string filenameWithExtension = chunk.identifier + paths::kXmlPostfix;
+        spdlog::info("Attempting to delete file {}", filenameWithExtension);
         for (const auto &iterVal : fs::directory_iterator(objectPath)) {
             if (iterVal.is_regular_file()) {
                 if (iterVal.path().filename().extension() == paths::kXmlPostfix &&

@@ -46,7 +46,6 @@ namespace vx::level_editor {
         auto gameObjectFolderPath() -> fs::path;
 
     private:
-//        static Project *project_;
         Project();
 
         // Files for this project
