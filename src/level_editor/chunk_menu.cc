@@ -16,7 +16,6 @@ namespace vx::level_editor {
         bool chunkSettingsMenuVisible = true;
         bool addAnotherChunk = false;
         bool editingExistingChunk = false;
-        bool nameAlreadyTaken = false;
 
         bool saveButtonDisabled = true;
 
@@ -26,7 +25,7 @@ namespace vx::level_editor {
     };
 
     struct ChunkMenuData {
-        char identifier[512];
+        char chunkName[512];
         std::string shaderModule = "core";
 
         bool isFixture = true;
@@ -42,7 +41,7 @@ namespace vx::level_editor {
         int fixtureZOffset = 0;
 
         auto operator=(const gfx::Chunk &chunk) -> ChunkMenuData & {
-            std::strcpy(identifier, chunk.identifier.c_str());
+            std::strcpy(chunkName, chunk.name.c_str());
             shaderModule = chunk.shaderModule;
 
             xdim = chunk.xdim;
@@ -70,17 +69,7 @@ namespace vx::level_editor {
         ImGui::SetNextWindowSize(ImVec2(400, 400));
         if (ImGui::BeginPopupModal(chunkMenuState.addNewChunkPopupIdentifier.c_str())) {
             ImGui::Text("Identifier");
-            ImGui::InputText("##identifier", chunkMenuData.identifier, 512);
-
-            // Check if the naem is already taken
-            const std::function<bool(const gfx::Chunk &, const std::string &)> compare =
-                    [&](const gfx::Chunk &chunk, const std::string &identifier) {
-                        if (chunk.identifier == identifier) { return true; }
-                        return false;
-                    };
-            chunkMenuState.nameAlreadyTaken = util::inContainer(level_editor::Project::instance()->storage()->chunks(),
-                                                                std::string(chunkMenuData.identifier), compare) > -1;
-            if (chunkMenuState.nameAlreadyTaken) { ImGui::TextColored(ImVec4(1, 0, 0, 1), "Name is taken"); }
+            ImGui::InputText("##identifier", chunkMenuData.chunkName, 512);
 
             // Load shader modules from disk in the resource path for slection
             ImGui::Text("Shader Module");
@@ -122,7 +111,7 @@ namespace vx::level_editor {
 
             ImGui::Checkbox("Add Another Chunk", &chunkMenuState.addAnotherChunk);
 
-            chunkMenuState.saveButtonDisabled = chunkMenuState.nameAlreadyTaken || chunkSizeInvalid;
+            chunkMenuState.saveButtonDisabled = chunkSizeInvalid;
             if (chunkMenuState.saveButtonDisabled) { gui::pushDisabled(); }
             // TODO(@jparr721) - Make this button green
             if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
@@ -131,7 +120,7 @@ namespace vx::level_editor {
                                             chunkMenuData.fixtureZOffset);
 
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
-                                       chunkMenuData.identifier, chunkMenuData.isFixture);
+                                       chunkMenuData.chunkName, chunkMenuData.isFixture);
                 if (chunkMenuState.editingExistingChunk) {
                     level_editor::Project::instance()->setChunk(chunk);
                     chunkMenuState.editingExistingChunk = false;
@@ -177,8 +166,9 @@ namespace vx::level_editor {
         if (level_editor::Project::instance()->storage()->chunks().empty()) {
             ImGui::Text("No Chunks Loaded.");
         } else {
-            for (const auto &chunk : level_editor::Project::instance()->getChunks()) {
-                if (ImGui::TreeNodeEx(chunk.identifier.c_str())) {
+            for (const auto &[id, chunk] : level_editor::Project::instance()->getChunks()) {
+                if (ImGui::TreeNodeEx(chunk.name.c_str())) {
+                    ImGui::Text("id: %s", uuids::to_string(chunk.id).c_str());
                     ImGui::Text("N Indices: %lu", chunk.indices.size());
                     ImGui::Text("Max Index: %u", *std::max_element(chunk.indices.begin(), chunk.indices.end()));
                     ImGui::Text("N Vertices: %lu", chunk.geometry.size());

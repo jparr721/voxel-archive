@@ -44,19 +44,16 @@ namespace vx::level_editor {
 
     void Project::deleteChunk(const gfx::Chunk &chunk) {}
 
-    auto Project::getChunks() -> std::vector<gfx::Chunk> & { return chunkStorage_->chunks(); }
-    auto Project::getChunkByIdentifier(const std::string &identifier) -> gfx::Chunk & {
-        for (auto &chunk : chunkStorage_->chunks()) {
-            if (chunk.identifier == identifier) { return chunk; }
-        }
+    auto Project::getChunks() -> std::unordered_map<uuids::uuid, gfx::Chunk> & { return chunkStorage_->chunks(); }
+    auto Project::getChunkByIdentifier(const uuids::uuid &chunkIdentifier) -> gfx::Chunk & {
+        // First, check if the key exists
+        if (chunkStorage_->chunks().contains(chunkIdentifier)) { return chunkStorage_->chunks().at(chunkIdentifier); }
 
-        spdlog::error("Chunk not found {}", identifier);
+        spdlog::error("Chunk not found {}", uuids::to_string(chunkIdentifier));
 
 #ifndef NDEBUG
         spdlog::error("Dumping chunks");
-        for (auto &chunk : chunkStorage_->chunks()) {
-            if (chunk.identifier == identifier) { spdlog::info("chunk {}", chunk.identifier); }
-        }
+        for (auto &[id, chunk] : chunkStorage_->chunks()) { spdlog::info("chunk {}", chunk.name); }
 #endif
 
         assert(false && "CHUNK NOT FOUND");
@@ -88,7 +85,7 @@ namespace vx::level_editor {
 
         int nFixtures = 0;
         int nGameObjects = 0;
-        for (const auto &chunk : chunkStorage_->chunks()) {
+        for (const auto &[_id, chunk] : chunkStorage_->chunks()) {
             if (chunk.isFixture) {
                 ++nFixtures;
             } else {
@@ -101,12 +98,11 @@ namespace vx::level_editor {
         fixturesComponentNNodesProperty.append_attribute("value") = nFixtures;
 
         pugi::xml_node fixturesList = fixturesComponent.append_child("fixtures-list");
-        for (const auto &fixtureChunk : chunkStorage_->chunks()) {
+        for (const auto &[_id, fixtureChunk] : chunkStorage_->chunks()) {
             if (fixtureChunk.isFixture) {
                 pugi::xml_node fixtureNode = fixturesList.append_child("item");
-                fixtureNode.append_attribute("name") = fixtureChunk.identifier.c_str();
-                fixtureNode.append_attribute("path") =
-                        std::string(fixtureChunk.identifier + paths::kXmlPostfix).c_str();
+                fixtureNode.append_attribute("name") = fixtureChunk.name.c_str();
+                fixtureNode.append_attribute("path") = std::string(fixtureChunk.name + paths::kXmlPostfix).c_str();
             }
         }
 
@@ -119,12 +115,12 @@ namespace vx::level_editor {
         gameObjectsComponentNNodesProperty.append_attribute("value") = nGameObjects;
 
         pugi::xml_node gameObjectsList = gameObjectsComponent.append_child("game-objects-list");
-        for (const auto &gameObjectChunk : chunkStorage_->chunks()) {
+        for (const auto &[_id, gameObjectChunk] : chunkStorage_->chunks()) {
             if (!gameObjectChunk.isFixture) {
                 pugi::xml_node gameObjectNode = gameObjectsList.append_child("item");
-                gameObjectNode.append_attribute("name") = gameObjectChunk.identifier.c_str();
+                gameObjectNode.append_attribute("name") = gameObjectChunk.name.c_str();
                 gameObjectNode.append_attribute("path") =
-                        std::string(gameObjectChunk.identifier + paths::kXmlPostfix).c_str();
+                        std::string(gameObjectChunk.name + paths::kXmlPostfix).c_str();
             }
         }
 
@@ -169,13 +165,14 @@ namespace vx::level_editor {
         const pugi::xml_node fixturesPropertyNode = fixturesComponent.child("property");
         const pugi::xml_node fixturesList = fixturesPropertyNode.next_sibling();
 
+        // doNotWrite tells the runtime to not write these chunks since they already exist.
+        constexpr bool kDoNotWrite = false;
         for (const auto &child : fixturesList.children()) {
             const auto chunk = gfx::Chunk::load(fixtureFolderPath() / child.attribute("path").value());
             if (!chunk.has_value()) {
                 spdlog::error("Chunk {} failed to load", child.attribute("name").value());
             } else {
-                chunkStorage_->chunks().push_back(chunk.value());
-                chunkStorage_->loadChunks();
+                chunkStorage_->addChunk(chunk.value(), kDoNotWrite);
             }
         }
 
@@ -189,8 +186,7 @@ namespace vx::level_editor {
             if (!chunk.has_value()) {
                 spdlog::error("Chunk {} failed to load", child.attribute("name").value());
             } else {
-                chunkStorage_->chunks().push_back(chunk.value());
-                chunkStorage_->loadChunks();
+                chunkStorage_->addChunk(chunk.value(), kDoNotWrite);
             }
         }
     }

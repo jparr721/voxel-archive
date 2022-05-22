@@ -24,24 +24,22 @@ namespace vx::gfx {
 
         // Insert into the stack of buffers. This keeps the memory alive for usage. We utilize
         // this down the chain when we want to swap buffers into the frame
-        buffers_.emplace_back(chunk.identifier, vb, ib);
+        buffers_.insert({chunk.id, {vb, ib}});
     }
 
-    void ChunkRenderer::removeChunk(const std::string &chunkIdentifier) {
-        for (int ii = 0; ii < buffers_.size(); ++ii) {
-            const auto &[identifier, vertexBuffer, indexBuffer] = buffers_.at(ii);
-            if (chunkIdentifier == identifier) {
-                bgfx::destroy(vertexBuffer);
-                bgfx::destroy(indexBuffer);
-                buffers_.erase(buffers_.begin() + ii);
-            }
-        }
+    void ChunkRenderer::removeChunk(const uuids::uuid &chunkIdentifier) {
+        const auto &[vertexBuffer, indexBuffer] = buffers_.at(chunkIdentifier);
+        bgfx::destroy(vertexBuffer);
+        bgfx::destroy(indexBuffer);
+        buffers_.erase(chunkIdentifier);
     }
 
     void ChunkRenderer::render(const bgfx::ProgramHandle &program) {
         u64 state = BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_MSAA | BGFX_STATE_DEPTH_TEST_LESS;
 
-        for (const auto &[_id, vertexBuffer, indexBuffer] : buffers_) {
+        for (const auto &[_id, bufferPair] : buffers_) {
+            const auto &[vertexBuffer, indexBuffer] = bufferPair;
+
             // This fucking sucks
             auto &chunk = level_editor::Project::instance()->getChunkByIdentifier(_id);
 
@@ -63,7 +61,8 @@ namespace vx::gfx {
     }
 
     void ChunkRenderer::destroy() {
-        for (const auto &[_id, vertexBuffer, indexBuffer] : buffers_) {
+        for (const auto &[_id, bufferPair] : buffers_) {
+            const auto &[vertexBuffer, indexBuffer] = bufferPair;
             bgfx::destroy(vertexBuffer);
             bgfx::destroy(indexBuffer);
         }

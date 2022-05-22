@@ -9,11 +9,21 @@
 #include <utility>
 
 namespace vx::gfx {
-    Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _identifier,
+    Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _name,
                  bool _isFixture, const BlockType &_blockType)
-        : shaderModule(std::move(moduleName)), identifier(std::move(_identifier)), isFixture(_isFixture),
-          blockType(_blockType) {
-        spdlog::debug("Loading chunk id: {} module: {}", identifier, shaderModule);
+        : shaderModule(std::move(moduleName)), name(std::move(_name)), isFixture(_isFixture), blockType(_blockType) {
+
+        // Generates a random uuid
+        std::random_device rd;
+        auto seed_data = std::array<int, std::mt19937::state_size>{};
+        std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+        std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+        std::mt19937 generator(seq);
+        uuids::uuid_random_generator gen{generator};
+        id = gen();
+        //
+        //
+        spdlog::debug("Loading chunk id: {} module: {}", uuids::to_string(id), shaderModule);
 
         xdim = chunkSize.x;
         ydim = chunkSize.y;
@@ -56,8 +66,12 @@ namespace vx::gfx {
         pugi::xml_node projectNode = level_editor::Project::instance()->projectXMLHeader(chunkDocument);
 
         pugi::xml_node identifierComponent = projectNode.append_child("component");
-        identifierComponent.append_attribute("name") = "identifier";
-        identifierComponent.append_attribute("value") = identifier.c_str();
+        identifierComponent.append_attribute("name") = "id";
+        identifierComponent.append_attribute("value") = uuids::to_string(id).c_str();
+
+        pugi::xml_node nameComponent = projectNode.append_child("component");
+        nameComponent.append_attribute("name") = "name";
+        nameComponent.append_attribute("value") = name.c_str();
 
         pugi::xml_node shaderModuleComponent = projectNode.append_child("component");
         shaderModuleComponent.append_attribute("name") = "shaderModule";
@@ -145,17 +159,14 @@ namespace vx::gfx {
         }
 
         // Save the file to our pre-determined path
-        const auto filepath = isFixture ? level_editor::Project::instance()->fixtureFolderPath() /
-                                                  fs::path(identifier + paths::kXmlPostfix)
-                                        : level_editor::Project::instance()->gameObjectFolderPath() /
-                                                  fs::path(identifier + paths::kXmlPostfix);
+        const auto filepath =
+                isFixture ? level_editor::Project::instance()->fixtureFolderPath() / fs::path(name + paths::kXmlPostfix)
+                          : level_editor::Project::instance()->gameObjectFolderPath() /
+                                    fs::path(name + paths::kXmlPostfix);
         chunkDocument.save_file(filepath.string().c_str());
     }
 
-    auto Chunk::operator==(const gfx::Chunk &other) const -> bool {
-        return identifier == other.identifier && shaderModule == other.shaderModule && indices == other.indices &&
-               geometry == other.geometry;
-    }
+    auto Chunk::operator==(const gfx::Chunk &other) const -> bool { return id == other.id; }
 
     auto Chunk::load(const std::filesystem::path &path) -> std::optional<Chunk> {
         spdlog::debug("Loading chunk path {}", path.string());
@@ -175,10 +186,16 @@ namespace vx::gfx {
 
         spdlog::debug("Loading Identifier Component");
         const pugi::xml_node identifierComponent = projectNode.child("component");
-        const std::string identifier = identifierComponent.attribute("value").value();
+
+        // TODO(@jparr721) BAD CODE
+        const uuids::uuid identifier = uuids::uuid::from_string(identifierComponent.attribute("value").value()).value();
+
+        spdlog::debug("Loading Name Component");
+        const pugi::xml_node nameComponent = identifierComponent.next_sibling();
+        const std::string name = nameComponent.attribute("value").value();
 
         spdlog::debug("Loading Shader Module Component");
-        const pugi::xml_node shaderModuleComponent = identifierComponent.next_sibling();
+        const pugi::xml_node shaderModuleComponent = nameComponent.next_sibling();
         const std::string shaderModule = shaderModuleComponent.attribute("value").value();
 
         spdlog::debug("Loading Fixture Component");
@@ -277,7 +294,7 @@ namespace vx::gfx {
 #endif
         }
 
-        return Chunk(isFixture, blockType, identifier, shaderModule, dimensions.x, dimensions.y, dimensions.z,
+        return Chunk(isFixture, blockType, name, shaderModule, identifier, dimensions.x, dimensions.y, dimensions.z,
                      transform.x, transform.y, transform.z, indices, vertices);
     }
 

@@ -17,9 +17,9 @@ namespace vx::gfx {
 
         /**
          * Delete a chunk
-         * @param {std::string} chunkIdentifier - The ID of the chunk we're removing
+         * @param {uuids::uuid} chunkIdentifier - The ID of the chunk we're removing
          */
-        void removeChunk(const std::string &chunkIdentifier);
+        void removeChunk(const uuids::uuid &chunkIdentifier);
 
         void render(const bgfx::ProgramHandle &program);
         void destroy();
@@ -27,16 +27,12 @@ namespace vx::gfx {
         auto vertexLayout() const -> const bgfx::VertexLayout & { return vertexLayout_; }
 
     private:
-        struct IdentifiedBuffer {
-            std::string identifier;
+        struct BufferPair {
             bgfx::DynamicVertexBufferHandle vertexBuffer;
             bgfx::DynamicIndexBufferHandle indexBuffer;
-            IdentifiedBuffer(std::string _identifier, bgfx::DynamicVertexBufferHandle _vertexBuffer,
-                             bgfx::DynamicIndexBufferHandle _indexBuffer)
-                : identifier(_identifier), vertexBuffer(_vertexBuffer), indexBuffer(_indexBuffer) {}
         };
 
         bgfx::VertexLayout vertexLayout_;
-        std::vector<IdentifiedBuffer> buffers_;
+        std::unordered_map<uuids::uuid, BufferPair> buffers_;
     };
 }// namespace vx::gfx

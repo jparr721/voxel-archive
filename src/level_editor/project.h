@@ -32,8 +32,8 @@ namespace vx::level_editor {
         // ====== Getters
         //
         auto storage() -> std::unique_ptr<gfx::ChunkStorage> & { return chunkStorage_; }
-        auto getChunks() -> std::vector<gfx::Chunk> &;
-        auto getChunkByIdentifier(const std::string &identifier) -> gfx::Chunk &;
+        auto getChunks() -> std::unordered_map<uuids::uuid, gfx::Chunk> &;
+        auto getChunkByIdentifier(const uuids::uuid &chunkIdentifier) -> gfx::Chunk &;
 
         // Project file management
         auto projectVersionString() -> std::string;

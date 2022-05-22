@@ -4,7 +4,8 @@
 
 namespace vx::gfx {
     void ChunkStorage::render() {
-        for (const auto &chunk : chunks_) {
+        // TODO (@jparr721) Make this less dumb.
+        for (const auto &[_, chunk] : chunks_) {
             const auto moduleName = chunk.shaderModule;
             renderers_.at(moduleName)->render(shaderPrograms_.at(moduleName));
         }
@@ -16,64 +17,41 @@ namespace vx::gfx {
         for (const auto &[_, program] : shaderPrograms_) { bgfx::destroy(program); }
     }
 
-    void ChunkStorage::addChunk(const Chunk &chunk) {
-        chunks_.push_back(chunk);
-        chunk.write();
-        loadChunks();
+    void ChunkStorage::addChunk(const Chunk &chunk, bool write) {
+        chunks_.insert({chunk.id, chunk});
+        if (write) { chunk.write(); }
+
+        // Add the chunk to the shader programs if it's not already there
+        if (shaderPrograms_.find(chunk.shaderModule) == shaderPrograms_.end()) {
+            shaderPrograms_.insert(
+                    {chunk.shaderModule, vx::loadShaderProgram(paths::kShadersPath, chunk.shaderModule)});
+            renderers_.insert({chunk.shaderModule, std::make_unique<ChunkRenderer>()});
+        }
+
+        // Now, add the chunk to the appropriate renderer
+        renderers_.at(chunk.shaderModule)->addChunk(chunk);
     }
 
-    void ChunkStorage::deleteChunk(const std::string &chunkIdentifier) {
-        for (int ii = 0; ii < chunks_.size(); ++ii) {
-            const auto &ck = chunks_.at(ii);
-            if (ck.identifier == chunkIdentifier) {
-                chunks_.erase(chunks_.begin() + ii);
-                break;
-            }
-        }
+    void ChunkStorage::deleteChunk(const uuids::uuid &chunkIdentifier) {
+        chunks_.erase(chunkIdentifier);
 
-        // ! THIS IS BROKEN!!!!! WE NEED TO FIX THIS!
-        // This matches the first renderer instead of the one associated with the module
-        // that this particular chunk is associated with.
-        for (auto &[moduleName, renderer] : renderers_) {
-            renderer->removeChunk(chunkIdentifier);
-            break;
-        }
-    }
-
-    void ChunkStorage::loadChunks() {
-        // TODO(@jparr721) - We need to nuke the module if there are none left in this module
-        for (const auto &chunk : chunks_) {
-            const auto moduleName = chunk.shaderModule;
-            // Load the shader program
-            if (shaderPrograms_.find(moduleName) == shaderPrograms_.end()) {
-                const auto shaderProgram = vx::loadShaderProgram(paths::kShadersPath, moduleName);
-                shaderPrograms_.insert({moduleName, shaderProgram});
-            }
-
-            // Load the chunk renderer
-            if (renderers_.find(moduleName) == renderers_.end()) {
-                renderers_.insert({moduleName, std::make_unique<ChunkRenderer>()});
-            }
-        }
-
-        for (const auto &chunk : chunks_) {
-            const auto moduleName = chunk.shaderModule;
-            renderers_.at(moduleName)->addChunk(chunk);
-        }
+        const auto &chunk = chunks_.at(chunkIdentifier);
+        renderers_.at(chunk.shaderModule)->removeChunk(chunk.id);
     }
 
     void ChunkStorage::setChunk(const Chunk &newChunk) {
-        for (auto &chunk : chunks_) {
-            if (chunk.identifier == newChunk.identifier) {
-#ifndef NDEBUG
-                const auto chunksSize = chunks_.size();
-#endif
-                chunk = newChunk;
-#ifndef NDEBUG
-                assert(chunksSize == chunks_.size());
-#endif
-                break;
-            }
-        }
+        // No op this until we can debug it
+        /* for (auto &chunk : chunks_) { */
+        /*     if (chunk.identifier == newChunk.identifier) { */
+        /* #ifndef NDEBUG */
+        /*         const auto chunksSize = chunks_.size(); */
+        /* #endif */
+        /*         chunk = newChunk; */
+        /* #ifndef NDEBUG */
+        /*         assert(chunksSize == chunks_.size()); */
+        /* #endif */
+        /*         break; */
+        /*     } */
+        /* } */
     }
 }// namespace vx::gfx
