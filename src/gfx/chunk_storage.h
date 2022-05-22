@@ -13,7 +13,7 @@ namespace vx::gfx {
         void render();
         void destroy();
         void addChunk(const Chunk &chunk);
-        void deleteChunk(const Chunk &chunk);
+        void deleteChunk(const std::string &chunkIdentifier);
         void setChunk(const Chunk &newChunk);
 
         auto chunks() -> std::vector<Chunk> & { return chunks_; }

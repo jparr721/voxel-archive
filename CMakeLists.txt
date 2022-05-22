@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12...3.18)
 project(voxel LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Required for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -56,6 +56,7 @@ add_library(${PROJECT_LIB}
         src/util/strings.h
         src/util/files.h
         src/util/collections.h
+        src/util/uuid.h
 
         src/level_editor/settings_menu.h
         src/level_editor/chunk_menu.h

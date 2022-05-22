@@ -1,5 +1,6 @@
 #include "block.h"
 #include <random>
+#include <spdlog/spdlog.h>
 
 namespace vx::gfx {
     static constexpr auto BlockTypeStringkDefault = "kDefault";
@@ -16,26 +17,27 @@ namespace vx::gfx {
         return vertices;
     }
 
-    auto makeColorFromBlockType(BlockType blockType) -> u32 {
-        u32 color;
+    auto makeColorFromBlockType(BlockType blockType) -> vec4 {
+        vec4 color;
         switch (blockType) {
             case BlockType::kDefault:
-                color = 0xffffffff;
+                color = util::u32ToRgba(0xffffffff);
                 break;
             case BlockType::kDirt:
-                color = 0xff000000;
+                color = util::u32ToRgba(0xff000000);
                 break;
             case BlockType::kGrass:
-                color = 0xffff0000;
+                color = util::u32ToRgba(0xffff0000);
                 break;
             case BlockType::kDebug:
                 std::random_device r;
                 std::mt19937 engine(r());
-                std::uniform_int_distribution<u32> distr(0, 255);
-                vec4 cv(distr(engine), distr(engine), distr(engine), distr(engine));
-                color = util::rgbaToU32(cv);
+                std::uniform_real_distribution<f32> distr(0, 1);
+                color = vec4(distr(engine), distr(engine), distr(engine), distr(engine));
+                spdlog::info("Generated color: {}", glm::to_string(color));
                 break;
         }
+
         return color;
     }
 

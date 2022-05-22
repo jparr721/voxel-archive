@@ -36,7 +36,7 @@ namespace vx::gfx {
                         indices.push_back(index);
                     }
 
-                    const u32 color = makeColorFromBlockType(blockType);
+                    const vec4 color = makeColorFromBlockType(blockType);
                     const vec3 startingPosition = vec3(xx, yy, zz);
                     for (const auto &vertex : makeOffsetCubeVertices(startingPosition)) {
                         geometry.emplace_back(vertex, color);
@@ -126,15 +126,14 @@ namespace vx::gfx {
 
         pugi::xml_node verticesComponentVertexTypeProperty = verticesComponent.append_child("property");
         verticesComponentVertexTypeProperty.append_attribute("name") = "vertexType";
-        verticesComponentVertexTypeProperty.append_attribute("value") = "VertexColorHex";
+        verticesComponentVertexTypeProperty.append_attribute("value") = "VertexColor";
 
         pugi::xml_node verticesList = verticesComponent.append_child("vertices-list");
         int ii = 0;
-        for (const auto &vertexColorHex : geometry) {
-            const auto &x = vertexColorHex.position.x;
-            const auto &y = vertexColorHex.position.y;
-            const auto &z = vertexColorHex.position.z;
-            const auto &color = vertexColorHex.color;
+        for (const auto &[position, _color] : geometry) {
+            const auto &x = position.x;
+            const auto &y = position.y;
+            const auto &z = position.z;
 
             // Make a vertex top-level element
             pugi::xml_node vertexNode = verticesList.append_child("item");
@@ -249,7 +248,7 @@ namespace vx::gfx {
 
         // Unpack the vertices
         spdlog::debug("Loading Vertices");
-        std::vector<VertexColorHex> vertices;
+        std::vector<VertexColor> vertices;
         const pugi::xml_node verticesComponent = indicesComponent.next_sibling();
         const pugi::xml_node nNodesProperty = verticesComponent.child("property");
         const int nNodes = std::stoi(nNodesProperty.attribute("value").value());
@@ -260,7 +259,7 @@ namespace vx::gfx {
             // Ignore for now since we are currently only using one vertex type
             const pugi::xml_node vertexTypeProperty = blockTypeProperty.next_sibling();
             const pugi::xml_node verticesList = vertexTypeProperty.next_sibling();
-            u32 color = makeColorFromBlockType(blockType);
+            vec4 color = makeColorFromBlockType(blockType);
             int ii = 0;
             for (const auto &child : verticesList.children()) {
                 const u32 xpos = std::stoi(child.attribute("xpos").value());

@@ -22,17 +22,20 @@ namespace vx::gfx {
         loadChunks();
     }
 
-    void ChunkStorage::deleteChunk(const Chunk &chunk) {
+    void ChunkStorage::deleteChunk(const std::string &chunkIdentifier) {
         for (int ii = 0; ii < chunks_.size(); ++ii) {
             const auto &ck = chunks_.at(ii);
-            if (ck.identifier == chunk.identifier) {
+            if (ck.identifier == chunkIdentifier) {
                 chunks_.erase(chunks_.begin() + ii);
                 break;
             }
         }
 
+        // ! THIS IS BROKEN!!!!! WE NEED TO FIX THIS!
+        // This matches the first renderer instead of the one associated with the module
+        // that this particular chunk is associated with.
         for (auto &[moduleName, renderer] : renderers_) {
-            renderer->removeChunk(chunk);
+            renderer->removeChunk(chunkIdentifier);
             break;
         }
     }

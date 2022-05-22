@@ -9,6 +9,9 @@ namespace vx::gfx {
         VertexColor() = default;
         VertexColor(const vec3 &position, const vec4 &color) : position(position), color(color) {}
         static auto size() -> usize { return sizeof(VertexColor); }
+        auto operator==(const VertexColor &other) const -> bool {
+            return position == other.position && color == other.color;
+        }
     };
 
     struct VertexColorHex {

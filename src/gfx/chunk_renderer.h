@@ -16,10 +16,10 @@ namespace vx::gfx {
         void addChunk(const Chunk &chunk);
 
         /**
-         * Remove a chunk
-         * @param {Chunk} chunk - The chunk we're removing
+         * Delete a chunk
+         * @param {std::string} chunkIdentifier - The ID of the chunk we're removing
          */
-        void removeChunk(const Chunk &chunk);
+        void removeChunk(const std::string &chunkIdentifier);
 
         void render(const bgfx::ProgramHandle &program);
         void destroy();

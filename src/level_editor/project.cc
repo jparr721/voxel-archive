@@ -42,42 +42,22 @@ namespace vx::level_editor {
         write();
     }
 
-    void Project::deleteChunk(const gfx::Chunk &chunk) {
-        chunkStorage_->deleteChunk(chunk);
-
-        // Delete the file
-        // So, right now this is _pretty_ dumb. The project should just tell the runtime where everything else
-        // goes. For now, we do it this way, so, TODO - Fix this
-        const auto objectPath = chunk.isFixture ? fixtureFolderPath() : gameObjectFolderPath();
-        const std::string filenameWithExtension = chunk.identifier + paths::kXmlPostfix;
-        spdlog::info("Attempting to delete file {}", filenameWithExtension);
-        for (const auto &iterVal : fs::directory_iterator(objectPath)) {
-            if (iterVal.is_regular_file()) {
-                if (iterVal.path().filename().extension() == paths::kXmlPostfix &&
-                    util::stringEndsWith(iterVal.path().string(), filenameWithExtension)) {
-                    const fs::path deletedFilePath = objectPath / filenameWithExtension;
-
-                    // Delete the file
-                    if (!fs::remove(deletedFilePath)) {
-                        spdlog::error("File could not be deleted!");
-                        break;
-                    } else {
-                        spdlog::info("File deleted successfully");
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Write the current state
-        write();
-    }
+    void Project::deleteChunk(const gfx::Chunk &chunk) {}
 
     auto Project::getChunks() -> std::vector<gfx::Chunk> & { return chunkStorage_->chunks(); }
     auto Project::getChunkByIdentifier(const std::string &identifier) -> gfx::Chunk & {
         for (auto &chunk : chunkStorage_->chunks()) {
             if (chunk.identifier == identifier) { return chunk; }
         }
+
+        spdlog::error("Chunk not found {}", identifier);
+
+#ifndef NDEBUG
+        spdlog::error("Dumping chunks");
+        for (auto &chunk : chunkStorage_->chunks()) {
+            if (chunk.identifier == identifier) { spdlog::info("chunk {}", chunk.identifier); }
+        }
+#endif
 
         assert(false && "CHUNK NOT FOUND");
     }
