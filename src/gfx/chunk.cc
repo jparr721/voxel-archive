@@ -28,8 +28,7 @@ namespace vx::gfx {
         for (int xx = 0; xx < chunkSize.x; ++xx) {
             for (int yy = 0; yy < chunkSize.y; ++yy) {
                 for (int zz = 0; zz < chunkSize.z; ++zz) {
-                    // TODO - Compute block direction
-                    BlockDir::BlockDirIndices baseIndices = BlockDir::kDebug;
+                    auto baseIndices = kBlockIndices;
 
                     // Increment indices to avoid overlapping faces
                     for (auto &index : baseIndices) {
@@ -146,11 +145,6 @@ namespace vx::gfx {
             ++ii;
         }
 
-#ifndef NDEBUG
-        // Debug print
-        chunkDocument.print(std::cout);
-#endif
-
         // Save the file to our pre-determined path
         const auto filepath = isFixture ? level_editor::Project::instance()->fixtureFolderPath() /
                                                   fs::path(identifier + paths::kXmlPostfix)
@@ -238,7 +232,7 @@ namespace vx::gfx {
 
         // Unpack the indices
         spdlog::debug("Loading Indices");
-        std::vector<u16> indices;
+        std::vector<BlockIndexSize> indices;
         const pugi::xml_node indicesComponent = transformComponent.next_sibling();
         {
             const int nNodes = std::stoi(indicesComponent.child("property").attribute("value").value());
@@ -266,13 +260,18 @@ namespace vx::gfx {
             // Ignore for now since we are currently only using one vertex type
             const pugi::xml_node vertexTypeProperty = blockTypeProperty.next_sibling();
             const pugi::xml_node verticesList = vertexTypeProperty.next_sibling();
+            u32 color = makeColorFromBlockType(blockType);
+            int ii = 0;
             for (const auto &child : verticesList.children()) {
                 const u32 xpos = std::stoi(child.attribute("xpos").value());
                 const u32 ypos = std::stoi(child.attribute("ypos").value());
                 const u32 zpos = std::stoi(child.attribute("zpos").value());
                 const vec3 position(xpos, ypos, zpos);
-                const u32 color = makeColorFromBlockType(blockType);
+
+                // Evil hack to get the colors right
+                if (ii % gfx::kCubeVertices.size() == 0) { color = makeColorFromBlockType(blockType); }
                 vertices.emplace_back(position, color);
+                ++ii;
             }
 #ifndef NDEBUG
             assert(vertices.size() == nNodes && "INVALID VERTEX LOAD OPERATION");

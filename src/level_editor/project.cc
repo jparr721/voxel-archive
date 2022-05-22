@@ -69,36 +69,17 @@ namespace vx::level_editor {
             }
         }
 
-        // Delete the value from the object path
-        /* if (chunk.isFixture) { */
-        /*     for (int ii = 0; ii < fixtureChunks_.size(); ++ii) { */
-        /*         const auto &fixtureChunk = fixtureChunks_.at(ii); */
-        /*         if (fixtureChunk.identifier == chunk.identifier) { */
-        /*             fixtureChunks_.erase(fixtureChunks_.begin() + ii); */
-        /*             break; */
-        /*         } */
-        /*     } */
-        /* } else { */
-        /*     for (int ii = 0; ii < gameObjectChunks_.size(); ++ii) { */
-        /*         const auto &gameObjectChunk = gameObjectChunks_.at(ii); */
-        /*         if (gameObjectChunk.identifier == chunk.identifier) { */
-        /*             gameObjectChunks_.erase(gameObjectChunks_.begin() + ii); */
-        /*             break; */
-        /*         } */
-        /*     } */
-        /* } */
-
         // Write the current state
         write();
     }
 
-    auto Project::getChunks() const -> const std::vector<gfx::Chunk> & { return chunkStorage_->chunks(); }
-    auto Project::getChunkByIdentifier(const std::string &identifier) const -> std::optional<const gfx::Chunk> {
-        for (const auto &chunk : chunkStorage_->chunks()) {
+    auto Project::getChunks() -> std::vector<gfx::Chunk> & { return chunkStorage_->chunks(); }
+    auto Project::getChunkByIdentifier(const std::string &identifier) -> gfx::Chunk & {
+        for (auto &chunk : chunkStorage_->chunks()) {
             if (chunk.identifier == identifier) { return chunk; }
         }
 
-        return std::nullopt;
+        assert(false && "CHUNK NOT FOUND");
     }
 
     auto Project::projectVersionString() -> std::string {
