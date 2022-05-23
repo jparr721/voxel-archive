@@ -19,18 +19,22 @@ namespace vx::gfx {
         // Initialize with the size of the chunk memory
         const auto geometrySize = sizeof(chunk.geometry[0]) * chunk.geometry.size();
         const auto indicesSize = sizeof(chunk.indices[0]) * chunk.indices.size();
-        const auto vb = bgfx::createDynamicVertexBuffer(geometrySize, vertexLayout_);
-        const auto ib = bgfx::createDynamicIndexBuffer(indicesSize, BGFX_BUFFER_INDEX32);
+        const auto vb = bgfx::createDynamicVertexBuffer(geometrySize, vertexLayout_, BGFX_BUFFER_ALLOW_RESIZE);
+        const auto ib = bgfx::createDynamicIndexBuffer(indicesSize, BGFX_BUFFER_INDEX32 | BGFX_BUFFER_ALLOW_RESIZE);
 
         // Insert into the stack of buffers. This keeps the memory alive for usage. We utilize
         // this down the chain when we want to swap buffers into the frame
         buffers_.insert({chunk.id, {vb, ib}});
     }
 
-    void ChunkRenderer::removeChunk(const uuids::uuid &chunkIdentifier) {
+    void ChunkRenderer::deleteChunk(const uuids::uuid &chunkIdentifier) {
         const auto &[vertexBuffer, indexBuffer] = buffers_.at(chunkIdentifier);
+
+        // Destroy the buffer objects
         bgfx::destroy(vertexBuffer);
         bgfx::destroy(indexBuffer);
+
+        // Remove this uuid key
         buffers_.erase(chunkIdentifier);
     }
 
@@ -39,8 +43,6 @@ namespace vx::gfx {
 
         for (const auto &[_id, bufferPair] : buffers_) {
             const auto &[vertexBuffer, indexBuffer] = bufferPair;
-
-            // This fucking sucks
             auto &chunk = level_editor::Project::instance()->getChunkByIdentifier(_id);
 
             if (chunk.needsUpdate) {
@@ -53,7 +55,7 @@ namespace vx::gfx {
 
 
             bgfx::setVertexBuffer(0, vertexBuffer);
-            bgfx::setIndexBuffer(indexBuffer);
+            bgfx::setIndexBuffer(indexBuffer, 0, chunk.indices.size());
 
             bgfx::setState(state);
             bgfx::submit(0, program);

@@ -14,7 +14,6 @@ namespace vx::gfx {
         void destroy();
         void addChunk(const Chunk &chunk, bool write = true);
         void deleteChunk(const uuids::uuid &chunkIdentifier);
-        void setChunk(const Chunk &newChunk);
 
         auto chunks() -> std::unordered_map<uuids::uuid, Chunk> & { return chunks_; }
         auto chunks() const -> const std::unordered_map<uuids::uuid, Chunk> & { return chunks_; }

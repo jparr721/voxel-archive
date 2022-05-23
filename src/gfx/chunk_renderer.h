@@ -19,7 +19,7 @@ namespace vx::gfx {
          * Delete a chunk
          * @param {uuids::uuid} chunkIdentifier - The ID of the chunk we're removing
          */
-        void removeChunk(const uuids::uuid &chunkIdentifier);
+        void deleteChunk(const uuids::uuid &chunkIdentifier);
 
         void render(const bgfx::ProgramHandle &program);
         void destroy();

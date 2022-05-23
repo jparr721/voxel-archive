@@ -22,11 +22,9 @@ namespace vx::level_editor {
 
         static auto instance() -> Project *;
 
-        // TODO(@jparr721) Delete this
         void render();
         void destroy();
         void addChunk(const gfx::Chunk &chunk);
-        void setChunk(const gfx::Chunk &chunk);
         void deleteChunk(const uuids::uuid &chunkIdentifier);
 
         // ====== Getters

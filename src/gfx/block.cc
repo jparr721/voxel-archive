@@ -34,7 +34,6 @@ namespace vx::gfx {
                 std::mt19937 engine(r());
                 std::uniform_real_distribution<f32> distr(0, 1);
                 color = vec4(distr(engine), distr(engine), distr(engine), distr(engine));
-                spdlog::info("Generated color: {}", glm::to_string(color));
                 break;
         }
 

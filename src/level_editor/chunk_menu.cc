@@ -13,16 +13,18 @@
 namespace vx::level_editor {
     struct ChunkMenuState {
         bool addNewChunkPopupOpen = false;
+        bool editChunkPopupOpen = false;
         bool chunkSettingsMenuVisible = true;
         bool addAnotherChunk = false;
-        bool editingExistingChunk = false;
-
-        bool saveButtonDisabled = true;
 
         int selectedShaderModuleOption = 0;
 
         const std::string addNewChunkPopupIdentifier = "Add New Chunk";
+        const std::string editChunkPopupIdentifier = "Edit Chunk";
+
         std::vector<uuids::uuid> deletedChunks;
+
+        gfx::Chunk *editedChunk = nullptr;
     };
 
     struct ChunkMenuData {
@@ -37,23 +39,9 @@ namespace vx::level_editor {
         int zdim = 1;
 
         // Offset of the chunk from (0, 0), if a fixture
-        int fixtureXOffset = 0;
-        int fixtureYOffset = 0;
-        int fixtureZOffset = 0;
-
-        auto operator=(const gfx::Chunk &chunk) -> ChunkMenuData & {
-            std::strcpy(chunkName, chunk.name.c_str());
-            shaderModule = chunk.shaderModule;
-
-            xdim = chunk.xdim;
-            ydim = chunk.ydim;
-            zdim = chunk.zdim;
-
-            fixtureXOffset = chunk.geometry.front().position.x;
-            fixtureYOffset = chunk.geometry.front().position.y;
-            fixtureZOffset = chunk.geometry.front().position.z;
-            return *this;
-        }
+        int xtransform = 0;
+        int ytransform = 0;
+        int ztransform = 0;
     };
 
     static ChunkMenuState chunkMenuState;
@@ -66,11 +54,83 @@ namespace vx::level_editor {
         return tooLarge || invalidValue;
     }
 
-    static void chunkEditPopup() {
+    static void editChunkPopup() {
+        ImGui::SetNextWindowSize(ImVec2(400, 400));
+        if (chunkMenuState.editedChunk) {
+            if (ImGui::BeginPopupModal(chunkMenuState.editChunkPopupIdentifier.c_str())) {
+                ImGui::Text("Name");
+                ImGui::InputText("##name", chunkMenuData.chunkName, 512);
+
+                // Load shader modules from disk in the resource path for slection
+                ImGui::Text("Shader Module");
+                ImGui::Combo("##shadermodule", &chunkMenuState.selectedShaderModuleOption,
+                             paths::kAvailableShaderModules.data(), 2);
+                chunkMenuData.shaderModule =
+                        paths::kAvailableShaderModules.at(chunkMenuState.selectedShaderModuleOption);
+
+                const auto &[width, height] = ImGui::GetWindowSize();
+                const float tripletInputWidth = width * 0.3;
+
+                const auto chunkSizeInvalid =
+                        isInvalidChunkSize(chunkMenuData.xdim, chunkMenuData.ydim, chunkMenuData.zdim);
+                if (chunkSizeInvalid) { ImGui::TextColored(ImVec4(1, 0, 0, 1), "Chunk size is invalid"); }
+
+                ImGui::Text("Chunk Dimensions (x, y, z)");
+                ImGui::SetNextItemWidth(tripletInputWidth);
+                ImGui::InputInt("##x", &chunkMenuData.xdim, 5);
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(tripletInputWidth);
+                ImGui::InputInt("##y", &chunkMenuData.ydim, 5);
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(tripletInputWidth);
+                ImGui::InputInt("##z", &chunkMenuData.zdim, 5);
+
+                ImGui::Checkbox("Fixture", &chunkMenuData.isFixture);
+
+                if (chunkMenuData.isFixture) {
+                    ImGui::Text("Transform");
+                    ImGui::SetNextItemWidth(tripletInputWidth);
+                    ImGui::InputInt("##xtransform", &chunkMenuData.xtransform, 5);
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(tripletInputWidth);
+                    ImGui::InputInt("##ytransform", &chunkMenuData.ytransform, 5);
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(tripletInputWidth);
+                    ImGui::InputInt("##ztransform", &chunkMenuData.ztransform, 5);
+                }
+
+                if (chunkSizeInvalid) { gui::pushDisabled(); }
+                if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
+                    const ivec3 chunkDimensions(chunkMenuData.xdim, chunkMenuData.ydim, chunkMenuData.zdim);
+                    const vec3 chunkTranslation(chunkMenuData.xtransform, chunkMenuData.ytransform,
+                                                chunkMenuData.ztransform);
+
+                    chunkMenuState.editedChunk->name = chunkMenuData.chunkName;
+                    chunkMenuState.editedChunk->shaderModule = chunkMenuData.shaderModule;
+                    chunkMenuState.editedChunk->isFixture = chunkMenuData.isFixture;
+                    chunkMenuState.editedChunk->setGeometry(chunkDimensions, chunkTranslation, gfx::BlockType::kDebug);
+
+                    // Tell the render step to reload the objects in memory
+                    chunkMenuState.editedChunk->needsUpdate = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                if (chunkSizeInvalid) { gui::popDisabled(); }
+
+                ImGui::SameLine();
+
+                if (ImGui::Button("Cancel", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+        }
+    }
+
+    static void chunkCreatePopup() {
         ImGui::SetNextWindowSize(ImVec2(400, 400));
         if (ImGui::BeginPopupModal(chunkMenuState.addNewChunkPopupIdentifier.c_str())) {
-            ImGui::Text("Identifier");
-            ImGui::InputText("##identifier", chunkMenuData.chunkName, 512);
+            ImGui::Text("Name");
+            ImGui::InputText("##name", chunkMenuData.chunkName, 512);
 
             // Load shader modules from disk in the resource path for slection
             ImGui::Text("Shader Module");
@@ -101,52 +161,33 @@ namespace vx::level_editor {
             if (chunkMenuData.isFixture) {
                 ImGui::Text("Offset");
                 ImGui::SetNextItemWidth(tripletInputWidth);
-                ImGui::InputInt("##xoffset", &chunkMenuData.fixtureXOffset, 5);
+                ImGui::InputInt("##xoffset", &chunkMenuData.xtransform, 5);
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(tripletInputWidth);
-                ImGui::InputInt("##yoffset", &chunkMenuData.fixtureYOffset, 5);
+                ImGui::InputInt("##yoffset", &chunkMenuData.ytransform, 5);
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(tripletInputWidth);
-                ImGui::InputInt("##zoffset", &chunkMenuData.fixtureZOffset, 5);
+                ImGui::InputInt("##zoffset", &chunkMenuData.ztransform, 5);
             }
 
             ImGui::Checkbox("Add Another Chunk", &chunkMenuState.addAnotherChunk);
 
-            chunkMenuState.saveButtonDisabled = chunkSizeInvalid;
-            if (chunkMenuState.saveButtonDisabled) { gui::pushDisabled(); }
-            // TODO(@jparr721) - Make this button green
+            if (chunkSizeInvalid) { gui::pushDisabled(); }
             if (ImGui::Button("Save", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) {
                 const ivec3 chunkDimensions(chunkMenuData.xdim, chunkMenuData.ydim, chunkMenuData.zdim);
-                const vec3 chunkTranslation(chunkMenuData.fixtureXOffset, chunkMenuData.fixtureYOffset,
-                                            chunkMenuData.fixtureZOffset);
+                const vec3 chunkTranslation(chunkMenuData.xtransform, chunkMenuData.ytransform,
+                                            chunkMenuData.ztransform);
 
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
                                        chunkMenuData.chunkName, chunkMenuData.isFixture);
-                if (chunkMenuState.editingExistingChunk) {
-                    level_editor::Project::instance()->setChunk(chunk);
-                    chunkMenuState.editingExistingChunk = false;
-                } else {
-                    level_editor::Project::instance()->addChunk(chunk);
-                }
+                level_editor::Project::instance()->addChunk(chunk);
 
-                if (!chunkMenuState.addAnotherChunk) {
-                    ImGui::CloseCurrentPopup();
-                } else {
-                    chunkMenuData.shaderModule = "core";
-                    chunkMenuState.selectedShaderModuleOption = 0;
-                    chunkMenuData.isFixture = true;
-                    chunkMenuData.xdim = 0;
-                    chunkMenuData.ydim = 0;
-                    chunkMenuData.zdim = 0;
-                    chunkMenuData.fixtureXOffset = 0;
-                    chunkMenuData.fixtureYOffset = 0;
-                    chunkMenuData.fixtureZOffset = 0;
-                }
+                if (!chunkMenuState.addAnotherChunk) { ImGui::CloseCurrentPopup(); }
             }
-            if (chunkMenuState.saveButtonDisabled) { gui::popDisabled(); }
+            if (chunkSizeInvalid) { gui::popDisabled(); }
 
             ImGui::SameLine();
-            // TODO (@jparr721) - Make this button red
+
             if (ImGui::Button("Cancel", ImVec2(ImGui::GetWindowSize().x * 0.5f, 0.0f))) { ImGui::CloseCurrentPopup(); }
             ImGui::EndPopup();
         }
@@ -167,21 +208,33 @@ namespace vx::level_editor {
         if (level_editor::Project::instance()->storage()->chunks().empty()) {
             ImGui::Text("No Chunks Loaded.");
         } else {
-            for (const auto &[id, chunk] : level_editor::Project::instance()->getChunks()) {
+            for (auto &[id, chunk] : level_editor::Project::instance()->getChunks()) {
                 if (ImGui::TreeNodeEx(chunk.name.c_str())) {
                     ImGui::Text("id: %s", uuids::to_string(chunk.id).c_str());
-                    ImGui::Text("N Indices: %lu", chunk.indices.size());
-                    ImGui::Text("Max Index: %u", *std::max_element(chunk.indices.begin(), chunk.indices.end()));
-                    ImGui::Text("N Vertices: %lu", chunk.geometry.size());
-                    ImGui::Text("X Bounds: %i", chunk.xdim);
-                    ImGui::Text("Y Bounds: %i", chunk.ydim);
-                    ImGui::Text("Z Bounds: %i", chunk.zdim);
-                    ImGui::Text("Starting Point %s", glm::to_string(ivec3(chunk.geometry.front().position)).c_str());
+                    ImGui::Text("Dims: %i, %i, %i", chunk.xdim, chunk.ydim, chunk.zdim);
+                    ImGui::Text("Transform: %i, %i, %i", chunk.xtransform, chunk.ytransform, chunk.ztransform);
 
                     if (ImGui::Button("Edit")) {
-                        chunkMenuData = chunk;
-                        chunkMenuState.addNewChunkPopupOpen = true;
-                        chunkMenuState.editingExistingChunk = true;
+                        chunkMenuState.editChunkPopupOpen = true;
+                        chunkMenuState.editedChunk = &chunk;
+
+                        // Pre-fill the data
+                        // Assign the name since it's a non std::string type
+                        std::strcpy(chunkMenuData.chunkName, chunkMenuState.editedChunk->name.c_str());
+
+                        // Map the selected shader option for the module combo box
+                        chunkMenuState.selectedShaderModuleOption =
+                                paths::indexOfShaderModule(chunkMenuState.editedChunk->shaderModule);
+
+                        // Set menu dims for overridding later
+                        chunkMenuData.xdim = chunkMenuState.editedChunk->xdim;
+                        chunkMenuData.ydim = chunkMenuState.editedChunk->ydim;
+                        chunkMenuData.zdim = chunkMenuState.editedChunk->zdim;
+
+                        // Set menu transforms for overridding later
+                        chunkMenuData.xtransform = chunkMenuState.editedChunk->xtransform;
+                        chunkMenuData.ytransform = chunkMenuState.editedChunk->ytransform;
+                        chunkMenuData.ztransform = chunkMenuState.editedChunk->ztransform;
                     }
                     ImGui::SameLine();
                     if (ImGui::Button("Delete")) { chunkMenuState.deletedChunks.push_back(chunk.id); }
@@ -191,6 +244,8 @@ namespace vx::level_editor {
 
             // Delete chunks
             for (const auto &id : chunkMenuState.deletedChunks) { level_editor::Project::instance()->deleteChunk(id); }
+            // Clear the deleted chunks
+            chunkMenuState.deletedChunks.clear();
         }
         ImGui::PopItemFlag();
         ImGui::End();
@@ -205,11 +260,17 @@ namespace vx::level_editor {
             ImGui::EndMenu();
         }
 
-        chunkEditPopup();
+        chunkCreatePopup();
+        editChunkPopup();
 
         if (chunkMenuState.addNewChunkPopupOpen) {
             ImGui::OpenPopup(chunkMenuState.addNewChunkPopupIdentifier.c_str());
             chunkMenuState.addNewChunkPopupOpen = false;
+        }
+
+        if (chunkMenuState.editChunkPopupOpen) {
+            ImGui::OpenPopup(chunkMenuState.editChunkPopupIdentifier.c_str());
+            chunkMenuState.editChunkPopupOpen = false;
         }
 
         if (chunkMenuState.chunkSettingsMenuVisible) { chunkSettingsMenu(); }

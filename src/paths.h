@@ -30,4 +30,15 @@ namespace vx::paths {
     // Shader modules
     enum ShaderModule { kCore = 0, kDebug };
     inline const std::array<char *, 2> kAvailableShaderModules = {(char *) "core", (char *) "debug"};
+    inline auto indexOfShaderModule(const std::string &shaderModule) -> int {
+        int ii = 0;
+        for (const auto &mod : kAvailableShaderModules) {
+            if (mod == shaderModule.c_str()) { return ii; }
+            ++ii;
+        }
+
+        spdlog::error("This chunk has an invalid shader module somehow, got {}", shaderModule);
+        // Default return the first option.
+        return 0;
+    }
 }// namespace vx::paths

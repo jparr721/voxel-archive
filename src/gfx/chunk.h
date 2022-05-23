@@ -46,6 +46,11 @@ namespace vx::gfx {
               geometry(std::move(_geometry)) {}
 
         void write() const noexcept;
+        /**
+         * Generates the geometry from the size and translation and block type values.
+         * This is a destructive action.
+         */
+        void setGeometry(const ivec3 &chunkSize, const vec3 &chunkTranslation, const BlockType &blockType);
 
         auto operator=(const gfx::Chunk &chunk) -> Chunk & = default;
         auto operator==(const gfx::Chunk &other) const -> bool;

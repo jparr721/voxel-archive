@@ -37,11 +37,6 @@ namespace vx::level_editor {
         write();
     }
 
-    void Project::setChunk(const gfx::Chunk &chunk) {
-        chunkStorage_->setChunk(chunk);
-        write();
-    }
-
     void Project::deleteChunk(const uuids::uuid &chunkIdentifier) {
         // Delete file
         const auto &chunk = getChunkByIdentifier(chunkIdentifier);

@@ -22,42 +22,9 @@ namespace vx::gfx {
         uuids::uuid_random_generator gen{generator};
         id = gen();
         //
-        //
+
         spdlog::debug("Loading chunk id: {} module: {}", uuids::to_string(id), shaderModule);
-
-        xdim = chunkSize.x;
-        ydim = chunkSize.y;
-        zdim = chunkSize.z;
-
-        xtransform = chunkTranslation.x;
-        ytransform = chunkTranslation.y;
-        ztransform = chunkTranslation.z;
-
-        // Origin point is always 0 0 0, so we draw from there
-        u64 ii = 0;
-        for (int xx = 0; xx < chunkSize.x; ++xx) {
-            for (int yy = 0; yy < chunkSize.y; ++yy) {
-                for (int zz = 0; zz < chunkSize.z; ++zz) {
-                    auto baseIndices = kBlockIndices;
-
-                    // Increment indices to avoid overlapping faces
-                    for (auto &index : baseIndices) {
-                        index += kCubeVertices.size() * ii;
-                        indices.push_back(index);
-                    }
-
-                    const vec4 color = makeColorFromBlockType(blockType);
-                    const vec3 startingPosition = vec3(xx, yy, zz);
-                    for (const auto &vertex : makeOffsetCubeVertices(startingPosition)) {
-                        geometry.emplace_back(vertex, color);
-                    }
-                    ++ii;
-                }
-            }
-        }
-
-        // Translate the chunk
-        for (auto &[pos, _] : geometry) { pos += chunkTranslation; }
+        setGeometry(chunkSize, chunkTranslation, _blockType);
         spdlog::debug("Chunk loaded successfully");
     }
 
@@ -164,6 +131,46 @@ namespace vx::gfx {
                           : level_editor::Project::instance()->gameObjectFolderPath() /
                                     fs::path(name + paths::kXmlPostfix);
         chunkDocument.save_file(filepath.string().c_str());
+    }
+
+    void Chunk::setGeometry(const ivec3 &chunkSize, const vec3 &chunkTranslation, const BlockType &blockType) {
+        // Clear any existing memory.
+        geometry.clear();
+        indices.clear();
+
+        xdim = chunkSize.x;
+        ydim = chunkSize.y;
+        zdim = chunkSize.z;
+
+        xtransform = chunkTranslation.x;
+        ytransform = chunkTranslation.y;
+        ztransform = chunkTranslation.z;
+
+        // Origin point is always 0 0 0, so we draw from there
+        u64 ii = 0;
+        for (int xx = 0; xx < chunkSize.x; ++xx) {
+            for (int yy = 0; yy < chunkSize.y; ++yy) {
+                for (int zz = 0; zz < chunkSize.z; ++zz) {
+                    auto baseIndices = kBlockIndices;
+
+                    // Increment indices to avoid overlapping faces
+                    for (auto &index : baseIndices) {
+                        index += kCubeVertices.size() * ii;
+                        indices.push_back(index);
+                    }
+
+                    const vec4 color = makeColorFromBlockType(blockType);
+                    const vec3 startingPosition = vec3(xx, yy, zz);
+                    for (const auto &vertex : makeOffsetCubeVertices(startingPosition)) {
+                        geometry.emplace_back(vertex, color);
+                    }
+                    ++ii;
+                }
+            }
+        }
+
+        // Translate the chunk
+        for (auto &[pos, _] : geometry) { pos += chunkTranslation; }
     }
 
     auto Chunk::operator==(const gfx::Chunk &other) const -> bool { return id == other.id; }

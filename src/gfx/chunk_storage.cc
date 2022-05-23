@@ -4,11 +4,7 @@
 
 namespace vx::gfx {
     void ChunkStorage::render() {
-        // TODO (@jparr721) Make this less dumb.
-        for (const auto &[_, chunk] : chunks_) {
-            const auto moduleName = chunk.shaderModule;
-            renderers_.at(moduleName)->render(shaderPrograms_.at(moduleName));
-        }
+        for (const auto &[moduleName, renderer] : renderers_) { renderer->render(shaderPrograms_.at(moduleName)); }
     }
 
     void ChunkStorage::destroy() {
@@ -34,23 +30,7 @@ namespace vx::gfx {
 
     void ChunkStorage::deleteChunk(const uuids::uuid &chunkIdentifier) {
         const auto &chunk = chunks_.at(chunkIdentifier);
-        renderers_.at(chunk.shaderModule)->removeChunk(chunk.id);
+        renderers_.at(chunk.shaderModule)->deleteChunk(chunk.id);
         chunks_.erase(chunkIdentifier);
-    }
-
-    void ChunkStorage::setChunk(const Chunk &newChunk) {
-        // No op this until we can debug it
-        /* for (auto &chunk : chunks_) { */
-        /*     if (chunk.identifier == newChunk.identifier) { */
-        /* #ifndef NDEBUG */
-        /*         const auto chunksSize = chunks_.size(); */
-        /* #endif */
-        /*         chunk = newChunk; */
-        /* #ifndef NDEBUG */
-        /*         assert(chunksSize == chunks_.size()); */
-        /* #endif */
-        /*         break; */
-        /*     } */
-        /* } */
     }
 }// namespace vx::gfx
