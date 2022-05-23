@@ -18,6 +18,7 @@ namespace vx::level_editor {
         bool addAnotherChunk = false;
 
         int selectedShaderModuleOption = 0;
+        int selectedBlockTypeOption = 0;
 
         const std::string addNewChunkPopupIdentifier = "Add New Chunk";
         const std::string editChunkPopupIdentifier = "Edit Chunk";
@@ -30,6 +31,7 @@ namespace vx::level_editor {
     struct ChunkMenuData {
         char chunkName[512];
         std::string shaderModule = "core";
+        gfx::BlockType blockType = gfx::BlockType::kDebug;
 
         bool isFixture = true;
 
@@ -135,8 +137,14 @@ namespace vx::level_editor {
             // Load shader modules from disk in the resource path for slection
             ImGui::Text("Shader Module");
             ImGui::Combo("##shadermodule", &chunkMenuState.selectedShaderModuleOption,
-                         paths::kAvailableShaderModules.data(), 2);
+                         paths::kAvailableShaderModules.data(), paths::kAvailableShaderModules.size());
             chunkMenuData.shaderModule = paths::kAvailableShaderModules.at(chunkMenuState.selectedShaderModuleOption);
+
+            ImGui::Text("Block Type");
+            ImGui::Combo("##blocktype", &chunkMenuState.selectedBlockTypeOption, gfx::kAvailableBlockTypes.data(),
+                         gfx::kAvailableBlockTypes.size());
+            chunkMenuData.blockType =
+                    gfx::blockTypeFromString(gfx::kAvailableBlockTypes.at(chunkMenuState.selectedBlockTypeOption));
 
             const auto &[width, height] = ImGui::GetWindowSize();
             const float tripletInputWidth = width * 0.3;
@@ -179,7 +187,7 @@ namespace vx::level_editor {
                                             chunkMenuData.ztransform);
 
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
-                                       chunkMenuData.chunkName, chunkMenuData.isFixture);
+                                       chunkMenuData.chunkName, chunkMenuData.isFixture, chunkMenuData.blockType);
                 level_editor::Project::instance()->addChunk(chunk);
 
                 if (!chunkMenuState.addAnotherChunk) { ImGui::CloseCurrentPopup(); }

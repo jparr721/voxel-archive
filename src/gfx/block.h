@@ -6,6 +6,7 @@
 #include "primitive.h"
 #include <array>
 #include <random>
+#include <spdlog/spdlog.h>
 #include <vector>
 
 namespace vx::gfx {
@@ -67,6 +68,26 @@ namespace vx::gfx {
     using BlockIndexSize = u32;
 
     enum class BlockType { kDefault = 0, kGrass, kDirt, kDebug };
+    inline const std::array<char *, 4> kAvailableBlockTypes = {(char *) "default", (char *) "grass", (char *) "dirt",
+                                                               (char *) "debug"};
+    inline auto blockTypeFromString(const std::string &blockType) -> BlockType {
+        if (blockType == "default") { return BlockType::kDefault; }
+        if (blockType == "grass") { return BlockType::kGrass; }
+        if (blockType == "dirt") { return BlockType::kDirt; }
+        if (blockType == "debug") { return BlockType::kDebug; }
+        return BlockType::kDebug;
+    }
+    inline auto indexOfBlockType(const std::string &blockType) -> int {
+        int ii = 0;
+        for (const auto &bt : kAvailableBlockTypes) {
+            if (bt == blockType.c_str()) { return ii; }
+            ++ii;
+        }
+
+        spdlog::error("This chunk has an invalid block type somehow, got {}", blockType);
+        // Default return the first option.
+        return 0;
+    }
 
     inline static const std::array<BlockIndexSize, 36> kBlockIndices = {
             4, 7, 6, 4, 6, 5,// South

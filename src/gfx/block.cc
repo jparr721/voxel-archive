@@ -21,13 +21,13 @@ namespace vx::gfx {
         vec4 color;
         switch (blockType) {
             case BlockType::kDefault:
-                color = util::u32ToRgba(0xffffffff);
+                color = vec4(1, 1, 1, 1);
                 break;
             case BlockType::kDirt:
-                color = util::u32ToRgba(0xff000000);
+                color = vec4(0.71, 0.61, 0.48, 1);
                 break;
             case BlockType::kGrass:
-                color = util::u32ToRgba(0xffff0000);
+                color = vec4(0.84, 0.92, 0.79, 1);
                 break;
             case BlockType::kDebug:
                 std::random_device r;

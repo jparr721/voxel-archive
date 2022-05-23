@@ -25,6 +25,8 @@ namespace vx::level_editor {
             fs::create_directory(fixtureFolderPath());
             // Make game objects
             fs::create_directory(gameObjectFolderPath());
+            // Make the project file
+            write();
         } else {// Otherwise, load the existing project.
             load();
         }
