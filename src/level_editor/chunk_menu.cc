@@ -33,7 +33,7 @@ namespace vx::level_editor {
         std::string shaderModule = "core";
         gfx::BlockType blockType = gfx::BlockType::kDebug;
 
-        bool isFixture = true;
+        bool isStatic = true;
 
         // Size of the chunk
         int xdim = 1;
@@ -93,9 +93,9 @@ namespace vx::level_editor {
                 ImGui::SetNextItemWidth(tripletInputWidth);
                 ImGui::InputInt("##z", &chunkMenuData.zdim, 5);
 
-                ImGui::Checkbox("Fixture", &chunkMenuData.isFixture);
+                ImGui::Checkbox("Static Object", &chunkMenuData.isStatic);
 
-                if (chunkMenuData.isFixture) {
+                if (chunkMenuData.isStatic) {
                     ImGui::Text("Transform");
                     ImGui::SetNextItemWidth(tripletInputWidth);
                     ImGui::InputInt("##xtransform", &chunkMenuData.xtransform, 5);
@@ -105,6 +105,10 @@ namespace vx::level_editor {
                     ImGui::SameLine();
                     ImGui::SetNextItemWidth(tripletInputWidth);
                     ImGui::InputInt("##ztransform", &chunkMenuData.ztransform, 5);
+                } else {
+                    chunkMenuData.xtransform = 0;
+                    chunkMenuData.ytransform = 0;
+                    chunkMenuData.ztransform = 0;
                 }
 
                 if (chunkSizeInvalid) { gui::pushDisabled(); }
@@ -115,16 +119,16 @@ namespace vx::level_editor {
 
                     if (std::strcmp(chunkMenuState.editedChunk->name.c_str(), chunkMenuData.chunkName) != 0) {
                         // Rename file
-                        fs::rename(level_editor::Project::instance()->fixtureFolderPath() /
+                        fs::rename(level_editor::Project::instance()->gameObjectFolderPath() /
                                            (chunkMenuState.editedChunk->name + paths::kXmlPostfix),
-                                   level_editor::Project::instance()->fixtureFolderPath() /
+                                   level_editor::Project::instance()->gameObjectFolderPath() /
                                            (std::string(chunkMenuData.chunkName) + paths::kXmlPostfix));
 
                         // Assign name to object
                         chunkMenuState.editedChunk->name = chunkMenuData.chunkName;
                     }
                     chunkMenuState.editedChunk->shaderModule = chunkMenuData.shaderModule;
-                    chunkMenuState.editedChunk->isFixture = chunkMenuData.isFixture;
+                    chunkMenuState.editedChunk->isStatic = chunkMenuData.isStatic;
                     chunkMenuState.editedChunk->setGeometry(chunkDimensions, chunkTranslation, chunkMenuData.blockType);
 
                     // Tell the render step to reload the objects in memory
@@ -179,9 +183,9 @@ namespace vx::level_editor {
             ImGui::SetNextItemWidth(tripletInputWidth);
             ImGui::InputInt("##z", &chunkMenuData.zdim, 5);
 
-            ImGui::Checkbox("Fixture", &chunkMenuData.isFixture);
+            ImGui::Checkbox("Fixture", &chunkMenuData.isStatic);
 
-            if (chunkMenuData.isFixture) {
+            if (chunkMenuData.isStatic) {
                 ImGui::Text("Offset");
                 ImGui::SetNextItemWidth(tripletInputWidth);
                 ImGui::InputInt("##xoffset", &chunkMenuData.xtransform, 5);
@@ -202,7 +206,7 @@ namespace vx::level_editor {
                                             chunkMenuData.ztransform);
 
                 const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
-                                       chunkMenuData.chunkName, chunkMenuData.isFixture, chunkMenuData.blockType);
+                                       chunkMenuData.chunkName, chunkMenuData.isStatic, chunkMenuData.blockType);
                 level_editor::Project::instance()->addChunk(chunk);
 
                 if (!chunkMenuState.addAnotherChunk) { ImGui::CloseCurrentPopup(); }

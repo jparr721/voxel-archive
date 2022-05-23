@@ -10,8 +10,8 @@
 
 namespace vx::gfx {
     Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _name,
-                 bool _isFixture, const BlockType &_blockType)
-        : shaderModule(std::move(moduleName)), name(std::move(_name)), isFixture(_isFixture) {
+                 bool _isStatic, const BlockType &_blockType)
+        : shaderModule(std::move(moduleName)), name(std::move(_name)), isStatic(_isStatic) {
 
         // Generates a random uuid
         std::random_device rd;
@@ -44,9 +44,9 @@ namespace vx::gfx {
         shaderModuleComponent.append_attribute("name") = "shaderModule";
         shaderModuleComponent.append_attribute("value") = shaderModule.c_str();
 
-        pugi::xml_node isFixtureComponent = projectNode.append_child("component");
-        isFixtureComponent.append_attribute("name") = "isFixture";
-        isFixtureComponent.append_attribute("value") = isFixture;
+        pugi::xml_node isStaticComponent = projectNode.append_child("component");
+        isStaticComponent.append_attribute("name") = "isStatic";
+        isStaticComponent.append_attribute("value") = isStatic;
 
         pugi::xml_node dimensionsComponent = projectNode.append_child("component");
         dimensionsComponent.append_attribute("name") = "dimensions";
@@ -127,9 +127,7 @@ namespace vx::gfx {
 
         // Save the file to our pre-determined path
         const auto filepath =
-                isFixture ? level_editor::Project::instance()->fixtureFolderPath() / fs::path(name + paths::kXmlPostfix)
-                          : level_editor::Project::instance()->gameObjectFolderPath() /
-                                    fs::path(name + paths::kXmlPostfix);
+                level_editor::Project::instance()->gameObjectFolderPath() / fs::path(name + paths::kXmlPostfix);
         chunkDocument.save_file(filepath.string().c_str());
     }
 
@@ -212,12 +210,12 @@ namespace vx::gfx {
         const std::string shaderModule = shaderModuleComponent.attribute("value").value();
 
         spdlog::debug("Loading Fixture Component");
-        const pugi::xml_node isFixtureComponent = shaderModuleComponent.next_sibling();
-        const bool isFixture = std::strcmp(isFixtureComponent.attribute("value").value(), "true") == 0;
+        const pugi::xml_node isStaticComponent = shaderModuleComponent.next_sibling();
+        const bool isStatic = std::strcmp(isStaticComponent.attribute("value").value(), "true") == 0;
 
         spdlog::debug("Loading Dimensions");
         ivec3 dimensions;
-        const pugi::xml_node dimensionsComponent = isFixtureComponent.next_sibling();
+        const pugi::xml_node dimensionsComponent = isStaticComponent.next_sibling();
         {
             const pugi::xml_node mapNode = dimensionsComponent.child("map");
             // Unroll the dimensions
@@ -307,7 +305,7 @@ namespace vx::gfx {
 #endif
         }
 
-        return Chunk(isFixture, blockType, name, shaderModule, identifier, dimensions.x, dimensions.y, dimensions.z,
+        return Chunk(isStatic, blockType, name, shaderModule, identifier, dimensions.x, dimensions.y, dimensions.z,
                      transform.x, transform.y, transform.z, indices, vertices);
     }
 

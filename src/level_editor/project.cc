@@ -21,8 +21,6 @@ namespace vx::level_editor {
         if (!fs::exists(projectFolderPath())) {
             // Make projects folder
             fs::create_directory(projectFolderPath());
-            // Make fixtures
-            fs::create_directory(fixtureFolderPath());
             // Make game objects
             fs::create_directory(gameObjectFolderPath());
             // Make the project file
@@ -44,11 +42,7 @@ namespace vx::level_editor {
         const auto &chunk = getChunkByIdentifier(chunkIdentifier);
         const fs::path filename = chunk.name + paths::kXmlPostfix;
 
-        if (chunk.isFixture) {
-            fs::remove(fixtureFolderPath() / filename);
-        } else {
-            fs::remove(gameObjectFolderPath() / filename);
-        }
+        fs::remove(gameObjectFolderPath() / filename);
 
         // Delete memory
         chunkStorage_->deleteChunk(chunkIdentifier);
@@ -83,7 +77,6 @@ namespace vx::level_editor {
     //
     auto Project::projectFilePath() -> fs::path { return projectFolderPath() / "project.xml"; }
     auto Project::projectFolderPath() -> fs::path { return paths::kProjectsPath / name; }
-    auto Project::fixtureFolderPath() -> fs::path { return projectFolderPath() / "fixtures"; }
     auto Project::gameObjectFolderPath() -> fs::path { return projectFolderPath() / "game_objects"; }
 
     void Project::write() {
@@ -94,45 +87,19 @@ namespace vx::level_editor {
         pugi::xml_node fixturesComponent = projectNode.append_child("component");
         fixturesComponent.append_attribute("name") = "fixtures";
 
-        int nFixtures = 0;
-        int nGameObjects = 0;
-        for (const auto &[_id, chunk] : chunkStorage_->chunks()) {
-            if (chunk.isFixture) {
-                ++nFixtures;
-            } else {
-                ++nGameObjects;
-            }
-        }
-
-        pugi::xml_node fixturesComponentNNodesProperty = fixturesComponent.append_child("property");
-        fixturesComponentNNodesProperty.append_attribute("name") = "nNodes";
-        fixturesComponentNNodesProperty.append_attribute("value") = nFixtures;
-
-        pugi::xml_node fixturesList = fixturesComponent.append_child("fixtures-list");
-        for (const auto &[_id, fixtureChunk] : chunkStorage_->chunks()) {
-            if (fixtureChunk.isFixture) {
-                pugi::xml_node fixtureNode = fixturesList.append_child("item");
-                fixtureNode.append_attribute("name") = fixtureChunk.name.c_str();
-                fixtureNode.append_attribute("path") = std::string(fixtureChunk.name + paths::kXmlPostfix).c_str();
-            }
-        }
-
         // Paths for the game objects
         pugi::xml_node gameObjectsComponent = projectNode.append_child("component");
         gameObjectsComponent.append_attribute("name") = "gameObjects";
 
         pugi::xml_node gameObjectsComponentNNodesProperty = gameObjectsComponent.append_child("property");
         gameObjectsComponentNNodesProperty.append_attribute("name") = "nNodes";
-        gameObjectsComponentNNodesProperty.append_attribute("value") = nGameObjects;
+        gameObjectsComponentNNodesProperty.append_attribute("value") = chunkStorage_->chunks().size();
 
         pugi::xml_node gameObjectsList = gameObjectsComponent.append_child("game-objects-list");
         for (const auto &[_id, gameObjectChunk] : chunkStorage_->chunks()) {
-            if (!gameObjectChunk.isFixture) {
-                pugi::xml_node gameObjectNode = gameObjectsList.append_child("item");
-                gameObjectNode.append_attribute("name") = gameObjectChunk.name.c_str();
-                gameObjectNode.append_attribute("path") =
-                        std::string(gameObjectChunk.name + paths::kXmlPostfix).c_str();
-            }
+            pugi::xml_node gameObjectNode = gameObjectsList.append_child("item");
+            gameObjectNode.append_attribute("name") = gameObjectChunk.name.c_str();
+            gameObjectNode.append_attribute("path") = std::string(gameObjectChunk.name + paths::kXmlPostfix).c_str();
         }
 
 #ifndef NDEBUG
@@ -172,23 +139,7 @@ namespace vx::level_editor {
         name = projectNode.attribute("name").value();
 
         // Now, load the fixtures
-        const pugi::xml_node fixturesComponent = projectNode.child("component");
-        const pugi::xml_node fixturesPropertyNode = fixturesComponent.child("property");
-        const pugi::xml_node fixturesList = fixturesPropertyNode.next_sibling();
-
-        // doNotWrite tells the runtime to not write these chunks since they already exist.
-        constexpr bool kDoNotWrite = false;
-        for (const auto &child : fixturesList.children()) {
-            const auto chunk = gfx::Chunk::load(fixtureFolderPath() / child.attribute("path").value());
-            if (!chunk.has_value()) {
-                spdlog::error("Chunk {} failed to load", child.attribute("name").value());
-            } else {
-                chunkStorage_->addChunk(chunk.value(), kDoNotWrite);
-            }
-        }
-
-        // Now, load the fixtures
-        const pugi::xml_node gameObjectsComponent = fixturesComponent.next_sibling();
+        const pugi::xml_node gameObjectsComponent = projectNode.child("component");
         const pugi::xml_node gameObjectsPropertyNode = gameObjectsComponent.child("property");
         const pugi::xml_node gameObjectsList = gameObjectsPropertyNode.next_sibling();
 
@@ -197,7 +148,7 @@ namespace vx::level_editor {
             if (!chunk.has_value()) {
                 spdlog::error("Chunk {} failed to load", child.attribute("name").value());
             } else {
-                chunkStorage_->addChunk(chunk.value(), kDoNotWrite);
+                chunkStorage_->addChunk(chunk.value(), false /* do not save */);
             }
         }
     }

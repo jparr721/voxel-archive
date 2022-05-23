@@ -40,7 +40,6 @@ namespace vx::level_editor {
         // Project path management
         auto projectFilePath() -> fs::path;
         auto projectFolderPath() -> fs::path;
-        auto fixtureFolderPath() -> fs::path;
         auto gameObjectFolderPath() -> fs::path;
 
     private:

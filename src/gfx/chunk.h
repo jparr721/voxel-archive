@@ -13,7 +13,7 @@
 
 namespace vx::gfx {
     struct Chunk {
-        bool isFixture = false;
+        bool isStatic = false;
         bool needsUpdate = true;
 
         BlockType blockType = BlockType::kDebug;
@@ -35,12 +35,12 @@ namespace vx::gfx {
         std::vector<VertexColor> geometry;
 
         explicit Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation = vec3(0, 0, 0),
-                       std::string moduleName = "core", std::string _name = "Chunk", bool _isFixture = false,
+                       std::string moduleName = "core", std::string _name = "Chunk", bool _isStatic = false,
                        const BlockType &_blockType = BlockType::kDebug);
-        Chunk(bool _isFixture, BlockType _blockType, std::string _name, std::string _shaderModule, uuids::uuid _id,
+        Chunk(bool _isStatic, BlockType _blockType, std::string _name, std::string _shaderModule, uuids::uuid _id,
               int _xdim, int _ydim, int _zdim, int _xtransform, int _ytransform, int _ztransform,
               std::vector<BlockIndexSize> _indices, std::vector<VertexColor> _geometry)
-            : isFixture(_isFixture), blockType(_blockType), name(std::move(_name)),
+            : isStatic(_isStatic), blockType(_blockType), name(std::move(_name)),
               shaderModule(std::move(_shaderModule)), id(_id), xdim(_xdim), ydim(_ydim), zdim(_zdim),
               xtransform(_xtransform), ytransform(_ytransform), ztransform(_ztransform), indices(std::move(_indices)),
               geometry(std::move(_geometry)) {}
