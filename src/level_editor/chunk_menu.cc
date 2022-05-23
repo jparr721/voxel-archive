@@ -70,6 +70,12 @@ namespace vx::level_editor {
                 chunkMenuData.shaderModule =
                         paths::kAvailableShaderModules.at(chunkMenuState.selectedShaderModuleOption);
 
+                ImGui::Text("Block Type");
+                ImGui::Combo("##blocktype", &chunkMenuState.selectedBlockTypeOption, gfx::kAvailableBlockTypes.data(),
+                             gfx::kAvailableBlockTypes.size());
+                chunkMenuData.blockType =
+                        gfx::blockTypeFromString(gfx::kAvailableBlockTypes.at(chunkMenuState.selectedBlockTypeOption));
+
                 const auto &[width, height] = ImGui::GetWindowSize();
                 const float tripletInputWidth = width * 0.3;
 
@@ -110,7 +116,7 @@ namespace vx::level_editor {
                     chunkMenuState.editedChunk->name = chunkMenuData.chunkName;
                     chunkMenuState.editedChunk->shaderModule = chunkMenuData.shaderModule;
                     chunkMenuState.editedChunk->isFixture = chunkMenuData.isFixture;
-                    chunkMenuState.editedChunk->setGeometry(chunkDimensions, chunkTranslation, gfx::BlockType::kDebug);
+                    chunkMenuState.editedChunk->setGeometry(chunkDimensions, chunkTranslation, chunkMenuData.blockType);
 
                     // Tell the render step to reload the objects in memory
                     chunkMenuState.editedChunk->needsUpdate = true;
@@ -233,6 +239,10 @@ namespace vx::level_editor {
                         // Map the selected shader option for the module combo box
                         chunkMenuState.selectedShaderModuleOption =
                                 paths::indexOfShaderModule(chunkMenuState.editedChunk->shaderModule);
+
+                        // Map the selected block type option for the block type combo box
+                        chunkMenuState.selectedBlockTypeOption = chunkMenuState.editedChunk->blockType;
+                        spdlog::debug("Selected {}", chunkMenuState.selectedBlockTypeOption);
 
                         // Set menu dims for overridding later
                         chunkMenuData.xdim = chunkMenuState.editedChunk->xdim;

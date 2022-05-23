@@ -11,7 +11,7 @@
 namespace vx::gfx {
     Chunk::Chunk(const ivec3 &chunkSize, const vec3 &chunkTranslation, std::string moduleName, std::string _name,
                  bool _isFixture, const BlockType &_blockType)
-        : shaderModule(std::move(moduleName)), name(std::move(_name)), isFixture(_isFixture), blockType(_blockType) {
+        : shaderModule(std::move(moduleName)), name(std::move(_name)), isFixture(_isFixture) {
 
         // Generates a random uuid
         std::random_device rd;
@@ -133,10 +133,13 @@ namespace vx::gfx {
         chunkDocument.save_file(filepath.string().c_str());
     }
 
-    void Chunk::setGeometry(const ivec3 &chunkSize, const vec3 &chunkTranslation, const BlockType &blockType) {
+    void Chunk::setGeometry(const ivec3 &chunkSize, const vec3 &chunkTranslation, const BlockType &_blockType) {
         // Clear any existing memory.
         geometry.clear();
         indices.clear();
+
+        // Set block type
+        blockType = _blockType;
 
         xdim = chunkSize.x;
         ydim = chunkSize.y;
@@ -169,8 +172,11 @@ namespace vx::gfx {
             }
         }
 
-        // Translate the chunk
+        // Translate the chunk.
         for (auto &[pos, _] : geometry) { pos += chunkTranslation; }
+
+        // Write the new data.
+        write();
     }
 
     auto Chunk::operator==(const gfx::Chunk &other) const -> bool { return id == other.id; }

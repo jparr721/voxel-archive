@@ -33,7 +33,7 @@ namespace vx::paths {
     inline auto indexOfShaderModule(const std::string &shaderModule) -> int {
         int ii = 0;
         for (const auto &mod : kAvailableShaderModules) {
-            if (mod == shaderModule.c_str()) { return ii; }
+            if (std::strcmp(mod, shaderModule.c_str()) == 0) { return ii; }
             ++ii;
         }
 

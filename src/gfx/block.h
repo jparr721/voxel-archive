@@ -67,7 +67,7 @@ namespace vx::gfx {
 
     using BlockIndexSize = u32;
 
-    enum class BlockType { kDefault = 0, kGrass, kDirt, kDebug };
+    enum BlockType { kDefault = 0, kGrass, kDirt, kDebug };
     inline const std::array<char *, 4> kAvailableBlockTypes = {(char *) "default", (char *) "grass", (char *) "dirt",
                                                                (char *) "debug"};
     inline auto blockTypeFromString(const std::string &blockType) -> BlockType {
