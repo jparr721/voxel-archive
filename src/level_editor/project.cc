@@ -42,7 +42,21 @@ namespace vx::level_editor {
         write();
     }
 
-    void Project::deleteChunk(const gfx::Chunk &chunk) {}
+    void Project::deleteChunk(const uuids::uuid &chunkIdentifier) {
+        // Delete file
+        const auto &chunk = getChunkByIdentifier(chunkIdentifier);
+        const fs::path filename = chunk.name + paths::kXmlPostfix;
+
+        if (chunk.isFixture) {
+            fs::remove(fixtureFolderPath() / filename);
+        } else {
+            fs::remove(gameObjectFolderPath() / filename);
+        }
+
+        // Delete memory
+        chunkStorage_->deleteChunk(chunkIdentifier);
+        write();
+    }
 
     auto Project::getChunks() -> std::unordered_map<uuids::uuid, gfx::Chunk> & { return chunkStorage_->chunks(); }
     auto Project::getChunkByIdentifier(const uuids::uuid &chunkIdentifier) -> gfx::Chunk & {

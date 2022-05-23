@@ -33,10 +33,9 @@ namespace vx::gfx {
     }
 
     void ChunkStorage::deleteChunk(const uuids::uuid &chunkIdentifier) {
-        chunks_.erase(chunkIdentifier);
-
         const auto &chunk = chunks_.at(chunkIdentifier);
         renderers_.at(chunk.shaderModule)->removeChunk(chunk.id);
+        chunks_.erase(chunkIdentifier);
     }
 
     void ChunkStorage::setChunk(const Chunk &newChunk) {

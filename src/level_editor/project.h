@@ -27,7 +27,7 @@ namespace vx::level_editor {
         void destroy();
         void addChunk(const gfx::Chunk &chunk);
         void setChunk(const gfx::Chunk &chunk);
-        void deleteChunk(const gfx::Chunk &chunk);
+        void deleteChunk(const uuids::uuid &chunkIdentifier);
 
         // ====== Getters
         //

@@ -22,6 +22,7 @@ namespace vx::level_editor {
         int selectedShaderModuleOption = 0;
 
         const std::string addNewChunkPopupIdentifier = "Add New Chunk";
+        std::vector<uuids::uuid> deletedChunks;
     };
 
     struct ChunkMenuData {
@@ -183,10 +184,13 @@ namespace vx::level_editor {
                         chunkMenuState.editingExistingChunk = true;
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Delete")) { level_editor::Project::instance()->deleteChunk(chunk); }
+                    if (ImGui::Button("Delete")) { chunkMenuState.deletedChunks.push_back(chunk.id); }
                     ImGui::TreePop();
                 }
             }
+
+            // Delete chunks
+            for (const auto &id : chunkMenuState.deletedChunks) { level_editor::Project::instance()->deleteChunk(id); }
         }
         ImGui::PopItemFlag();
         ImGui::End();
