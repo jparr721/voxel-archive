@@ -113,7 +113,16 @@ namespace vx::level_editor {
                     const vec3 chunkTranslation(chunkMenuData.xtransform, chunkMenuData.ytransform,
                                                 chunkMenuData.ztransform);
 
-                    chunkMenuState.editedChunk->name = chunkMenuData.chunkName;
+                    if (std::strcmp(chunkMenuState.editedChunk->name.c_str(), chunkMenuData.chunkName) != 0) {
+                        // Rename file
+                        fs::rename(level_editor::Project::instance()->fixtureFolderPath() /
+                                           (chunkMenuState.editedChunk->name + paths::kXmlPostfix),
+                                   level_editor::Project::instance()->fixtureFolderPath() /
+                                           (std::string(chunkMenuData.chunkName) + paths::kXmlPostfix));
+
+                        // Assign name to object
+                        chunkMenuState.editedChunk->name = chunkMenuData.chunkName;
+                    }
                     chunkMenuState.editedChunk->shaderModule = chunkMenuData.shaderModule;
                     chunkMenuState.editedChunk->isFixture = chunkMenuData.isFixture;
                     chunkMenuState.editedChunk->setGeometry(chunkDimensions, chunkTranslation, chunkMenuData.blockType);
@@ -242,7 +251,6 @@ namespace vx::level_editor {
 
                         // Map the selected block type option for the block type combo box
                         chunkMenuState.selectedBlockTypeOption = chunkMenuState.editedChunk->blockType;
-                        spdlog::debug("Selected {}", chunkMenuState.selectedBlockTypeOption);
 
                         // Set menu dims for overridding later
                         chunkMenuData.xdim = chunkMenuState.editedChunk->xdim;
