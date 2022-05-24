@@ -139,14 +139,26 @@ namespace vx::level_editor {
         const pugi::xml_node gameObjectsPropertyNode = gameObjectsComponent.child("property");
         const pugi::xml_node gameObjectsList = gameObjectsPropertyNode.next_sibling();
 
+        bool needsRewrite = false;
         for (const auto &child : gameObjectsList.children()) {
             const auto chunk = gfx::Chunk::load(gameObjectFolderPath() / child.attribute("path").value());
             spdlog::info("chunk {}", chunk->name);
+            // Fail gracefully when we encounter failures.
             if (!chunk.has_value()) {
                 spdlog::error("Chunk {} failed to load", child.attribute("name").value());
+
+                // We can set this flag so that way when we exit this loop we know to reset the project file
+                // to prune the orphaned file handlers.
+                needsRewrite = true;
             } else {
                 chunkStorage_->addChunk(chunk.value(), false /* do not save */);
             }
+        }
+
+        if (needsRewrite) {
+            spdlog::warn("Detected damaged project, attempting to repair");
+            write();
+            spdlog::info("Repair completed successfully");
         }
     }
 }// namespace vx::level_editor

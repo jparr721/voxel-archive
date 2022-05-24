@@ -186,9 +186,6 @@ namespace vx::gfx {
         // If failure, spit out the error
         if (!parseResult) {
             spdlog::error("Failed to load project file with error: {}", parseResult.description());
-#ifndef NDEBUG
-            assert(parseResult && "PARSE FAILED FOR CHUNK");
-#endif
             return std::nullopt;
         }
 

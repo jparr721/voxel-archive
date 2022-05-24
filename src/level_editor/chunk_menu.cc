@@ -17,6 +17,7 @@ namespace vx::level_editor {
         bool editChunkPopupOpen = false;
         bool chunkSettingsMenuVisible = true;
         bool addAnotherChunk = false;
+        bool addMultipleChunks = false;
 
         int selectedShaderModuleOption = 0;
         int selectedBlockTypeOption = 0;
@@ -41,6 +42,13 @@ namespace vx::level_editor {
         int ydim = 1;
         int zdim = 1;
 
+        // Duplicate chunk, split factor (so they aren't all stacked)
+        int xsplitFactor = 0;
+        int ysplitFactor = 0;
+        int zsplitFactor = 0;
+
+        int nduplicateChunks = 0;
+
         // Offset of the chunk from (0, 0), if a fixture
         int xtransform = 0;
         int ytransform = 0;
@@ -49,6 +57,7 @@ namespace vx::level_editor {
 
     static ChunkMenuState chunkMenuState;
     static ChunkMenuData chunkMenuData;
+    static ImVec2 kPopupWindowSize = ImVec2(400, 800);
 
     static auto isInvalidChunkSize(int x, int y, int z) -> bool {
         const bool tooLarge =
@@ -58,7 +67,7 @@ namespace vx::level_editor {
     }
 
     static void editChunkPopup() {
-        ImGui::SetNextWindowSize(ImVec2(400, 400));
+        ImGui::SetNextWindowSize(kPopupWindowSize);
         if (chunkMenuState.editedChunk) {
             if (ImGui::BeginPopupModal(chunkMenuState.editChunkPopupIdentifier.c_str())) {
                 ImGui::Text("Name");
@@ -110,6 +119,9 @@ namespace vx::level_editor {
                     chunkMenuData.xtransform = 0;
                     chunkMenuData.ytransform = 0;
                     chunkMenuData.ztransform = 0;
+                    chunkMenuData.xsplitFactor = 0;
+                    chunkMenuData.ysplitFactor = 0;
+                    chunkMenuData.zsplitFactor = 0;
                 }
 
                 if (chunkSizeInvalid) { gui::pushDisabled(); }
@@ -149,7 +161,7 @@ namespace vx::level_editor {
     }
 
     static void chunkCreatePopup() {
-        ImGui::SetNextWindowSize(ImVec2(400, 400));
+        ImGui::SetNextWindowSize(kPopupWindowSize);
         if (ImGui::BeginPopupModal(chunkMenuState.addNewChunkPopupIdentifier.c_str())) {
             ImGui::Text("Name");
             ImGui::InputText("##name", chunkMenuData.chunkName, 512);
@@ -196,7 +208,36 @@ namespace vx::level_editor {
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(tripletInputWidth);
                 ImGui::InputInt("##zoffset", &chunkMenuData.ztransform, 5);
+
+                ImGui::Checkbox("Add Multiple Chunks", &chunkMenuState.addMultipleChunks);
+                if (chunkMenuState.addMultipleChunks) {
+                    ImGui::Text("How many?");
+                    ImGui::InputInt("##ndupes", &chunkMenuData.nduplicateChunks, 5);
+
+                    // When adding multiple chunks, we want to add a split factor.
+                    ImGui::Text("Split Factor (x, y, z)");
+                    if (ImGui::IsItemHovered()) { ImGui::Text("This determines the offset of each subsequent chunk"); }
+
+                    ImGui::SetNextItemWidth(tripletInputWidth);
+                    ImGui::InputInt("##xsplit", &chunkMenuData.xsplitFactor, 5);
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(tripletInputWidth);
+                    ImGui::InputInt("##ysplit", &chunkMenuData.ysplitFactor, 5);
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(tripletInputWidth);
+                    ImGui::InputInt("##zsplit", &chunkMenuData.zsplitFactor, 5);
+                }
+            } else {
+                chunkMenuData.xtransform = 0;
+                chunkMenuData.ytransform = 0;
+                chunkMenuData.ztransform = 0;
+
+                chunkMenuData.nduplicateChunks = 0;
+                chunkMenuData.xsplitFactor = 0;
+                chunkMenuData.ysplitFactor = 0;
+                chunkMenuData.zsplitFactor = 0;
             }
+
 
             ImGui::Checkbox("Add Another Chunk", &chunkMenuState.addAnotherChunk);
 
@@ -205,10 +246,23 @@ namespace vx::level_editor {
                 const ivec3 chunkDimensions(chunkMenuData.xdim, chunkMenuData.ydim, chunkMenuData.zdim);
                 const vec3 chunkTranslation(chunkMenuData.xtransform, chunkMenuData.ytransform,
                                             chunkMenuData.ztransform);
-
-                const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
-                                       chunkMenuData.chunkName, chunkMenuData.isStatic, chunkMenuData.blockType);
-                level_editor::Project::instance()->addChunk(chunk);
+                const vec3 splitFactorVec(chunkMenuData.xsplitFactor, chunkMenuData.ysplitFactor,
+                                          chunkMenuData.zsplitFactor);
+                if (chunkMenuData.nduplicateChunks > 0) {
+                    for (int ii = 0; ii < chunkMenuData.nduplicateChunks; ++ii) {
+                        const std::string name =
+                                ii == 0 ? chunkMenuData.chunkName
+                                        : std::string(chunkMenuData.chunkName) + "_" + std::to_string(ii);
+                        const gfx::Chunk chunk(chunkDimensions, chunkTranslation + (vec3(ii, ii, ii) * splitFactorVec),
+                                               chunkMenuData.shaderModule, name, chunkMenuData.isStatic,
+                                               chunkMenuData.blockType);
+                        level_editor::Project::instance()->addChunk(chunk);
+                    }
+                } else {
+                    const gfx::Chunk chunk(chunkDimensions, chunkTranslation, chunkMenuData.shaderModule,
+                                           chunkMenuData.chunkName, chunkMenuData.isStatic, chunkMenuData.blockType);
+                    level_editor::Project::instance()->addChunk(chunk);
+                }
 
                 if (!chunkMenuState.addAnotherChunk) { ImGui::CloseCurrentPopup(); }
             }
