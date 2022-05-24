@@ -50,11 +50,50 @@ namespace vx {
         camera->resize(width, height);
     }
 
-    static void glfwWindowPosCallback(GLFWwindow *window, int xpos, int ypos) {
-        spdlog::debug("Window pos x: {}, y: {}", xpos, ypos);
+    static void *glfwNativeWindowHandle(GLFWwindow *_window) {
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#if ENTRY_CONFIG_USE_WAYLAND
+        wl_egl_window *winImpl = (wl_egl_window *) glfwGetWindowUserPointer(_window);
+        if (!winImpl) {
+            int width, height;
+            glfwGetWindowSize(_window, &width, &height);
+            struct wl_surface *surface = (struct wl_surface *) glfwGetWaylandWindow(_window);
+            if (!surface) return nullptr;
+            winImpl = wl_egl_window_create(surface, width, height);
+            glfwSetWindowUserPointer(_window, (void *) (uintptr_t) winImpl);
+        }
+        return (void *) (uintptr_t) winImpl;
+#else
+        return (void *) (uintptr_t) glfwGetX11Window(_window);
+#endif
+#elif BX_PLATFORM_OSX
+        return glfwGetCocoaWindow(_window);
+#elif BX_PLATFORM_WINDOWS
+        return glfwGetWin32Window(_window);
+#endif// BX_PLATFORM_
     }
 
-    auto initializeWindow(const std::string &windowTitle) -> bool {
+    static void glfwSetWindow(GLFWwindow *_window) {
+        bgfx::PlatformData pd;
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#if ENTRY_CONFIG_USE_WAYLAND
+        pd.ndt = glfwGetWaylandDisplay();
+#else
+        pd.ndt = glfwGetX11Display();
+#endif
+#elif BX_PLATFORM_OSX
+        pd.ndt = nullptr;
+#elif BX_PLATFORM_WINDOWS
+        pd.ndt = nullptr;
+#endif// BX_PLATFORM_WINDOWS
+        pd.nwh = glfwNativeWindowHandle(_window);
+        pd.context = nullptr;
+        pd.backBuffer = nullptr;
+        pd.backBufferDS = nullptr;
+        bgfx::setPlatformData(pd);
+    }
+
+    static auto initializeWindow(const std::string &windowTitle) -> bool {
         spdlog::info("Loading main window");
         glfwSetErrorCallback(glfwErrorCallback);
 
@@ -62,10 +101,6 @@ namespace vx {
             spdlog::error("Error initializing glfw");
             return false;
         }
-
-        spdlog::debug("Configured resource path {}", paths::kResourcesPath.string());
-        spdlog::debug("Configured assets path {}", paths::kAssetsPath.string());
-        spdlog::debug("Configured shader path {}", paths::kShadersPath.string());
 
         // Turn off resize
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -90,7 +125,11 @@ namespace vx {
         glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
         windowDimensions = ivec2(mode->width, mode->height);
-        spdlog::debug("Dimensions: {}", glm::to_string(windowDimensions));
+        // Set no underlying glfw api
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+        // Set invisible
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowTitle.c_str(), nullptr, nullptr);
 
         if (!window) {
@@ -99,41 +138,21 @@ namespace vx {
             return false;
         }
 
-        glfwMakeContextCurrent(window);
-
         glfwSetCursorPosCallback(window, glfwCursorPosCallback);
         glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
         glfwSetScrollCallback(window, glfwScrollCallback);
         glfwSetWindowSizeCallback(window, glfwResizeCallback);
         glfwSetKeyCallback(window, glfwKeyCallback);
-        glfwSetWindowPosCallback(window, glfwWindowPosCallback);
+        glfwShowWindow(window);
 
         return true;
     }
 
-    auto initializeBgfx() -> bool {
+    static auto initializeBgfx() -> bool {
         // Tell bgfx to not create a separate render thread
         bgfx::renderFrame();
 
-        bgfx::PlatformData platformData;
-
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-#if ENTRY_CONFIG_USE_WAYLAND
-        platformData.ndt = glfwGetWaylandDisplay();
-#else
-        platformData.ndt = glfwGetX11Display();
-        platformData.nwh = (void *) glfwGetX11Window(window);
-#endif
-
-#elif BX_PLATFORM_OSX
-        platformData.ndt = nullptr;
-        platformData.nwh = glfwGetCocoaWindow(window);
-#elif BX_PLATFORM_WINDOWS
-        platformData.ndt = nullptr;
-        platformData.nwh = glfwGetWin32Window(window);
-#endif
-
-        init.platformData = platformData;
+        glfwSetWindow(window);
 
 // Use metal for macs and opengl for everything else
 #ifdef __APPLE__
@@ -151,12 +170,19 @@ namespace vx {
         bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x32323232, 1.0f, 0);
         bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
         imguiCreate();
+
 #ifdef __APPLE__
         ImGui_ImplGlfw_InitForOther(window, true);
 #else
         ImGui_ImplGlfw_InitForOpenGL(window, true);
 #endif
         return true;
+    }
+
+    auto currentWindowSize() -> ivec2 {
+        ivec2 res;
+        glfwGetWindowSize(window, &res.x, &res.y);
+        return res;
     }
 
     auto launchWindow(const std::string &windowTitle) -> int {
@@ -201,7 +227,6 @@ namespace vx {
 
             level_editor::Project::instance()->render();
 
-            glfwSwapBuffers(window);
             bgfx::frame();
         }
 

@@ -83,10 +83,6 @@ namespace vx::level_editor {
         pugi::xml_document projectDocument;
         pugi::xml_node projectNode = projectXMLHeader(projectDocument);
 
-        // Paths for the fixtures associated with this project.
-        pugi::xml_node fixturesComponent = projectNode.append_child("component");
-        fixturesComponent.append_attribute("name") = "fixtures";
-
         // Paths for the game objects
         pugi::xml_node gameObjectsComponent = projectNode.append_child("component");
         gameObjectsComponent.append_attribute("name") = "gameObjects";
@@ -145,6 +141,7 @@ namespace vx::level_editor {
 
         for (const auto &child : gameObjectsList.children()) {
             const auto chunk = gfx::Chunk::load(gameObjectFolderPath() / child.attribute("path").value());
+            spdlog::info("chunk {}", chunk->name);
             if (!chunk.has_value()) {
                 spdlog::error("Chunk {} failed to load", child.attribute("name").value());
             } else {

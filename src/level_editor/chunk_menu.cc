@@ -6,6 +6,7 @@
 #include "../paths.h"
 #include "../util/collections.h"
 #include "../util/files.h"
+#include "../window.h"
 #include <cstring>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
@@ -221,14 +222,10 @@ namespace vx::level_editor {
     }
 
     static void chunkSettingsMenu() {
-        GLFWwindow *window = glfwGetCurrentContext();
-        int windowWidth;
-        int windowHeight;
-        glfwGetWindowSize(window, &windowWidth, &windowHeight);
-
+        const ivec2 windowSize = currentWindowSize();
         const auto menuBarHeight = ImGui::GetWindowHeight();
         ImGui::SetNextWindowPos(ImVec2(0, menuBarHeight));
-        ImGui::SetNextWindowSize(ImVec2(windowWidth * 0.20, windowHeight - menuBarHeight));
+        ImGui::SetNextWindowSize(ImVec2(windowSize.x * 0.20, windowSize.y - menuBarHeight));
 
         ImGui::Begin("Chunks");
         ImGui::PushItemFlag(ImGuiTreeNodeFlags_SpanAvailWidth, true);
