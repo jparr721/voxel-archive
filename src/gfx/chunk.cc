@@ -194,8 +194,6 @@ namespace vx::gfx {
 
         spdlog::debug("Loading Identifier Component");
         const pugi::xml_node identifierComponent = projectNode.child("component");
-
-        // TODO(@jparr721) BAD CODE
         const uuids::uuid identifier = uuids::uuid::from_string(identifierComponent.attribute("value").value()).value();
 
         spdlog::debug("Loading Name Component");
