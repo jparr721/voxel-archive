@@ -276,7 +276,7 @@ namespace vx::gfx {
         const pugi::xml_node nNodesProperty = verticesComponent.child("property");
         const int nNodes = std::stoi(nNodesProperty.attribute("value").value());
         const pugi::xml_node blockTypeProperty = nNodesProperty.next_sibling();
-        const BlockType blockType = stringToBlockType(blockTypeProperty.value());
+        const BlockType blockType = stringToBlockType(blockTypeProperty.attribute("value").value());
         {
 
             // Ignore for now since we are currently only using one vertex type

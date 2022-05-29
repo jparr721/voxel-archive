@@ -57,6 +57,7 @@ add_library(${PROJECT_LIB}
         src/util/files.h
         src/util/collections.h
         src/util/uuid.h
+        src/util/timer.h
 
         src/level_editor/settings_menu.h
         src/level_editor/chunk_menu.h
@@ -72,6 +73,8 @@ add_library(${PROJECT_LIB}
         src/fizz/material.h
         src/fizz/matrix_solver.h
         src/fizz/neohookean_strain_energy_density.h
+
+        src/widgets/imgui_toast.h
 
         src/geometry.h
         src/math.h
@@ -93,6 +96,7 @@ add_library(${PROJECT_LIB}
         src/util/colors.cc
         src/util/strings.cc
         src/util/files.cc
+        src/util/timer.cc
 
         src/level_editor/settings_menu.cc
         src/level_editor/chunk_menu.cc
@@ -108,6 +112,8 @@ add_library(${PROJECT_LIB}
         src/fizz/material.cc
         src/fizz/matrix_solver.cc
         src/fizz/neohookean_strain_energy_density.cc
+
+        src/widgets/imgui_toast.cc
 
         src/geometry.cc
         src/resources.cc

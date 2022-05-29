@@ -6,6 +6,7 @@
 #include "../paths.h"
 #include "../util/collections.h"
 #include "../util/files.h"
+#include "../widgets/imgui_toast.h"
 #include "../window.h"
 #include <cstring>
 #include <imgui.h>
@@ -20,7 +21,7 @@ namespace vx::level_editor {
         bool addMultipleChunks = false;
 
         int selectedShaderModuleOption = 0;
-        int selectedBlockTypeOption = 0;
+        int selectedBlockTypeOption = 3;
 
         const std::string addNewChunkPopupIdentifier = "Add New Chunk";
         const std::string editChunkPopupIdentifier = "Edit Chunk";
@@ -265,6 +266,7 @@ namespace vx::level_editor {
                 }
 
                 if (!chunkMenuState.addAnotherChunk) { ImGui::CloseCurrentPopup(); }
+                widgets::isToastWidgetVisible() = true;
             }
             if (chunkSizeInvalid) { gui::popDisabled(); }
 
@@ -343,6 +345,7 @@ namespace vx::level_editor {
 
         chunkCreatePopup();
         editChunkPopup();
+        widgets::showToastWidget("Saved Successfully", 5, widgets::ToastStatus::kStatusSuccess);
 
         if (chunkMenuState.addNewChunkPopupOpen) {
             ImGui::OpenPopup(chunkMenuState.addNewChunkPopupIdentifier.c_str());
