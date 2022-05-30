@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<project name="Level" version="0.1.0">
-	<component name="gameObjects">
-		<property name="nNodes" value="1" />
-		<game-objects-list>
-			<item name="Chunk" path="Chunk.xml" />
-		</game-objects-list>
-	</component>
-</project>
